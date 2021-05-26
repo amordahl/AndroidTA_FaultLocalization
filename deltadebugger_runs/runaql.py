@@ -1,0 +1,1 @@
+/home/dakota/documents/AndroidTAEnvironment/resources/scripts/runaql.py

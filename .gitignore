@@ -127,3 +127,18 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+#Intellij stuff
+
+
+
+#Intellij stuff
+.idea/
+.gradle/
+*.iml
+#AQL Run stuff
+deltadebugger_runs/answers/
+deltadebugger_runs/data/
+#Delta debugger stuff
+deltadebugger_runs/debugger/tempfiles/
