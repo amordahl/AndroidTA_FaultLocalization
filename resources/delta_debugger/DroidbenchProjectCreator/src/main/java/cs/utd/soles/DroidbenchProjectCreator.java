@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 public class DroidbenchProjectCreator {
     static final String PREFIXW="D:\\Local_androidTAEnvironment\\Droidbench_projects\\";
-    static final String PREFIXL="/home/dakota/AndroidTA/AndroidTAEnvironment/resources/droidbench_android_projects/";
+    static final String PREFIXL="/home/dakota/documents/AndroidTAEnvironment/resources/droidbench_android_projects/";
     static final String PREFIXFOSS="/home/dakota/documents/fossdroid_android_projects/";
 
     static final String[] POTENTIALPREFIX = {PREFIXL,PREFIXFOSS};
