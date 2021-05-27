@@ -178,7 +178,7 @@ public class Runner {
         apkName="/"+thisViolation.getApk();
         config1="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig1()+".xml";
         config2="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig2()+".xml";
-        targetType=thisViolation.isType();
+        targetType=thisViolation.getType().equalsIgnoreCase("soundness");
 
 
         testerForThis = new TesterUtil(thisViolation.getFlowList(), SchemaGenerator.SCHEMA_PATH,targetType);

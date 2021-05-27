@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Violation {
     private String config1="";
     private String config2="";
-    private boolean type;
+    private String type;
 
     public String getApk() {
         return apk;
@@ -24,7 +24,7 @@ public class Violation {
     public Violation(String config1, String config2, String type){
         this.config1=config1;
         this.config2=config2;
-        this.type= type.equalsIgnoreCase("soundness");
+        this.type= type;
         flowList = new ArrayList<>();
     }
 
@@ -44,11 +44,11 @@ public class Violation {
         this.config2 = config2;
     }
 
-    public boolean isType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(boolean type) {
+    public void setType(String type) {
         this.type = type;
     }
 

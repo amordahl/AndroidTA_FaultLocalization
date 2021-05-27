@@ -226,7 +226,7 @@ public class AQLFlowFileReader extends XMLFlowFileReader {
                 case "violation":
                     thisViolation.setConfig1(attributes.getValue("config1"));
                     thisViolation.setConfig2(attributes.getValue("config2"));
-                    thisViolation.setType(Boolean.parseBoolean(attributes.getValue("type")));
+                    thisViolation.setType(attributes.getValue("type"));
                     break;
             }
         }

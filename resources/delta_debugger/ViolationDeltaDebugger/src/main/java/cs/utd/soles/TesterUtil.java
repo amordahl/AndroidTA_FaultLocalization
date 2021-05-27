@@ -185,9 +185,11 @@ public class TesterUtil {
 
     private boolean handleAQL(File o1, File o2){
 
-        System.out.println("Aborted cause one of files was null");
-        if(o1==null||o2==null)
+
+        if(o1==null||o2==null) {
+            System.out.println("Aborted cause one of files was null");
             return false;
+        }
         ArrayList<Flow> flowList = new ArrayList<>();
 
 
