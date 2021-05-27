@@ -216,6 +216,20 @@ public class TesterUtil {
         //check and see if we maintain all the flows we want to
         ArrayList<Flow> checkList = new ArrayList<>(targetFlows);
         checkList.removeAll(flowList);
+
+        System.out.println("Flows not found");
+        for(Flow x: checkList){
+            System.out.println(x.getSink().getStatementFull() + " " + x.getSink().getMethod());
+            System.out.println(x.getSource().getStatementFull() + " " + x.getSource().getMethod());
+            
+        }
+        System.out.println("Flows checked for");
+        for(Flow x: flowList){
+            System.out.println(x.getSink().getStatementFull() + " " + x.getSink().getMethod());
+            System.out.println(x.getSource().getStatementFull() + " " + x.getSource().getMethod());
+
+        }
+
         if(checkList.size()==0){
             returnVal=true;
         }
