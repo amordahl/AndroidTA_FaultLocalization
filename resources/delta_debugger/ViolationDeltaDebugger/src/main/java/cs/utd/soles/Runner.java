@@ -45,24 +45,16 @@ public class Runner {
         }
 
         //handle the arguments
-       // handleArgs(args);
+        handleArgs(args);
         
         //test new aql file flow reader
-        AQLFlowFileReader bob = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
+        /*AQLFlowFileReader bob = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
         Violation b = bob.getThisViolation(Paths.get(args[0]).toFile());
         System.out.println(b.getConfig1() + " " + b.getConfig2() + " " + b.getApk());
         for(Flow x: b.getFlowList()){
             System.out.println(x);
-        }
+        }*/
 
-        AQLFlowFileReader bs = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
-
-        Iterator<Flow> flowIt = bs.getFlows(Paths.get("/home/dakota/documents/AndroidTA_FaultLocalization/deltadebugger_runs/debugger/tempfiles/aqlfiles/Button2config_FlowDroid_analyzeframeworksconfig_FlowDroid_aplength5179af4fa3d4out2.xml").toFile());
-        while(flowIt.hasNext()){
-            Flow x= flowIt.next();
-            System.out.println(x.getSink().getStatementFull() + " " + x.getSink().getMethod());
-            System.out.println(x.getSource().getStatementFull() + " " + x.getSource().getMethod());
-        }
 
         //after we handl the args we gotta do a couple of things
         /*
@@ -74,7 +66,7 @@ public class Runner {
         * */
 
         //build the project file
-        /*
+
         createTargetProject();
 
        // testerForThis = new TesterUtil(targetFile, SchemaGenerator.SCHEMA_PATH, targetType);
@@ -162,7 +154,7 @@ public class Runner {
         }catch(IOException e){
             e.printStackTrace();
         }
-        */
+
     }
 
 

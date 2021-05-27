@@ -44,6 +44,7 @@ public class TesterUtil {
         this.targetFlows=list;
         this.xmlSchemaFile=xmlSchemaFile;
         this.soundness=violationType;
+        System.out.println("THIS VIOLATION IS TYPE: " + this.soundness);
     }
 
 
@@ -184,6 +185,7 @@ public class TesterUtil {
 
     private boolean handleAQL(File o1, File o2){
 
+        System.out.println("Aborted cause one of files was null");
         if(o1==null||o2==null)
             return false;
         ArrayList<Flow> flowList = new ArrayList<>();
@@ -191,6 +193,7 @@ public class TesterUtil {
 
         //depending on if it is a precision or soundness error
         if(soundness){
+
             flowList.addAll(getFlowStrings(o2));
             flowList.removeAll(getFlowStrings(o1));
         }else{
@@ -240,14 +243,17 @@ public class TesterUtil {
     }
 
     public ArrayList<Flow> getFlowStrings(File xmlFile){
-        AQLFlowFileReader aff = new AQLFlowFileReader(xmlSchemaFile);
+        AQLFlowFileReader aff = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
         Iterator<Flow> flowIt = aff.getFlows(xmlFile);
         ArrayList<Flow> out = new ArrayList<Flow>();
 
         //maybe deduplicate here to keep consistent with Austin
+        System.out.println("FLOWS FOR THIS XML FILE: " + xmlFile.getName());
         while(flowIt.hasNext()){
-            out.add(flowIt.next());
-
+            Flow x = flowIt.next();
+            out.add(x);
+            System.out.println(x.getSink().getStatementFull() + " " + x.getSink().getMethod());
+            System.out.println(x.getSource().getStatementFull() + " " + x.getSource().getMethod());
         }
         return out;
     }
