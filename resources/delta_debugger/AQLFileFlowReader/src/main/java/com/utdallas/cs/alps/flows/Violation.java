@@ -24,7 +24,7 @@ public class Violation {
     public Violation(String config1, String config2, String type){
         this.config1=config1;
         this.config2=config2;
-        this.type=Boolean.parseBoolean(type);
+        this.type= type.equalsIgnoreCase("soundness");
         flowList = new ArrayList<>();
     }
 
