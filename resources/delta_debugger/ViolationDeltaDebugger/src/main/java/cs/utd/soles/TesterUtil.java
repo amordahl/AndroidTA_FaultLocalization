@@ -12,7 +12,7 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
-
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -127,7 +127,7 @@ public class TesterUtil {
         String command2 = "python3 runaql.py "+generatingConfig2+" "+apk+" -f";
         Process command1Run = Runtime.getRuntime().exec(command1);
         try {
-            command1Run.waitFor();
+            command1Run.waitFor(2, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -136,7 +136,7 @@ public class TesterUtil {
         Process command2Run = Runtime.getRuntime().exec(command2);
 
         try {
-            command2Run.waitFor();
+            command1Run.waitFor(2, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -194,14 +194,11 @@ public class TesterUtil {
 
 
         //depending on if it is a precision or soundness error
-        if(soundness){
 
-            flowList.addAll(getFlowStrings(o2));
-            flowList.removeAll(getFlowStrings(o1));
-        }else{
-            flowList.addAll(getFlowStrings(o1));
-            flowList.removeAll(getFlowStrings(o2));
-        }
+        //for this new format. The first config is always the one that is more precise/sound. So, to check a violation
+        //we get the results for the second aql, and subtract it from the results of the first.
+        flowList.addAll(getFlowStrings(o2));
+        flowList.removeAll(getFlowStrings(o1));
         boolean returnVal=false;
         /*for(Flow x: flowList){
 
@@ -275,6 +272,9 @@ public class TesterUtil {
         while((s=error.readLine())!=null){
 
             output+=s+"\n";
+        }
+        if(p.exitValue()==0&&Runner.LOG_MESSAGES){
+            System.out.println("AQL TERMINATED NORMALLY");
         }
         //System.out.println("Output of AQL: "+output);
         return output;
