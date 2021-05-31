@@ -123,23 +123,11 @@ public class TesterUtil {
     public boolean runAQL(String apk, String generatingConfig1, String generatingConfig2, String programConfigString) throws IOException {
         PerfTimer.startOneAQLRun();
         //this bit runs and captures the output of the aql script
-        String command1 = "python3 runaql.py "+generatingConfig1+" "+apk+" -f";
-        String command2 = "python3 runaql.py "+generatingConfig2+" "+apk+" -f";
+        String command1 = "python runaql.py "+generatingConfig1+" "+apk+" -f";
+        String command2 = "python runaql.py "+generatingConfig2+" "+apk+" -f";
         Process command1Run = Runtime.getRuntime().exec(command1);
         try {
             command1Run.waitFor(2, TimeUnit.MINUTES);
-
-
-            //in an attempt to solve hanging aql runs
-            if(command1Run.isAlive()){
-                command1Run.destroy();
-                command1Run.waitFor(10, TimeUnit.SECONDS);
-                command1Run.destroyForcibly();
-                command1Run.waitFor();
-            }
-            if(command1Run.exitValue()==0&&Runner.LOG_MESSAGES){
-                System.out.println("AQL 1 TERMINATED NORMALLY");
-            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -149,18 +137,6 @@ public class TesterUtil {
 
         try {
             command2Run.waitFor(2, TimeUnit.MINUTES);
-
-            //in an attempt to solve hanging aql runs
-            if(command2Run.isAlive()){
-                command2Run.destroy();
-                command2Run.waitFor(10, TimeUnit.SECONDS);
-                command2Run.destroyForcibly();
-                command2Run.waitFor();
-            }
-
-            if(command2Run.exitValue()==0&&Runner.LOG_MESSAGES){
-                System.out.println("AQL 2 TERMINATED NORMALLY");
-            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -297,7 +273,9 @@ public class TesterUtil {
 
             output+=s+"\n";
         }
-
+        input.close();
+        error.close();
+        p.destroy();
         //System.out.println("Output of AQL: "+output);
         return output;
     }
