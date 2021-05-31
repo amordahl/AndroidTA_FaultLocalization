@@ -148,9 +148,9 @@ public class Runner {
             fw.close();
 
 
-            //revert program to it's original form
+            //let the final version of the project_file be the minimized version so we dont have to replace java file manually
             //we dont need to do this anymore
-            //testerForThis.saveCompilationUnits(originalCUnits,unchangedJavaFiles, originalCUnits.size()+1,null);
+            testerForThis.saveCompilationUnits(bestCUList,unchangedJavaFiles, originalCUnits.size()+1,null);
         }catch(IOException e){
             e.printStackTrace();
         }

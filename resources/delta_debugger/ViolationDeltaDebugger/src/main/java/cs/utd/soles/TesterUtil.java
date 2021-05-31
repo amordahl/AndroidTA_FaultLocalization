@@ -128,6 +128,15 @@ public class TesterUtil {
         Process command1Run = Runtime.getRuntime().exec(command1);
         try {
             command1Run.waitFor(2, TimeUnit.MINUTES);
+
+
+            //in an attempt to solve hanging aql runs
+            if(command1Run.isAlive()){
+                command1Run.destroy();
+                command1Run.waitFor(10, TimeUnit.SECONDS);
+                command1Run.destroyForcibly();
+                command1Run.waitFor();
+            }
             if(command1Run.exitValue()==0&&Runner.LOG_MESSAGES){
                 System.out.println("AQL 1 TERMINATED NORMALLY");
             }
@@ -140,8 +149,17 @@ public class TesterUtil {
 
         try {
             command2Run.waitFor(2, TimeUnit.MINUTES);
+
+            //in an attempt to solve hanging aql runs
+            if(command2Run.isAlive()){
+                command2Run.destroy();
+                command2Run.waitFor(10, TimeUnit.SECONDS);
+                command2Run.destroyForcibly();
+                command2Run.waitFor();
+            }
+
             if(command2Run.exitValue()==0&&Runner.LOG_MESSAGES){
-                System.out.println("AQL 1 TERMINATED NORMALLY");
+                System.out.println("AQL 2 TERMINATED NORMALLY");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
