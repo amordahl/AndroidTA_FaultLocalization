@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'edu.utdallas.alps'
+group 'edu.utdallas.alps.amordahl'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -16,6 +16,7 @@ dependencies {
     compile group: 'org.ow2.asm', name: 'asm-analysis', version: '7.1'
     compile group: 'edu.utdallas', name: 'objsim', version: '1.0-SNAPSHOT'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
 }
 
 jar {

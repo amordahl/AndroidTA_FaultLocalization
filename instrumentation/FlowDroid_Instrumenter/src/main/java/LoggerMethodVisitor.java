@@ -1,7 +1,7 @@
-import org.hamcrest.StringDescription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
-import static edu.utdallas.objsim.commons.asm.MethodBodyUtils.pushInteger;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
@@ -11,9 +11,7 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class LoggerMethodVisitor extends MethodVisitor {
 
-    // Code copied from Ali Ghanbari's objsim on 2021-05-30.
-    // https://github.com/ali-ghanbari/objsim/blob/master/src/main/java/
-    // edu/utdallas/objsim/profiler/primary/PrimaryMethodTransformer.java line 55.
+    private static Logger logger = LoggerFactory.getLogger(LoggerMethodVisitor.class);
     private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
 
     public LoggerMethodVisitor(MethodVisitor methodVisitor) {
@@ -24,21 +22,35 @@ public class LoggerMethodVisitor extends MethodVisitor {
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
         Type[] parameters = Type.getArgumentTypes(desc);
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (Type p : parameters) {
+            sb.append(p);
+            sb.append(" ");
+        }
+        sb.append("]");
+
+        logger.info("Parameters are " + sb.toString());
         if (parameters.length > 0) {
             // Create array.
+            logger.info("Creating an array of size " + parameters.length);
             createArray(OBJECT_TYPE, parameters.length);
+            logger.info("Array created!");
             //System.out.println("Created array with size " + parameters.length);
             int arrayIndex = 0;
             int paramIndex = 0;
             // Current stack state is PARAMETERS, ARRAYREF
+            logger.debug("Made it to the first log.");
             for (int i = 0; i < parameters.length; i++) {
                 // 1. Duplicate the arrayref so it's not lost.
+                logger.debug("In iteration " + i + " of the for loop.");
                 super.visitInsn(DUP_X1);
                 // Now, the stack state is PARAMTERS, ARRAYREF, LAST_PARAM, ARRAYREF
                 super.visitInsn(SWAP);
                 // Now, the stack state is PARAMETERS, ARRAYREF, ARRAYREF, LAST_PARAM
 
                 // 2. Push the array index.
+                logger.debug("Pushing integer " + i);
                 pushInteger(i);
                 // Now, the stack state is PARAMETERS, ARRAYREF, ARRAYREF, LAST_PARAM, INDEX
                 super.visitInsn(SWAP);
@@ -51,6 +63,7 @@ public class LoggerMethodVisitor extends MethodVisitor {
                 super.visitInsn(AASTORE);
                 // Stack state is PARAMETERS, ARRAYREF
             }
+            logger.debug("Made it past the first for loop.");
             // Now, the stack has an arrayref on it and no references.
             // Next, we need to log.
             super.visitInsn(DUP);
@@ -59,11 +72,12 @@ public class LoggerMethodVisitor extends MethodVisitor {
             super.visitLdcInsn("TEST");
             super.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println",
                     "(Ljava/lang/String;)V", false); // consumes out and ARRAYREF
-//            // Stack state is ..., ARRAYREF, ARRAYREF, out
-//            super.visitInsn(SWAP);
-//            // Stack state is ..., ARRAYREF, out, ARRAYREF
+            // Stack state is ..., ARRAYREF, ARRAYREF, out
+            //super.visitInsn(SWAP);
+            // Stack state is ..., ARRAYREF, out, ARRAYREF
+
             super.visitMethodInsn(INVOKESTATIC, "edu/utdallas/amordahl/LoggerHelper", "logObjArray",
-                    "(Ljava/lang/Object[];)V", false); // consumes out and ARRAYREF
+                    "([Ljava/lang/Object;)V", false); // consumes out and ARRAYREF
             // Stack state is ..., ARRAYREF
             // Now, we need to unpack everything from the array and put it in.
             for (int i = 0; i < parameters.length; i++) {
@@ -79,9 +93,11 @@ public class LoggerMethodVisitor extends MethodVisitor {
                 super.visitInsn(SWAP);
                 // Stack: PARAMS, VALUE, ARRAYREF
             }
+            System.out.println("Made it past the last for loop.");
             super.visitInsn(POP);
             // Stack: PARAMS, VALUE
         }
+        System.out.println("Made it to end!");
         super.visitMethodInsn(opcode, owner, name, desc, itf);
     }
 

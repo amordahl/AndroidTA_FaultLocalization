@@ -18,12 +18,21 @@
  * #L%
  */
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.ProtectionDomain;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A versatile class file transformer that adds code to record system state at the exit
@@ -33,19 +42,34 @@ import java.security.ProtectionDomain;
  * @author Ali Ghanbari (ali.ghanbari@utdallas.edu)
  */
 public class PrimaryTransformer implements ClassFileTransformer {
+
     @Override
     public byte[] transform(ClassLoader loader,
                             String className,
                             Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain,
                             byte[] classfileBuffer) {
-        if (!className.contains("soot")) { /* TODO: Filter appropriately. */
-            return null; // no transformation
-        }
+//        if (!className.contains("soot")) { /* TODO: Filter appropriately. */
+//            return null; // no transformation
+//        }
+    	//System.out.println("In the transform method.");
         final ClassReader classReader = new ClassReader(classfileBuffer);
         final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         final ClassVisitor classVisitor = new LoggerClassAdapter(classWriter);
         classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
+
+        Path outputDirectory = Paths.get("/home/asm140830/Documents/git/AndroidTA_FaultLocalization/instrumentation/FlowDroid_Instrumenter/outputs");
+        //System.out.println("Output directory is " + outputDirectory.toString());
+        // Write to output so we can inspect outputs.
+
+        //System.out.println("Class being redefined is " + className.replace("/", "_"));
+        Path outputFile = outputDirectory.resolve(className.replace("/", "_") + ".class");
+        //System.out.println("Output file is" + outputFile.toString());
+        try {
+            Files.write(outputFile, classWriter.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return classWriter.toByteArray();
     }
 }
