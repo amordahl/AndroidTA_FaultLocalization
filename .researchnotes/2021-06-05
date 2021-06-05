@@ -1,0 +1,7 @@
+Starting to keep notes, so I don't forget the things I do day to day, haha.
+
+Yesterday, I figured out that we're running into an exception somewhere and the JVM is failing silently (thanks for the insight, Ali). So, I have started adding logging messages pretty much everywhere to figure out where exactly we're failing.
+
+When I changed the instrumentation to do nothing, the .class files that were generated seemed complete. Furthermore, when I modified the instrumentation to only print "TEST" beforehand, it also seemed to work just fine. However, with the instrumentation that I wrote, the class files I am getting are small and seem to only be for interface classes -- I haven't been able to find a single instance where my instrumentation works as written.
+
+Today, my plan is to continue adding logs to figure out exactly where in the process the exception is happening.
