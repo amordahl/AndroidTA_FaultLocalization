@@ -131,6 +131,7 @@ public class Runner {
             FileWriter fw = new FileWriter(file);
             long finalRunTimeVar= PerfTimer.getProgramRunTime()/1000;
             fw.write("program_runtime: "+finalRunTimeVar+"\n"+"\n");
+            fw.write("violation_type: "+targetType+"\n");
             fw.write("average_of_rotations: " + PerfTimer.getAverageOfRotations()/1000+"\n");
             fw.write("total_rotations: "+ PerfTimer.getTotalRotations()+"\n"+"\n");
             fw.write("average_runtime_aql: " + PerfTimer.getAverageOfAQLRuns()/1000+"\n");
@@ -138,10 +139,10 @@ public class Runner {
             fw.write("average_runtime_compile: " +PerfTimer.getAverageOfCompileRuns()/1000+"\n");
             fw.write("total_compile_runs: "+ PerfTimer.getTotalCompileRuns()+"\n"+"\n");
             fw.write("total_proposed_node_changes: " + PerfTimer.proposedChangesCount);
-            fw.write("total_complete_node_changes: " + PerfTimer.totalChangesCount);
-            fw.write("num_candidate_ast: " + testerForThis.candidateCountJava);
-            fw.write("Percentages:\n"+PerfTimer.getPercentages());
-            fw.write("compilation_failed: "+testerForThis.compilationFailedCount);
+            fw.write("\ntotal_complete_node_changes: " + PerfTimer.totalChangesCount);
+            fw.write("\nnum_candidate_ast: " + testerForThis.candidateCountJava);
+            fw.write("\n"+PerfTimer.getPercentages());
+            fw.write("\ncompilation_failed: "+testerForThis.compilationFailedCount);
 
 
             fw.flush();
@@ -289,9 +290,12 @@ public class Runner {
                     //the copied list worked, update regular list to reflect changes
                     childList=copiedList;
                     //we also need to remove the javafiles associated with the compilationUnits from the list of files
+
+                    //TODO:: maybe this is the null?
                     for(int h=0;h<subList.size();h++){
                         javaFiles.remove(j);
                     }
+
                     //restart the loop
                     copiedList = new ArrayList<>();
                     for(CompilationUnit x: childList){
