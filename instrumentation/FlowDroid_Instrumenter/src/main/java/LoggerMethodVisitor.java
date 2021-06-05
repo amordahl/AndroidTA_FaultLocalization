@@ -40,54 +40,59 @@ public class LoggerMethodVisitor extends MethodVisitor {
             int arrayIndex = 0;
             int paramIndex = 0;
             // Current stack state is PARAMETERS, ARRAYREF
-            logger.debug("Made it to the first log.");
-            for (int i = 0; i < parameters.length; i++) {
+            logger.info("Made it to the first log.");
+            for (int i = parameters.length - 1; i >= 0; i--) {
                 // 1. Duplicate the arrayref so it's not lost.
-                logger.debug("In iteration " + i + " of the for loop.");
+                logger.info("In iteration " + i + " of the for loop.");
                 super.visitInsn(DUP_X1);
                 // Now, the stack state is PARAMTERS, ARRAYREF, LAST_PARAM, ARRAYREF
                 super.visitInsn(SWAP);
                 // Now, the stack state is PARAMETERS, ARRAYREF, ARRAYREF, LAST_PARAM
 
                 // 2. Push the array index.
-                logger.debug("Pushing integer " + i);
+                logger.info("Pushing integer " + i);
                 pushInteger(i);
                 // Now, the stack state is PARAMETERS, ARRAYREF, ARRAYREF, LAST_PARAM, INDEX
                 super.visitInsn(SWAP);
                 // Now, the stack state is PARAMETERS, ARRAYREF, ARRAYREF, INDEX, LAST_PARAM
 
                 // If the type is primitive, this will box it into a reference type.
-                this.box(parameters[parameters.length - i]);
+                logger.info("Boxing parameter " + i + " of type " + parameters[i].toString());
+                this.box(parameters[i]);
 
                 // Store in the array.
                 super.visitInsn(AASTORE);
                 // Stack state is PARAMETERS, ARRAYREF
             }
-            logger.debug("Made it past the first for loop.");
+            logger.info("Made it past the first for loop.");
             // Now, the stack has an arrayref on it and no references.
             // Next, we need to log.
             super.visitInsn(DUP);
             // Stack state is ..., ARRAYREF, ARRAYREF
-            super.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            super.visitLdcInsn("TEST");
-            super.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println",
-                    "(Ljava/lang/String;)V", false); // consumes out and ARRAYREF
+//            super.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+//            super.visitLdcInsn("TEST");
+//            super.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println",
+//                    "(Ljava/lang/String;)V", false); // consumes out and ARRAYREF
             // Stack state is ..., ARRAYREF, ARRAYREF, out
             //super.visitInsn(SWAP);
             // Stack state is ..., ARRAYREF, out, ARRAYREF
-
             super.visitMethodInsn(INVOKESTATIC, "edu/utdallas/amordahl/LoggerHelper", "logObjArray",
                     "([Ljava/lang/Object;)V", false); // consumes out and ARRAYREF
+            logger.info("Visited instruction to log object array.");
             // Stack state is ..., ARRAYREF
             // Now, we need to unpack everything from the array and put it in.
+            logger.info("Now putting everything back.");
             for (int i = 0; i < parameters.length; i++) {
+                logger.info("In iteration " + i + " of the second for loop.");
                 // Stack: PARAMS, ARRAYREF
                 super.visitInsn(DUP);
                 // Stack: PARAMS, ARRAYREF, ARRAYREF
+                logger.info("Pushing integer " + i);
                 pushInteger(i);
                 // Stack: PARAMS, ARRAYREF, ARRAYREF, INDEX
                 super.visitInsn(AALOAD);
                 // Stack: PARAMS, ARRAYREF, VALUE
+
                 unbox(parameters[i]);
                 // Stack: PARAMS, ARRAYREF, VALUE
                 super.visitInsn(SWAP);
@@ -102,13 +107,13 @@ public class LoggerMethodVisitor extends MethodVisitor {
     }
 
     private void pushInteger(final int intValue) {
-        // Copy of Ali Ghanbari's pushInteger function.
+        // Copy of Ali Ghanbari's pushInteger function.;
         if (intValue <= 5) {
             mv.visitInsn(3 + intValue);
         } else if (intValue <= 127) {
-            mv.visitIntInsn(16, intValue);
+            mv.visitIntInsn(BIPUSH, intValue);
         } else if (intValue <= 32767) {
-            mv.visitIntInsn(17, intValue);
+            mv.visitIntInsn(SIPUSH, intValue);
         } else {
             mv.visitLdcInsn(intValue);
         }

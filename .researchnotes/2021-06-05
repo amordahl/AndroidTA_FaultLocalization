@@ -5,3 +5,11 @@ Yesterday, I figured out that we're running into an exception somewhere and the 
 When I changed the instrumentation to do nothing, the .class files that were generated seemed complete. Furthermore, when I modified the instrumentation to only print "TEST" beforehand, it also seemed to work just fine. However, with the instrumentation that I wrote, the class files I am getting are small and seem to only be for interface classes -- I haven't been able to find a single instance where my instrumentation works as written.
 
 Today, my plan is to continue adding logs to figure out exactly where in the process the exception is happening.
+
+-----
+
+I worked for about three hours on this today. The main takeaway is that it appears I'm trapping myself in an infinite loop by overriding visitMethodInsn.
+
+Right now it appears that after a certain amount of time, we core dump with exit code 127. I don't know why this exit code, and I can't find good documentation telling what this means. It also says it's failing within the code of pushInteger. As I debug, it becomes clear that it's infinitely recursing.
+
+Things to figure out: how can I make it not infinitely recurse? What calls should I be using instead?
