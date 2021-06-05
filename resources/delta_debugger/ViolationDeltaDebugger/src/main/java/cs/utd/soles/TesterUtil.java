@@ -97,15 +97,21 @@ public class TesterUtil {
         try {
             saveCompilationUnits(list,javaFiles,positionChanged, changedUnit);
             Process p = Runtime.getRuntime().exec(command);
-            p.waitFor();
-            BufferedReader stream = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-
+            p.waitFor(5, TimeUnit.MINUTES);
+            BufferedReader stream = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            BufferedReader estream = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String out="";
             String s="";
             while( (s = stream.readLine())!=null){
                 out+=s;
             }
-            if(out.contains("FAILURE: Build failed with an exception")){
+            String oute="";
+            s="";
+            while(( (s=estream.readLine())!=null)){
+                oute+=s;
+            }
+
+            if(!out.contains("BUILD SUCCESSFUL") || oute.contains("BUILD: FAILURE")){
                 //assembling project failed we don't care why
                 if(Runner.LOG_MESSAGES)
                     System.out.println(out);

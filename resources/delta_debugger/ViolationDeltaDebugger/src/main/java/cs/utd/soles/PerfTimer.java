@@ -127,10 +127,8 @@ public class PerfTimer {
         double totalRunTime = totalProgramTime;
 
         String returnString ="";
-
-        returnString+="Percent Of Program Time Taken By AST Changes: "+((totalOfASTChanges/totalRunTime)*100)+"\n";
-        returnString+="Percent Of Program Time Taken By AQL Runs: "+((totalOfAQLRuns/totalRunTime)*100)+"\n";
-        returnString+="Percent Of Program Time Taken By Compile Runs: "+((totalOfCompileRuns/totalRunTime)*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_AQL_Runs: "+((totalOfAQLRuns/totalRunTime)*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Compile_Runs: "+((totalOfCompileRuns/totalRunTime)*100)+"\n";
         return returnString;
     }
 
