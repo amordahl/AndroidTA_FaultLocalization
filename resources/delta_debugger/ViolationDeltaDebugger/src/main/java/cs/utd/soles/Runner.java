@@ -167,6 +167,7 @@ public class Runner {
     static boolean violationOrNot;
 
 
+    static final Object lockObject = new Object();
 
     //args should be one filepath that is the <violation xml file>
 
@@ -180,8 +181,7 @@ public class Runner {
         config2="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig2()+".xml";
         targetType=thisViolation.getType().equalsIgnoreCase("soundness");
 
-
-        testerForThis = new TesterUtil(thisViolation.getFlowList(), SchemaGenerator.SCHEMA_PATH,targetType);
+        testerForThis = new TesterUtil(thisViolation.getFlowList(), SchemaGenerator.SCHEMA_PATH,targetType, lockObject);
 
         for(int i=1;i<args.length;i++) {
 
@@ -400,20 +400,39 @@ public class Runner {
 
         try {
             if(!replaceCU) {
-                if (testerForThis.createApk(projectGradlewPath, projectRootPath, bestCUList, javaFiles, compPosition, copiedu)) {
+                //enter synchronized
+                synchronized(lockObject) {
+                    //create the apk
+                    //testerUtil.startApkCreation();
+                    /*if (testerForThis.createApk(projectGradlewPath, projectRootPath, bestCUList, javaFiles, compPosition, copiedu)) {
 
-                    if (testerForThis.runAQL(projectAPKPath, config1, config2, thisRunName)) {
+                        if (testerForThis.runAQL(projectAPKPath, config1, config2, thisRunName)) {
 
-                        returnVal = true;
-                        minimized = false;
-                        //this is the best apk yet, save it.
-                        saveBestAPK();
-                        System.out.println("Successful One\n\n------------------------------------\n\n\n");
-                        //for (CompilationUnit x : bestCUList) {
-                        //    System.out.println(x);
-                        //}
-                        System.out.println("CopiedUnit:" + copiedu);
-                    }
+                            returnVal = true;
+                            minimized = false;
+                            //this is the best apk yet, save it.
+                            saveBestAPK();
+                            System.out.println("Successful One\n\n------------------------------------\n\n\n");
+                            //for (CompilationUnit x : bestCUList) {
+                            //    System.out.println(x);
+                            //}
+                            System.out.println("CopiedUnit:" + copiedu);
+                        }
+                    }*/
+                    //wait for createApk to be done
+                    lockObject.wait();
+                    //get the results
+                    //handle results
+                    //clear testerutil results
+                    //start aql process
+                    //testerUtil.startAQLProcess
+                    //wait for aqlprocess to be done
+                    lockObject.wait();
+                    //get the results
+                    //handle results
+                    //clear testerutil results
+
+
                 }
             }else{
                 if (testerForThis.createApk(projectGradlewPath, projectRootPath, cuList, javaFiles, compPosition, copiedu)) {
@@ -430,7 +449,7 @@ public class Runner {
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 

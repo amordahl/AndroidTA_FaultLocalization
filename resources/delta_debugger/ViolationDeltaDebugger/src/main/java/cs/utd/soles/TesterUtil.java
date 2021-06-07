@@ -3,10 +3,6 @@ package cs.utd.soles;
 import com.github.javaparser.ast.CompilationUnit;
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Flow;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import sun.nio.ch.ThreadPool;
 
 
 import java.io.*;
@@ -21,8 +17,6 @@ import java.util.concurrent.TimeUnit;
  * */
 
 
-//TODO:: Modify tester to be able to handle new input
-
 
 public class TesterUtil extends ThreadHandler{
 
@@ -31,20 +25,23 @@ public class TesterUtil extends ThreadHandler{
     String xmlSchemaFile=null;
     int candidateCountJava=0;
     int compilationFailedCount=0;
+    final Object lockObj;
 
     ArrayList<Flow> targetFlows;
 
-    public TesterUtil(String targetFile, String xmlSchemaFile, boolean violationType){
+    public TesterUtil(String targetFile, String xmlSchemaFile, boolean violationType, final Object lockObj){
         this.targetFile=targetFile;
         this.xmlSchemaFile=xmlSchemaFile;
         this.soundness=violationType;
         targetFlows=FlowJSONHandler.turnTargetPathIntoFlowList(targetFile);
+        this.lockObj = lockObj;
     }
 
-    public TesterUtil(ArrayList<Flow> list, String xmlSchemaFile, boolean violationType){
+    public TesterUtil(ArrayList<Flow> list, String xmlSchemaFile, boolean violationType, final Object lockObj){
         this.targetFlows=list;
         this.xmlSchemaFile=xmlSchemaFile;
         this.soundness=violationType;
+        this.lockObj=lockObj;
         System.out.println("THIS VIOLATION IS TYPE: " + this.soundness);
     }
 
@@ -293,8 +290,6 @@ public class TesterUtil extends ThreadHandler{
         return output;
     }
 
-
-
     enum ProcessType{
         CREATE_APK_PROCESS,
         AQL_PROCESS
@@ -302,12 +297,24 @@ public class TesterUtil extends ThreadHandler{
     @Override
     public void handleThread(ProcessType t, String finalString) {
 
-        //This new framework for handling threads should allow us to read process input/output more elegantly
+        //This new framework for handling threads should allow us to read Process output more elegantly
 
 
         switch(t){
-            case CREATE_APK_PROCESS:break;
-            case AQL_PROCESS:break;
+            //create_apk_process is just one gradlew assembleDebug
+            case CREATE_APK_PROCESS:
+                synchronized(lockObj){
+
+                    lockObj.notify();
+                }
+                break;
+            //aql_process is two ProcessThreads, so handle accordingly
+            case AQL_PROCESS:
+                synchronized(lockObj){
+
+                    lockObj.notify();
+                }
+                break;
         }
 
     }
