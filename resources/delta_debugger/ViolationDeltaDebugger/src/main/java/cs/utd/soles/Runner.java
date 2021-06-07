@@ -11,7 +11,6 @@ import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Flow;
 import com.utdallas.cs.alps.flows.Violation;
 import org.apache.commons.io.FileUtils;
-import org.checkerframework.checker.units.qual.A;
 
 import java.io.*;
 import java.nio.file.StandardCopyOption;

@@ -6,6 +6,7 @@ import com.utdallas.cs.alps.flows.Flow;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import sun.nio.ch.ThreadPool;
 
 
 import java.io.*;
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 //TODO:: Modify tester to be able to handle new input
 
 
-public class TesterUtil {
+public class TesterUtil extends ThreadHandler{
 
     boolean soundness;
     String targetFile=null;
@@ -97,7 +98,7 @@ public class TesterUtil {
         try {
             saveCompilationUnits(list,javaFiles,positionChanged, changedUnit);
             Process p = Runtime.getRuntime().exec(command);
-            p.waitFor(5, TimeUnit.MINUTES);
+
             BufferedReader stream = new BufferedReader(new InputStreamReader(p.getInputStream()));
             BufferedReader estream = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String out="";
@@ -111,6 +112,7 @@ public class TesterUtil {
                 oute+=s;
             }
 
+            p.waitFor(5, TimeUnit.MINUTES);
             if(!out.contains("BUILD SUCCESSFUL") || oute.contains("BUILD: FAILURE")){
                 //assembling project failed we don't care why
                 if(Runner.LOG_MESSAGES)
@@ -264,6 +266,11 @@ public class TesterUtil {
     }
 
     private String catchOutput(Process p) throws IOException {
+
+
+
+
+
         //this just reads the output of the command we just ran
         BufferedReader  input = new BufferedReader(new InputStreamReader(p.getInputStream()));
         BufferedReader  error = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -288,8 +295,20 @@ public class TesterUtil {
 
 
 
+    enum ProcessType{
+        CREATE_APK_PROCESS,
+        AQL_PROCESS
+    }
+    @Override
+    public void handleThread(ProcessType t, String finalString) {
+
+        //This new framework for handling threads should allow us to read process input/output more elegantly
 
 
+        switch(t){
+            case CREATE_APK_PROCESS:break;
+            case AQL_PROCESS:break;
+        }
 
-
+    }
 }
