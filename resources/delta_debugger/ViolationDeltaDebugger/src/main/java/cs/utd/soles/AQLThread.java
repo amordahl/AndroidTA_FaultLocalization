@@ -34,8 +34,9 @@ public class AQLThread extends Thread implements ThreadHandler{
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            t.handleThread(ProcessType.AQL_RUN, aql1FinalString, aql2FinalString);
         }
-        t.handleThread(ProcessType.AQL_RUN, aql1FinalString, aql2FinalString);
+
     }
 
 

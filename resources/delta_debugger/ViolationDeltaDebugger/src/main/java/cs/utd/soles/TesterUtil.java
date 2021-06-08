@@ -281,13 +281,14 @@ public class TesterUtil implements ThreadHandler{
     boolean threadResult=false;
     @Override
     public void handleThread(ProcessType t, String finalString, String finalString2) {
-        threadResult=false;
+
         //This new framework for handling threads should allow us to read Process output more elegantly
 
         switch(t){
             //create_apk_process is just one gradlew assembleDebug
             case CREATE_APK_PROCESS:
                 synchronized(lockObj) {
+                    threadResult=false;
                     //build failed
                     if (!finalString.contains("BUILD SUCCESSFUL") || finalString.contains("BUILD: FAILURE")) {
                         //assembling project failed we don't care why
@@ -307,6 +308,7 @@ public class TesterUtil implements ThreadHandler{
             //aql_process is two ProcessThreads, so handle accordingly
             case AQL_RUN:
                 synchronized(lockObj){
+                    threadResult=false;
                     PerfTimer.endOneAQLRun();
                     //final results of aql are in both finalString1 and finalString2 respectively
                     //order is config1, config2
