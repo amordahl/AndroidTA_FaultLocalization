@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 
 
-public class TesterUtil extends ThreadHandler{
+public class TesterUtil implements ThreadHandler{
 
     boolean soundness;
     String targetFile=null;
@@ -89,69 +89,42 @@ public class TesterUtil extends ThreadHandler{
 
     //this just calls gradlew assembleDebug in the right directory
     //this needs the gradlew file path and the root directory of the project
-    public boolean createApk(String gradlewFilePath, String rootDir, ArrayList<CompilationUnit> list, ArrayList<File> javaFiles, int positionChanged, CompilationUnit changedUnit){
+    public void createApk(String gradlewFilePath, String rootDir, ArrayList<CompilationUnit> list, ArrayList<File> javaFiles, int positionChanged, CompilationUnit changedUnit){
         PerfTimer.startOneCompileRun();
         String[] command = {gradlewFilePath, "assembleDebug", "-p", rootDir};
         try {
             saveCompilationUnits(list,javaFiles,positionChanged, changedUnit);
             Process p = Runtime.getRuntime().exec(command);
 
-            BufferedReader stream = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            BufferedReader estream = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            String out="";
-            String s="";
-            while( (s = stream.readLine())!=null){
-                out+=s;
-            }
-            String oute="";
-            s="";
-            while(( (s=estream.readLine())!=null)){
-                oute+=s;
-            }
-
-            p.waitFor(5, TimeUnit.MINUTES);
-            if(!out.contains("BUILD SUCCESSFUL") || oute.contains("BUILD: FAILURE")){
+            ProcessThread pThread = new ProcessThread(p,this,ProcessType.CREATE_APK_PROCESS);
+            pThread.start();
+            /*if(!out.contains("BUILD SUCCESSFUL") || oute.contains("BUILD: FAILURE")){
                 //assembling project failed we don't care why
                 if(Runner.LOG_MESSAGES)
                     System.out.println(out);
                 compilationFailedCount++;
                 PerfTimer.endOneFailedCompileRun();
                 return false;
-            }
-        }catch(IOException | InterruptedException e){
+            }*/
+        }catch(IOException e){
             e.printStackTrace();
         }
-        PerfTimer.endOneCompileRun();
-        return true;
     }
 
-    public boolean runAQL(String apk, String generatingConfig1, String generatingConfig2, String programConfigString) throws IOException {
+    public void runAQL(String apk, String generatingConfig1, String generatingConfig2, String programConfigString) throws IOException {
         PerfTimer.startOneAQLRun();
         //this bit runs and captures the output of the aql script
         String command1 = "python runaql.py "+generatingConfig1+" "+apk+" -f";
         String command2 = "python runaql.py "+generatingConfig2+" "+apk+" -f";
         Process command1Run = Runtime.getRuntime().exec(command1);
-        try {
-            command1Run.waitFor(2, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        String command1Out =catchOutput(command1Run);
         Process command2Run = Runtime.getRuntime().exec(command2);
-
-        try {
-            command2Run.waitFor(2, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        String command2Out =catchOutput(command2Run);
-
-        File output1 = handleOutput("1",Long.toHexString(System.currentTimeMillis()), command1Out,programConfigString);
-        File output2 = handleOutput("2",Long.toHexString(System.currentTimeMillis()), command2Out,programConfigString);
-        PerfTimer.endOneAQLRun();
-        return handleAQL(output1, output2);
+        //start these commands and then handle them somewhere else
+        AQLThread aqlThread = new AQLThread(command1Run, command2Run, this);
+        aqlThread.start();
+        //File output1 = handleOutput("1",Long.toHexString(System.currentTimeMillis()), command1Out,programConfigString);
+        //File output2 = handleOutput("2",Long.toHexString(System.currentTimeMillis()), command2Out,programConfigString);
+        //PerfTimer.endOneAQLRun();
+        //return handleAQL(output1, output2);
 
     }
 
@@ -262,7 +235,7 @@ public class TesterUtil extends ThreadHandler{
         return out;
     }
 
-    private String catchOutput(Process p) throws IOException {
+    /*private String catchOutput(Process p) throws IOException {
 
 
 
@@ -288,29 +261,62 @@ public class TesterUtil extends ThreadHandler{
         p.destroy();
         //System.out.println("Output of AQL: "+output);
         return output;
+    }*/
+
+    public void startApkCreation(String projectGradlewPath, String projectRootPath, ArrayList<CompilationUnit> bestCUList, ArrayList<File> javaFiles, int compPosition, CompilationUnit copiedu) {
+        createApk(projectGradlewPath,projectRootPath,bestCUList,javaFiles,compPosition,copiedu);
     }
 
-    enum ProcessType{
-        CREATE_APK_PROCESS,
-        AQL_PROCESS
+    public void startAQLProcess(String projectAPKPath, String config1, String config2, String thisRunName) {
+        try {
+            runAQL(projectAPKPath,config1,config2,thisRunName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
+
+
+
+    boolean threadResult=false;
     @Override
-    public void handleThread(ProcessType t, String finalString) {
-
+    public void handleThread(ProcessType t, String finalString, String finalString2) {
+        threadResult=false;
         //This new framework for handling threads should allow us to read Process output more elegantly
-
 
         switch(t){
             //create_apk_process is just one gradlew assembleDebug
             case CREATE_APK_PROCESS:
-                synchronized(lockObj){
-
+                synchronized(lockObj) {
+                    //build failed
+                    if (!finalString.contains("BUILD SUCCESSFUL") || finalString.contains("BUILD: FAILURE")) {
+                        //assembling project failed we don't care why
+                        if (Runner.LOG_MESSAGES)
+                            System.out.println(finalString);
+                        compilationFailedCount++;
+                        PerfTimer.endOneCompileRun();
+                        threadResult=false;
+                        lockObj.notify();
+                        return;
+                    }
+                    //build worked
+                    threadResult=true;
                     lockObj.notify();
                 }
                 break;
             //aql_process is two ProcessThreads, so handle accordingly
-            case AQL_PROCESS:
+            case AQL_RUN:
                 synchronized(lockObj){
+                    PerfTimer.endOneAQLRun();
+                    //final results of aql are in both finalString1 and finalString2 respectively
+                    //order is config1, config2
+
+                    try {
+                        threadResult=handleAQL(handleOutput("1",Long.toHexString(System.currentTimeMillis()), finalString,Runner.thisRunName),handleOutput("2",Long.toHexString(System.currentTimeMillis()), finalString2,Runner.thisRunName));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
 
                     lockObj.notify();
                 }

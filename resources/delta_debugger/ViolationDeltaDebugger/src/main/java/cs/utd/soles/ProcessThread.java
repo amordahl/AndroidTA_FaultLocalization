@@ -6,12 +6,15 @@ import java.util.concurrent.TimeUnit;
 
 public class ProcessThread extends Thread{
 
+
+
+
     boolean threadDone=false;
     Process thisProc;
     String finalString;
     ThreadHandler handler;
-    TesterUtil.ProcessType type;
-    public ProcessThread(Process aqlProcess, ThreadHandler t, TesterUtil.ProcessType type){
+    ThreadHandler.ProcessType type;
+    public ProcessThread(Process aqlProcess, ThreadHandler t, ThreadHandler.ProcessType type){
         thisProc=aqlProcess;
         handler=t;
         finalString="";
@@ -35,7 +38,10 @@ public class ProcessThread extends Thread{
         }
 
         finalString=ithread.doneString+" "+ethread.doneString;
-        handler.handleThread(type,finalString);
+        if(type == ThreadHandler.ProcessType.AQL_PROCESS1 || type == ThreadHandler.ProcessType.AQL_PROCESS2){
+            finalString=ithread.doneString+"\n\nError Messages from AQL:\n"+ethread.doneString;
+        }
+        handler.handleThread(type,finalString,null);
         threadDone=true;
     }
 

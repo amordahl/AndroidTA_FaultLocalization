@@ -399,11 +399,10 @@ public class Runner {
         boolean returnVal=false;
 
         try {
-            if(!replaceCU) {
-                //enter synchronized
-                synchronized(lockObject) {
+            //enter synchronized
+            synchronized(lockObject) {
                     //create the apk
-                    //testerUtil.startApkCreation();
+                    testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList, javaFiles, compPosition, copiedu);
                     /*if (testerForThis.createApk(projectGradlewPath, projectRootPath, bestCUList, javaFiles, compPosition, copiedu)) {
 
                         if (testerForThis.runAQL(projectAPKPath, config1, config2, thisRunName)) {
@@ -422,34 +421,34 @@ public class Runner {
                     //wait for createApk to be done
                     lockObject.wait();
                     //get the results
-                    //handle results
-                    //clear testerutil results
+                    //if this is true, then the apk created succesfully
+                    if(!testerForThis.threadResult){
+                        return false;
+                    }
                     //start aql process
+                    testerForThis.startAQLProcess(projectAPKPath, config1, config2, thisRunName);
                     //testerUtil.startAQLProcess
                     //wait for aqlprocess to be done
                     lockObject.wait();
                     //get the results
-                    //handle results
-                    //clear testerutil results
-
-
-                }
-            }else{
-                if (testerForThis.createApk(projectGradlewPath, projectRootPath, cuList, javaFiles, compPosition, copiedu)) {
-
-                    if (testerForThis.runAQL(projectAPKPath, config1, config2, thisRunName)) {
-
-                        returnVal = true;
-                        minimized = false;
-
-                        System.out.println("Successful One\n\n------------------------------------\n\n\n");
-                        //for (CompilationUnit x : bestCUList) {
-                        //    System.out.println(x);
-                        //}
+                    if(!testerForThis.threadResult){
+                        return false;
                     }
-                }
+
+                    //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!
+                returnVal = true;
+                minimized = false;
+                //this is the best apk yet, save it.
+                saveBestAPK();
+                System.out.println("Successful One\n\n------------------------------------\n\n\n");
+                //for (CompilationUnit x : bestCUList) {
+                //    System.out.println(x);
+                //}
+                System.out.println("CopiedUnit:" + copiedu);
+
             }
-        } catch (IOException | InterruptedException e) {
+
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 

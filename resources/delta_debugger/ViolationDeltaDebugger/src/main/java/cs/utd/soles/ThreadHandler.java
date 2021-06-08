@@ -1,6 +1,12 @@
 package cs.utd.soles;
 
-public abstract class ThreadHandler {
+public interface ThreadHandler {
 
-    public abstract void handleThread(TesterUtil.ProcessType type, String finalString);
+    enum ProcessType{
+        CREATE_APK_PROCESS,
+        AQL_PROCESS1,
+        AQL_PROCESS2,
+        AQL_RUN
+    }
+    void handleThread(ProcessType type, String finalString, String finalString2);
 }
