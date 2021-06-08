@@ -295,11 +295,12 @@ public class TesterUtil implements ThreadHandler{
                         if (Runner.LOG_MESSAGES)
                             System.out.println(finalString);
                         compilationFailedCount++;
-                        PerfTimer.endOneCompileRun();
+                        PerfTimer.endOneFailedCompileRun();
                         threadResult=false;
                         lockObj.notify();
                         return;
                     }
+                    PerfTimer.endOneCompileRun();
                     //build worked
                     threadResult=true;
                     lockObj.notify();
