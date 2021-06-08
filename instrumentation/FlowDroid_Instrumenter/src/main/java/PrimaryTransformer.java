@@ -22,6 +22,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,15 +45,18 @@ import java.util.Map;
  */
 public class PrimaryTransformer implements ClassFileTransformer {
 
+    private static Logger logger = LoggerFactory.getLogger(PrimaryTransformer.class);
     @Override
     public byte[] transform(ClassLoader loader,
                             String className,
                             Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain,
                             byte[] classfileBuffer) {
-//        if (!className.contains("soot")) { /* TODO: Filter appropriately. */
-//            return null; // no transformation
-//        }
+        if (!className.contains("soot")) { /* TODO: Filter appropriately. */
+            logger.info("Not instrumenting class " + className);
+            return null; // no transformation
+        }
+
     	//System.out.println("In the transform method.");
         final ClassReader classReader = new ClassReader(classfileBuffer);
         final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);

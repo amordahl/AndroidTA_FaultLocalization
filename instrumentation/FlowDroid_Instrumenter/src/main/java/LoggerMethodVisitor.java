@@ -1,3 +1,4 @@
+import org.objectweb.asm.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.objectweb.asm.MethodVisitor;
@@ -19,9 +20,35 @@ public class LoggerMethodVisitor extends MethodVisitor {
         mv = methodVisitor;
     }
 
+    private static int lineNumber = -1;
+    @Override
+    public void visitLineNumber(int line, Label start) {
+        lineNumber = line;
+        super.visitLineNumber(line, start);
+    }
+
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-        Type[] parameters = Type.getArgumentTypes(desc);
+        
+    	// Prevents infinite loops, by preventing instrumentation of calls that are to my
+    	//  own logging facilities.
+    	if (owner.contains("amordahl")) {
+    		logger.info("Skipping instrumenting a call to logObjArray. Owner is " + owner);
+    		super.visitMethodInsn(opcode, owner, name, desc, itf);
+    		return;
+    	}
+    	if (owner.contains("java/lang") && owner.contains("Error")) {
+            logger.info("Skipping exception: " + owner + ": " + name);
+            super.visitMethodInsn(opcode, owner, name, desc, itf);
+            return;
+        }
+    	if (owner.contains("java/lang") && name.contains("valueOf")) {
+            logger.info("Skipping value call: " + owner + ": " + name);
+            super.visitMethodInsn(opcode, owner, name, desc, itf);
+            return;
+        }
+    	logger.info("Now logging method " + owner + ": " + name);
+    	Type[] parameters = Type.getArgumentTypes(desc);
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (Type p : parameters) {
@@ -31,12 +58,24 @@ public class LoggerMethodVisitor extends MethodVisitor {
         sb.append("]");
 
         logger.info("Parameters are " + sb.toString());
+
+        // TODO: Handle longs.
+        for (Type p: parameters) {
+            if (p.getClassName().contains("long") || p.getClassName().contains("double")) {
+                logger.warn("Skipping logging call to " + name + " because it has long or double parameters.");
+                super.visitMethodInsn(opcode, owner, name, desc, itf);
+                return;
+            }
+            else {
+                logger.info("Type " + p.getClassName() + " is not a long or double.");
+            }
+        }
         if (parameters.length > 0) {
             // Create array.
             logger.info("Creating an array of size " + parameters.length);
             createArray(OBJECT_TYPE, parameters.length);
             logger.info("Array created!");
-            //System.out.println("Created array with size " + parameters.length);
+            //logger.info("Created array with size " + parameters.length);
             int arrayIndex = 0;
             int paramIndex = 0;
             // Current stack state is PARAMETERS, ARRAYREF
@@ -76,8 +115,9 @@ public class LoggerMethodVisitor extends MethodVisitor {
             // Stack state is ..., ARRAYREF, ARRAYREF, out
             //super.visitInsn(SWAP);
             // Stack state is ..., ARRAYREF, out, ARRAYREF
+            pushInteger(lineNumber);
             super.visitMethodInsn(INVOKESTATIC, "edu/utdallas/amordahl/LoggerHelper", "logObjArray",
-                    "([Ljava/lang/Object;)V", false); // consumes out and ARRAYREF
+                    "([Ljava/lang/Object;I)V", false); // consumes out and ARRAYREF
             logger.info("Visited instruction to log object array.");
             // Stack state is ..., ARRAYREF
             // Now, we need to unpack everything from the array and put it in.
@@ -95,14 +135,21 @@ public class LoggerMethodVisitor extends MethodVisitor {
 
                 unbox(parameters[i]);
                 // Stack: PARAMS, ARRAYREF, VALUE
+                switch (parameters[i].getSort()) {
+                    case Type.ARRAY:
+                    case Type.OBJECT:
+                    case Type.METHOD:
+                        super.visitTypeInsn(CHECKCAST, parameters[i].getInternalName());
+                }
+                //super.visitTypeInsn(CHECKCAST, parameters[i].getClassName());
                 super.visitInsn(SWAP);
                 // Stack: PARAMS, VALUE, ARRAYREF
             }
-            System.out.println("Made it past the last for loop.");
+            logger.info("Made it past the last for loop.");
             super.visitInsn(POP);
             // Stack: PARAMS, VALUE
+            logger.info("Made it to end!");
         }
-        System.out.println("Made it to end!");
         super.visitMethodInsn(opcode, owner, name, desc, itf);
     }
 
@@ -154,7 +201,7 @@ public class LoggerMethodVisitor extends MethodVisitor {
     private void box(final Type type) {
         // if type represents a primitive type a primitive-typed value is expected
         // on top of the stack.
-        System.out.println("Trying to box type " + type.toString());
+        logger.info("Trying to box type " + type.toString());
         switch (type.getSort()) {
             case Type.BOOLEAN:
                 super.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean",
