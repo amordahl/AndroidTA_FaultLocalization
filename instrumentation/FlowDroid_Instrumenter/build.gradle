@@ -17,6 +17,7 @@ dependencies {
     compile group: 'edu.utdallas', name: 'objsim', version: '1.0-SNAPSHOT'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
+    compile group: 'org.jgrapht', name: 'jgrapht-core', version: '1.4.0'
 }
 
 jar {

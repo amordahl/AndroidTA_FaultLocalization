@@ -1,8 +1,13 @@
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.objectweb.asm.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import java.util.TreeSet;
+
 import static org.objectweb.asm.Opcodes.*;
 
 /**
@@ -14,10 +19,12 @@ public class LoggerMethodVisitor extends MethodVisitor {
 
     private static Logger logger = LoggerFactory.getLogger(LoggerMethodVisitor.class);
     private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
+    private TreeSet<String> alreadyInstrumented;
 
     public LoggerMethodVisitor(MethodVisitor methodVisitor) {
         super(ASM4, methodVisitor);
         mv = methodVisitor;
+        alreadyInstrumented = new TreeSet<>();
     }
 
     private static int lineNumber = -1;
@@ -29,7 +36,6 @@ public class LoggerMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-        
     	// Prevents infinite loops, by preventing instrumentation of calls that are to my
     	//  own logging facilities.
     	if (owner.contains("amordahl")) {
@@ -37,7 +43,12 @@ public class LoggerMethodVisitor extends MethodVisitor {
     		super.visitMethodInsn(opcode, owner, name, desc, itf);
     		return;
     	}
-    	if (owner.contains("java/lang") && owner.contains("Error")) {
+    	if (owner.startsWith("java/") || owner.startsWith("org/jgrapht")) {
+    	    logger.info("Skipping a call to library methods.");
+    	    super.visitMethodInsn(opcode, owner, name, desc, itf);
+    	    return;
+        }
+/*    	if (owner.contains("java/lang") && owner.contains("Error")) {
             logger.info("Skipping exception: " + owner + ": " + name);
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
@@ -46,7 +57,14 @@ public class LoggerMethodVisitor extends MethodVisitor {
             logger.info("Skipping value call: " + owner + ": " + name);
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
+        }*/
+    	if (owner.contains("soot/util/HashChain")) {
+    	    logger.warn("Skipping instrumenting " + owner + "'s " + name + " method, to prevent infinite loops.");
+    	    super.visitMethodInsn(opcode, owner, name, desc, itf);
+    	    return;
         }
+
+    	// Check if we've already logged this.
     	logger.info("Now logging method " + owner + ": " + name);
     	Type[] parameters = Type.getArgumentTypes(desc);
         StringBuilder sb = new StringBuilder();
@@ -115,9 +133,9 @@ public class LoggerMethodVisitor extends MethodVisitor {
             // Stack state is ..., ARRAYREF, ARRAYREF, out
             //super.visitInsn(SWAP);
             // Stack state is ..., ARRAYREF, out, ARRAYREF
-            pushInteger(lineNumber);
+            super.visitLdcInsn(String.format("%s %d %s", owner, lineNumber, name));
             super.visitMethodInsn(INVOKESTATIC, "edu/utdallas/amordahl/LoggerHelper", "logObjArray",
-                    "([Ljava/lang/Object;I)V", false); // consumes out and ARRAYREF
+                    "([Ljava/lang/Object;Ljava/lang/String;)V", false); // consumes out and ARRAYREF
             logger.info("Visited instruction to log object array.");
             // Stack state is ..., ARRAYREF
             // Now, we need to unpack everything from the array and put it in.

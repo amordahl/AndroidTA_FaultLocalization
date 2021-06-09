@@ -59,7 +59,7 @@ public class PrimaryTransformer implements ClassFileTransformer {
 
     	//System.out.println("In the transform method.");
         final ClassReader classReader = new ClassReader(classfileBuffer);
-        final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         final ClassVisitor classVisitor = new LoggerClassAdapter(classWriter);
         classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
 
