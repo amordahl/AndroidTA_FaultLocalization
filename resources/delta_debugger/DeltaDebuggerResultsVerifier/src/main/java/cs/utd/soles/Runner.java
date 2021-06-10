@@ -60,7 +60,7 @@ public class Runner {
                 in+=sc.nextLine()+"\n";
             }
             in = in.replaceAll(":","");
-            String[] inArr = in.split("\\W+");
+            String[] inArr = in.split("\\s+");
             LineObj j = new LineObj(
                     apkName,config1,config2,
                     inArr[1], inArr[3], inArr[5],
