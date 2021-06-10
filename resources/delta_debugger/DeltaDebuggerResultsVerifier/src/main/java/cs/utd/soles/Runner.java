@@ -1,14 +1,15 @@
+package cs.utd.soles;
+
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Violation;
+import cs.utd.soles.SchemaGenerator;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 

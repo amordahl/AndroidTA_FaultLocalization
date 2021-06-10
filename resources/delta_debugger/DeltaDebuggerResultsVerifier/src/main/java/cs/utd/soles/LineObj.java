@@ -1,3 +1,5 @@
+package cs.utd.soles;
+
 public class LineObj {
     /*
     * class to represent a line of data
