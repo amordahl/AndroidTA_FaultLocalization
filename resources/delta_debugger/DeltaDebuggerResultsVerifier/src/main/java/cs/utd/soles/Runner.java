@@ -62,12 +62,12 @@ public class Runner {
             in = in.replaceAll(":","");
             String[] inArr = in.split("\\W+");
             LineObj j = new LineObj(
-                    inArr[1],inArr[3],inArr[5],
-                    inArr[7], inArr[9], inArr[11],
+                    apkName,config1,config2,
+                    inArr[1], inArr[3], inArr[5],
+                    inArr[7], inArr[9],inArr[11],
                     inArr[13], inArr[15],inArr[17],
                     inArr[19], inArr[21],inArr[23],
-                    inArr[25], inArr[27],inArr[29],
-                    inArr[31], inArr[33]);
+                    inArr[25], inArr[27]);
 
             String line=j.apk+","+j.config1+","+j.config2+","+j.runtime+","+j.violation_type+","+j.avgRotation+","+j.totalRotation+","+j.avgAQL+","+j.totalAQL+","+j.avgCompile+","+j.totalCompile+","+j.totalProposed+","+j.totalComplete+","+j.numCandidate+","+j.percentAQL+","+j.percentCompile+","+j.compFailed+"\n";
 
