@@ -39,33 +39,33 @@ public class LoggerMethodVisitor extends MethodVisitor {
     	// Prevents infinite loops, by preventing instrumentation of calls that are to my
     	//  own logging facilities.
     	if (owner.contains("amordahl")) {
-    		logger.info("Skipping instrumenting a call to logObjArray. Owner is " + owner);
+    		logger.debug("Skipping instrumenting a call to logObjArray. Owner is " + owner);
     		super.visitMethodInsn(opcode, owner, name, desc, itf);
     		return;
     	}
     	if (owner.startsWith("java/") || owner.startsWith("org/jgrapht")) {
-    	    logger.info("Skipping a call to library methods.");
+    	    logger.debug("Skipping a call to library methods.");
     	    super.visitMethodInsn(opcode, owner, name, desc, itf);
     	    return;
         }
-/*    	if (owner.contains("java/lang") && owner.contains("Error")) {
-            logger.info("Skipping exception: " + owner + ": " + name);
+    	if (owner.contains("java/lang") && owner.contains("Error")) {
+            logger.debug("Skipping exception: " + owner + ": " + name);
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
         }
     	if (owner.contains("java/lang") && name.contains("valueOf")) {
-            logger.info("Skipping value call: " + owner + ": " + name);
+            logger.debug("Skipping value call: " + owner + ": " + name);
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
-        }*/
-    	if (owner.contains("soot/util/HashChain")) {
-    	    logger.warn("Skipping instrumenting " + owner + "'s " + name + " method, to prevent infinite loops.");
-    	    super.visitMethodInsn(opcode, owner, name, desc, itf);
-    	    return;
         }
+//    	if (owner.contains("soot/util/HashChain")) {
+//    	    logger.warn("Skipping instrumenting " + owner + "'s " + name + " method, to prevent infinite loops.");
+//    	    super.visitMethodInsn(opcode, owner, name, desc, itf);
+//    	    return;
+//        }
 
     	// Check if we've already logged this.
-    	logger.info("Now logging method " + owner + ": " + name);
+    	logger.debug("Now logging method " + owner + ": " + name);
     	Type[] parameters = Type.getArgumentTypes(desc);
         StringBuilder sb = new StringBuilder();
         sb.append("[");
@@ -75,7 +75,7 @@ public class LoggerMethodVisitor extends MethodVisitor {
         }
         sb.append("]");
 
-        logger.info("Parameters are " + sb.toString());
+        logger.debug("Parameters are " + sb.toString());
 
         // TODO: Handle longs.
         for (Type p: parameters) {
@@ -85,43 +85,43 @@ public class LoggerMethodVisitor extends MethodVisitor {
                 return;
             }
             else {
-                logger.info("Type " + p.getClassName() + " is not a long or double.");
+                logger.debug("Type " + p.getClassName() + " is not a long or double.");
             }
         }
         if (parameters.length > 0) {
             // Create array.
-            logger.info("Creating an array of size " + parameters.length);
+            logger.debug("Creating an array of size " + parameters.length);
             createArray(OBJECT_TYPE, parameters.length);
-            logger.info("Array created!");
-            //logger.info("Created array with size " + parameters.length);
+            logger.debug("Array created!");
+            //logger.debug("Created array with size " + parameters.length);
             int arrayIndex = 0;
             int paramIndex = 0;
             // Current stack state is PARAMETERS, ARRAYREF
-            logger.info("Made it to the first log.");
+            logger.debug("Made it to the first log.");
             for (int i = parameters.length - 1; i >= 0; i--) {
                 // 1. Duplicate the arrayref so it's not lost.
-                logger.info("In iteration " + i + " of the for loop.");
+                logger.debug("In iteration " + i + " of the for loop.");
                 super.visitInsn(DUP_X1);
                 // Now, the stack state is PARAMTERS, ARRAYREF, LAST_PARAM, ARRAYREF
                 super.visitInsn(SWAP);
                 // Now, the stack state is PARAMETERS, ARRAYREF, ARRAYREF, LAST_PARAM
 
                 // 2. Push the array index.
-                logger.info("Pushing integer " + i);
+                logger.debug("Pushing integer " + i);
                 pushInteger(i);
                 // Now, the stack state is PARAMETERS, ARRAYREF, ARRAYREF, LAST_PARAM, INDEX
                 super.visitInsn(SWAP);
                 // Now, the stack state is PARAMETERS, ARRAYREF, ARRAYREF, INDEX, LAST_PARAM
 
                 // If the type is primitive, this will box it into a reference type.
-                logger.info("Boxing parameter " + i + " of type " + parameters[i].toString());
+                logger.debug("Boxing parameter " + i + " of type " + parameters[i].toString());
                 this.box(parameters[i]);
 
                 // Store in the array.
                 super.visitInsn(AASTORE);
                 // Stack state is PARAMETERS, ARRAYREF
             }
-            logger.info("Made it past the first for loop.");
+            logger.debug("Made it past the first for loop.");
             // Now, the stack has an arrayref on it and no references.
             // Next, we need to log.
             super.visitInsn(DUP);
@@ -136,16 +136,16 @@ public class LoggerMethodVisitor extends MethodVisitor {
             super.visitLdcInsn(String.format("%s %d %s", owner, lineNumber, name));
             super.visitMethodInsn(INVOKESTATIC, "edu/utdallas/amordahl/LoggerHelper", "logObjArray",
                     "([Ljava/lang/Object;Ljava/lang/String;)V", false); // consumes out and ARRAYREF
-            logger.info("Visited instruction to log object array.");
+            logger.debug("Visited instruction to log object array.");
             // Stack state is ..., ARRAYREF
             // Now, we need to unpack everything from the array and put it in.
-            logger.info("Now putting everything back.");
+            logger.debug("Now putting everything back.");
             for (int i = 0; i < parameters.length; i++) {
-                logger.info("In iteration " + i + " of the second for loop.");
+                logger.debug("In iteration " + i + " of the second for loop.");
                 // Stack: PARAMS, ARRAYREF
                 super.visitInsn(DUP);
                 // Stack: PARAMS, ARRAYREF, ARRAYREF
-                logger.info("Pushing integer " + i);
+                logger.debug("Pushing integer " + i);
                 pushInteger(i);
                 // Stack: PARAMS, ARRAYREF, ARRAYREF, INDEX
                 super.visitInsn(AALOAD);
@@ -163,10 +163,10 @@ public class LoggerMethodVisitor extends MethodVisitor {
                 super.visitInsn(SWAP);
                 // Stack: PARAMS, VALUE, ARRAYREF
             }
-            logger.info("Made it past the last for loop.");
+            logger.debug("Made it past the last for loop.");
             super.visitInsn(POP);
             // Stack: PARAMS, VALUE
-            logger.info("Made it to end!");
+            logger.debug("Made it to end!");
         }
         super.visitMethodInsn(opcode, owner, name, desc, itf);
     }
@@ -219,7 +219,7 @@ public class LoggerMethodVisitor extends MethodVisitor {
     private void box(final Type type) {
         // if type represents a primitive type a primitive-typed value is expected
         // on top of the stack.
-        logger.info("Trying to box type " + type.toString());
+        logger.debug("Trying to box type " + type.toString());
         switch (type.getSort()) {
             case Type.BOOLEAN:
                 super.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean",
