@@ -5,6 +5,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
@@ -82,11 +83,6 @@ public class Runner {
         }catch(IOException e){
             e.printStackTrace();
         }
-
-
-
-
-
 
         //start the delta debugging process
         while(!minimized){
@@ -199,10 +195,22 @@ public class Runner {
     static ArrayList<String> programFileNames= new ArrayList<>();
     static ArrayList<File> javaFiles = new ArrayList<>();
     static ArrayList<File> unchangedJavaFiles = new ArrayList<>();
+
+
+
+
+    //this method takes in the flow information and marks some parts of the ast un-removeable (like the source and sink of a flow)
+    public static void turnFlowsIntoUnremovableNodes(){
+
+
+        //get the flow, parse the info and guess which node is this flow
+        for(Flow x: testerForThis.targetFlows){
+
+        }
+    }
+
     //main recursion that loops through all nodes
     //we process parents before children
-
-
     public static void traverseTree(int currentCU, Node currentNode){
 
         if(!currentNode.getParentNode().isPresent()&&!(currentNode instanceof CompilationUnit)||currentNode==null){

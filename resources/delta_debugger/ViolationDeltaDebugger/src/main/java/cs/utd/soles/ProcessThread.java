@@ -1,6 +1,8 @@
 package cs.utd.soles;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
@@ -16,17 +18,22 @@ public class ProcessThread extends Thread{
     ThreadHandler.ProcessType type;
     final Object lockObj;
     int doneCount;
-    public ProcessThread(Process aqlProcess, ThreadHandler t, ThreadHandler.ProcessType type){
+    private long startTime;
+    private long timeOutLong;
+    private boolean doWriteProcess=false;
+    public ProcessThread(Process aqlProcess, ThreadHandler t, ThreadHandler.ProcessType type, long timeOutLong){
         thisProc=aqlProcess;
         handler=t;
         finalString="";
         this.type=type;
         lockObj= new Object();
         doneCount=0;
+        this.timeOutLong=timeOutLong;
+
     }
 
     public void run(){
-
+        startTime=System.currentTimeMillis();
         ProcessIThread ithread = new ProcessIThread(new BufferedReader(new InputStreamReader(thisProc.getInputStream())), thisProc, lockObj);
         ProcessEThread ethread = new ProcessEThread(new BufferedReader(new InputStreamReader(thisProc.getErrorStream())), thisProc, lockObj);
 
@@ -38,6 +45,7 @@ public class ProcessThread extends Thread{
 
             //in synchronized block, wait for thing to be done
             synchronized(lockObj){
+
                 while (doneCount < 2) {
                     lockObj.wait();
                 }
@@ -45,8 +53,25 @@ public class ProcessThread extends Thread{
                 if(type == ThreadHandler.ProcessType.AQL_PROCESS1 || type == ThreadHandler.ProcessType.AQL_PROCESS2){
                     finalString=ithread.doneString+"\n\nError Messages from AQL:\n"+ethread.doneString;
                 }
-                thisProc.waitFor(5, TimeUnit.MINUTES);
-                thisProc.destroy();
+                //kill this process
+                thisProc.destroyForcibly();
+                if(doWriteProcess&&Runner.LOG_MESSAGES&& this.type == ThreadHandler.ProcessType.CREATE_APK_PROCESS){
+                    try {
+                        String fp = "debugger/tempfiles/gradleproc/" + Runner.thisRunName + System.currentTimeMillis() + "_log.txt";
+                        File f = new File(fp);
+                        f.mkdirs();
+                        if(f.exists())
+                            f.delete();
+                        f.createNewFile();
+                        FileWriter fw = new FileWriter(f);
+                        fw.write(finalString);
+                        fw.flush();
+                        fw.close();
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
                 handler.handleThread(type,finalString,null);
                 threadDone=true;
             }
@@ -72,7 +97,7 @@ public class ProcessThread extends Thread{
         public void run(){
             try {
 
-                while(p.isAlive()) {
+                while(p.isAlive()&&(System.currentTimeMillis()<startTime+timeOutLong)) {
                     String s;
                     while ((s = reader.readLine()) != null) {
 
@@ -80,6 +105,8 @@ public class ProcessThread extends Thread{
                         //System.out.println(doneString);
                     }
                 }
+                if(System.currentTimeMillis()>startTime+timeOutLong)
+                    doWriteProcess=true;
                 reader.close();
             }catch(Exception e){e.printStackTrace();}
 
@@ -102,7 +129,7 @@ public class ProcessThread extends Thread{
         }
         public void run(){
             try {
-                while(p.isAlive()) {
+                while(p.isAlive()&&(System.currentTimeMillis()<startTime+timeOutLong)) {
                     String s;
                     while ((s = reader.readLine()) != null) {
 
@@ -110,6 +137,8 @@ public class ProcessThread extends Thread{
                         //System.out.println(doneString);
                     }
                 }
+                if(System.currentTimeMillis()>startTime+timeOutLong)
+                    doWriteProcess=true;
                 reader.close();
             }catch(Exception e){e.printStackTrace();}
             synchronized (lockObj) {

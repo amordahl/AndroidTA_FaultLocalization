@@ -22,10 +22,10 @@ public class AQLThread extends Thread implements ThreadHandler{
 
     public void run(){
 
-        ProcessThread aql1Thread = new ProcessThread(aql1,this,ProcessType.AQL_PROCESS1);
+        ProcessThread aql1Thread = new ProcessThread(aql1,this,ProcessType.AQL_PROCESS1, 300000);
         aql1Thread.start();
 
-        ProcessThread aql2Thread = new ProcessThread(aql2,this,ProcessType.AQL_PROCESS2);
+        ProcessThread aql2Thread = new ProcessThread(aql2,this,ProcessType.AQL_PROCESS2, 300000);
         aql2Thread.start();
         synchronized(lockObj){
             try {

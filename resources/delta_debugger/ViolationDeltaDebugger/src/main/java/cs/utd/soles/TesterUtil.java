@@ -91,12 +91,12 @@ public class TesterUtil implements ThreadHandler{
     //this needs the gradlew file path and the root directory of the project
     public void createApk(String gradlewFilePath, String rootDir, ArrayList<CompilationUnit> list, ArrayList<File> javaFiles, int positionChanged, CompilationUnit changedUnit){
         PerfTimer.startOneCompileRun();
-        String[] command = {gradlewFilePath, "assembleDebug", "-p", rootDir};
+        String[] command = {gradlewFilePath, "assembleDebug", "-p", rootDir, "--info", "--stacktrace"};
         try {
             saveCompilationUnits(list,javaFiles,positionChanged, changedUnit);
             Process p = Runtime.getRuntime().exec(command);
 
-            ProcessThread pThread = new ProcessThread(p,this,ProcessType.CREATE_APK_PROCESS);
+            ProcessThread pThread = new ProcessThread(p,this,ProcessType.CREATE_APK_PROCESS, 300000);
             pThread.start();
             /*if(!out.contains("BUILD SUCCESSFUL") || oute.contains("BUILD: FAILURE")){
                 //assembling project failed we don't care why
