@@ -1,9 +1,6 @@
 package cs.utd.soles;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.concurrent.TimeUnit;
 
 public class ProcessThread extends Thread{
@@ -34,8 +31,8 @@ public class ProcessThread extends Thread{
 
     public void run(){
         startTime=System.currentTimeMillis();
-        ProcessIThread ithread = new ProcessIThread(new BufferedReader(new InputStreamReader(thisProc.getInputStream())), thisProc, lockObj);
-        ProcessEThread ethread = new ProcessEThread(new BufferedReader(new InputStreamReader(thisProc.getErrorStream())), thisProc, lockObj);
+        ProcessIThread ithread = new ProcessIThread(new BufferedReader(new InputStreamReader(thisProc.getInputStream())));
+        ProcessEThread ethread = new ProcessEThread(new BufferedReader(new InputStreamReader(thisProc.getErrorStream())));
 
         ithread.start();
         ethread.start();
@@ -86,28 +83,33 @@ public class ProcessThread extends Thread{
 
         BufferedReader reader;
         String doneString="";
-        Process p;
-        final Object lockObj;
-        ProcessIThread(BufferedReader r, final Process p, final Object lockObj){
+        ProcessIThread(BufferedReader r){
             reader=r;
-            this.p=p;
-            this.lockObj=lockObj;
         }
 
         public void run(){
             try {
 
-                while(p.isAlive()&&(System.currentTimeMillis()<startTime+timeOutLong)) {
-                    String s;
-                    while ((s = reader.readLine()) != null) {
+                while((System.currentTimeMillis()<startTime+timeOutLong)&&thisProc.isAlive()) {
 
-                        doneString += s + "\n";
-                        //System.out.println(doneString);
+                    if (reader.ready()) {
+                        if(Runner.LOG_MESSAGES){
+                            System.out.println("In Iloop: Reading... Current time: " + System.currentTimeMillis() + " Time_out time: "+startTime+timeOutLong);
+                        }
+                        String s="";
+                        //try this as well
+                        //while reader.read() s= reader.readLine() append to doenString
+                        while (((s = reader.readLine()) != null)) {
+                            doneString += s + "\n";
+                        }
                     }
                 }
-                if(System.currentTimeMillis()>startTime+timeOutLong)
-                    doWriteProcess=true;
-                reader.close();
+                if(System.currentTimeMillis()>startTime+timeOutLong) {
+                    doWriteProcess = true;
+                    if(Runner.LOG_MESSAGES){
+                        System.out.println("Out of Iloop, over time: Current time: " + System.currentTimeMillis() + " Time_out time: "+startTime+timeOutLong);
+                    }
+                }
             }catch(Exception e){e.printStackTrace();}
 
             synchronized (lockObj) {
@@ -120,27 +122,32 @@ public class ProcessThread extends Thread{
 
         BufferedReader reader;
         String doneString="";
-        Process p;
-        final Object lockObj;
-        ProcessEThread(BufferedReader r, final Process p,final  Object lockObj){
+        ProcessEThread(BufferedReader r){
             reader=r;
-            this.p=p;
-            this.lockObj=lockObj;
         }
         public void run(){
             try {
-                while(p.isAlive()&&(System.currentTimeMillis()<startTime+timeOutLong)) {
-                    String s;
-                    while ((s = reader.readLine()) != null) {
 
-                        doneString += s + "\n";
-                        //System.out.println(doneString);
+                while((System.currentTimeMillis()<startTime+timeOutLong)&&thisProc.isAlive()) {
+
+                    if (reader.ready()) {
+                        String s="";
+                        while (((s = reader.readLine()) != null)) {
+                            doneString += s + "\n";
+                        }
+                        if(Runner.LOG_MESSAGES){
+                            System.out.println("In Eloop: Reading... Current time: " + System.currentTimeMillis() + " Time_out time: "+startTime+timeOutLong);
+                        }
                     }
                 }
-                if(System.currentTimeMillis()>startTime+timeOutLong)
-                    doWriteProcess=true;
-                reader.close();
+                if(System.currentTimeMillis()>startTime+timeOutLong) {
+                    doWriteProcess = true;
+                    if(Runner.LOG_MESSAGES){
+                        System.out.println("Out of Eloop, over time: Current time: " + System.currentTimeMillis() + " Time_out time: "+startTime+timeOutLong);
+                    }
+                }
             }catch(Exception e){e.printStackTrace();}
+
             synchronized (lockObj) {
                 doneCount++;
                 lockObj.notify();
