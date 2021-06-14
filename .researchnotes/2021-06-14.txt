@@ -1,0 +1,11 @@
+Today, I had a meeting with Dr. Wei and Dakota at 12:30pm.
+
+We discussed Dakota's progress. Since our last meeting, he took a closer look at what was causing everything to hang. After investigating the stacks with jstack, he found that the threads were hanging on readLine calls. It appears to be in some code he wrote, specifically, in the ProcessThread.java class.
+
+He has a while loop that is meant to check the condition of the BufferedReader. But it's possible that that condition is not checking the correct thing. So Dakota will try some alternative conditions and let us know. If he can't figure out what's happening, we'll meet tomorrow and try to figure it out.
+
+---
+
+I had a meeting with Dr. Wei at 3:00pm. We talked about my progress over the weekend and today. Ali emailed us back saying he hasn't run into our problem before (just to clarify, I am currently running into issues with infinite loops that are caused by certain data structures (e.g., HashChain) where an element may contain a pointer to another instance of the class, so it will cause infinite recursion in his code that unpacks objects into their component types). I attempted to replace my logging code with his in ObjSim, but that has not solved the issue. Dr. Wei suggested I try to just run FlowDroid and some small test cases through ObjSim in order to see if it's working, and if Ali may have done something in his code to deal with this problem that I am unaware of.
+
+Additionally, we discussed the ICSE extension. I haven't put any time into it since I started debugging this issue. Dr. Wei suggests I spend one day this week working on the parsers and trying to get everything set up so we can just run experiments. I plan to do that on Wednesday, I think, and spend tomorrow just continuing to work on this and debugging with Dakota, if necessary.

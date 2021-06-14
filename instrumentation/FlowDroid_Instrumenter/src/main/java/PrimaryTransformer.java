@@ -53,7 +53,7 @@ public class PrimaryTransformer implements ClassFileTransformer {
                             ProtectionDomain protectionDomain,
                             byte[] classfileBuffer) {
         if (!className.contains("soot")) { /* TODO: Filter appropriately. */
-            logger.info("Not instrumenting class " + className);
+            logger.info("Not instrumenting the class " + className);
             return null; // no transformation
         }
 
