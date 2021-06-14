@@ -92,22 +92,23 @@ public class ProcessThread extends Thread{
 
                 while((System.currentTimeMillis()<startTime+timeOutLong)&&thisProc.isAlive()) {
 
-                    if (reader.ready()) {
+                    while (reader.ready()) {
                         if(Runner.LOG_MESSAGES){
                             System.out.println("In Iloop: Reading... Current time: " + System.currentTimeMillis() + " Time_out time: "+startTime+timeOutLong);
                         }
                         String s="";
-                        //try this as well
-                        //while reader.read() s= reader.readLine() append to doenString
-                        while (((s = reader.readLine()) != null)) {
-                            doneString += s + "\n";
+                        s = reader.readLine();
+                        doneString += s + "\n";
+
+                        if(Runner.LOG_MESSAGES){
+                            System.out.println("Read an Iline... " +s);
                         }
                     }
                 }
                 if(System.currentTimeMillis()>startTime+timeOutLong) {
                     doWriteProcess = true;
                     if(Runner.LOG_MESSAGES){
-                        System.out.println("Out of Iloop, over time: Current time: " + System.currentTimeMillis() + " Time_out time: "+startTime+timeOutLong);
+                        System.out.println("Out of Iloop, over time: Current time: " + System.currentTimeMillis() + " Time_out time: "+(startTime+timeOutLong));
                     }
                 }
             }catch(Exception e){e.printStackTrace();}
@@ -130,13 +131,16 @@ public class ProcessThread extends Thread{
 
                 while((System.currentTimeMillis()<startTime+timeOutLong)&&thisProc.isAlive()) {
 
-                    if (reader.ready()) {
-                        String s="";
-                        while (((s = reader.readLine()) != null)) {
-                            doneString += s + "\n";
-                        }
+                    while (reader.ready()) {
                         if(Runner.LOG_MESSAGES){
                             System.out.println("In Eloop: Reading... Current time: " + System.currentTimeMillis() + " Time_out time: "+startTime+timeOutLong);
+                        }
+                        String s="";
+                        s = reader.readLine();
+                        doneString += s + "\n";
+
+                        if(Runner.LOG_MESSAGES){
+                            System.out.println("Read an Eline... " +s);
                         }
                     }
                 }
