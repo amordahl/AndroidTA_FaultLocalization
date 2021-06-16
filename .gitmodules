@@ -1,0 +1,3 @@
+[submodule "instrumentation/objsim"]
+	path = instrumentation/objsim
+	url = git@github.com:amordahl/objsim.git
