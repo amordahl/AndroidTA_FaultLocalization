@@ -42,9 +42,11 @@ public class PerfTimer {
 
 
     public String writeCodeChanges(){
-        String returnLine="\nSTARTCODECHANGES: \ntimeMade,rotation,changeNumber,linesRemoved\n";
+        String returnLine="\nSTARTCODECHANGES: \ntimeMade,rotation,changeNumber,linesRemoved,%ofProgramRemoved\n";
         for(CodeChange x: codeChanges){
-            returnLine+=x.timeMade+","+x.currentRotation+","+x.changeNumber+","+x.linesRemoved+"\n";
+
+            double percentChanged=(x.linesRemoved/((double)startLineCount))*100;
+            returnLine+=x.timeMade+","+x.currentRotation+","+x.changeNumber+","+x.linesRemoved+","+percentChanged+"\n";
         }
         return returnLine;
     }

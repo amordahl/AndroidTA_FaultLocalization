@@ -141,7 +141,9 @@ public class Runner {
             fw.write("total_compile_runs: "+ performanceLog.getTotalCompileRuns()+"\n"+"\n");
             fw.write("\n"+performanceLog.getPercentages());
             fw.write("\nnum_candidate_ast: " + testerForThis.candidateCountJava);
-            fw.write("\n%Of_Lines_Removed: "+ (1.0 - performanceLog.endLineCount/((double)performanceLog.startLineCount)));
+            fw.write("\nStart_line_count: "+performanceLog.startLineCount);
+            fw.write("\nEnd_line_count: "+performanceLog.endLineCount);
+            fw.write("\n%Of_Lines_Removed: "+ ((1.0 - (performanceLog.endLineCount/((double)performanceLog.startLineCount)))*100));
             fw.write(performanceLog.writeCodeChanges());
             fw.flush();
             fw.close();
