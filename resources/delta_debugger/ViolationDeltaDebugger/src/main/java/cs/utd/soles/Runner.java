@@ -28,13 +28,10 @@ public class Runner {
     static File intermediateJavaDir=null;
     public static boolean LOG_MESSAGES=false;
     static TesterUtil testerForThis=null;
-
+    static PerfTimer performanceLog = new PerfTimer();
 
     public static void main(String[] args){
-        PerfTimer.startProgramRunTime();
-
-
-
+        performanceLog.startProgramRunTime();
 
         //generate schema file
         try {
@@ -80,14 +77,20 @@ public class Runner {
                 f.mkdirs();
                 intermediateJavaDir=f;
             }
+            //get the lines count before any changes
+            performanceLog.startLineCount=LineCounter.countLinesDir(projectSrcPath);
         }catch(IOException e){
             e.printStackTrace();
         }
 
+
+
+
+
         //start the delta debugging process
         while(!minimized){
 
-            PerfTimer.startOneRotation();
+            performanceLog.startOneRotation();
             //this is set here because if a change is made to ANY ast we want to say we haven't minimized yet
             minimized=true;
             int i=0;
@@ -99,7 +102,7 @@ public class Runner {
                 i++;
             }
             System.out.println("Done with 1 rotation");
-            PerfTimer.endOneRotation();
+            performanceLog.endOneRotation();
         }
 
         //log a bunch of information
@@ -117,6 +120,9 @@ public class Runner {
                 fw.close();
             }
 
+            //get the lines count after all changes
+            performanceLog.endLineCount=LineCounter.countLinesDir(projectSrcPath);
+
             filePathName = "debugger/"+thisRunName+"_time.txt";
             File file = new File(filePathName);
 
@@ -124,28 +130,24 @@ public class Runner {
                 file.delete();
             file.createNewFile();
             FileWriter fw = new FileWriter(file);
-            long finalRunTimeVar= PerfTimer.getProgramRunTime()/1000;
+            long finalRunTimeVar= performanceLog.getProgramRunTime()/1000;
             fw.write("program_runtime: "+finalRunTimeVar+"\n"+"\n");
             fw.write("violation_type: "+targetType+"\n");
-            fw.write("average_of_rotations: " + PerfTimer.getAverageOfRotations()/1000+"\n");
-            fw.write("total_rotations: "+ PerfTimer.getTotalRotations()+"\n"+"\n");
-            fw.write("average_runtime_aql: " + PerfTimer.getAverageOfAQLRuns()/1000+"\n");
-            fw.write("total_aql_runs: "+PerfTimer.getTotalAQLRuns()+"\n"+"\n");
-            fw.write("average_runtime_compile: " +PerfTimer.getAverageOfCompileRuns()/1000+"\n");
-            fw.write("total_compile_runs: "+ PerfTimer.getTotalCompileRuns()+"\n"+"\n");
-            fw.write("total_proposed_node_changes: " + PerfTimer.proposedChangesCount);
-            fw.write("\ntotal_complete_node_changes: " + PerfTimer.totalChangesCount);
+            fw.write("average_of_rotations: " + performanceLog.getAverageOfRotations()/1000+"\n");
+            fw.write("total_rotations: "+ performanceLog.getTotalRotations()+"\n"+"\n");
+            fw.write("average_runtime_aql: " + performanceLog.getAverageOfAQLRuns()/1000+"\n");
+            fw.write("total_aql_runs: "+performanceLog.getTotalAQLRuns()+"\n"+"\n");
+            fw.write("average_runtime_compile: " +performanceLog.getAverageOfCompileRuns()/1000+"\n");
+            fw.write("total_compile_runs: "+ performanceLog.getTotalCompileRuns()+"\n"+"\n");
+            fw.write("\n"+performanceLog.getPercentages());
             fw.write("\nnum_candidate_ast: " + testerForThis.candidateCountJava);
-            fw.write("\n"+PerfTimer.getPercentages());
-            fw.write("\ncompilation_failed: "+testerForThis.compilationFailedCount);
-
-
+            fw.write("\n%Of_Lines_Removed: "+ (1.0 - performanceLog.endLineCount/((double)performanceLog.startLineCount)));
+            fw.write(performanceLog.writeCodeChanges());
             fw.flush();
             fw.close();
 
 
             //let the final version of the project_file be the minimized version so we dont have to replace java file manually
-            //we dont need to do this anymore
             testerForThis.saveCompilationUnits(bestCUList,unchangedJavaFiles, originalCUnits.size()+1,null);
         }catch(IOException e){
             e.printStackTrace();
@@ -248,7 +250,6 @@ public class Runner {
                         copiedNode.remove(x);
                         removedNodes.add(x);
                         alterableRemoves.add(alterableList.get(index));
-                        PerfTimer.addToProposedChanges(1);
                     }
                     index++;
                 }
@@ -257,7 +258,6 @@ public class Runner {
                     //if changed remove the nodes we removed from the original ast
                     for(Node x:alterableRemoves){
                         currentNode.remove(x);
-                        PerfTimer.addToTotalChanges(1);
                     }
 
 
@@ -402,10 +402,10 @@ public class Runner {
 
 
     //this method is run our ast and see if the changes we made are good or bad (returning true or false) depending
-    private static boolean checkChanges(int compPosition, CompilationUnit copiedu, boolean replaceCU, ArrayList<CompilationUnit> cuList) {
+    private static boolean checkChanges(int compPosition, CompilationUnit copiedu, boolean replaceCU, ArrayList<CompilationUnit> cuList){
 
         boolean returnVal=false;
-
+        performanceLog.addChangeNum();
         try {
             //enter synchronized
             synchronized(lockObject) {
@@ -444,6 +444,12 @@ public class Runner {
                     }
 
                     //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!
+                try {
+                    long currentLineCount = LineCounter.countLinesDir(projectSrcPath);
+                    performanceLog.addCodeChange(currentLineCount);
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
                 returnVal = true;
                 minimized = false;
                 //this is the best apk yet, save it.

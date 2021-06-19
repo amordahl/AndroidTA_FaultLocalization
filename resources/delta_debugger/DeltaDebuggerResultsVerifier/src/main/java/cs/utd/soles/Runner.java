@@ -2,7 +2,6 @@ package cs.utd.soles;
 
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Violation;
-import cs.utd.soles.SchemaGenerator;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

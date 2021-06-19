@@ -37,9 +37,6 @@ public class ProcessThread extends Thread{
         ithread.start();
         ethread.start();
         try {
-
-
-
             //in synchronized block, wait for thing to be done
             synchronized(lockObj){
 
@@ -54,7 +51,24 @@ public class ProcessThread extends Thread{
                 thisProc.destroyForcibly();
                 if(doWriteProcess&&Runner.LOG_MESSAGES&& this.type == ThreadHandler.ProcessType.CREATE_APK_PROCESS){
                     try {
-                        String fp = "debugger/tempfiles/gradleproc/" + Runner.thisRunName + System.currentTimeMillis() + "_log.txt";
+                        String fp = "debugger/tempfiles/gradleproctimeout/" + Runner.thisRunName + System.currentTimeMillis() + "_log.txt";
+                        File f = new File(fp);
+                        f.mkdirs();
+                        if(f.exists())
+                            f.delete();
+                        f.createNewFile();
+                        FileWriter fw = new FileWriter(f);
+                        fw.write(finalString);
+                        fw.flush();
+                        fw.close();
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                else if(doWriteProcess&&Runner.LOG_MESSAGES&&
+                        (this.type == ThreadHandler.ProcessType.AQL_PROCESS1|| this.type== ThreadHandler.ProcessType.AQL_PROCESS2)){
+                    try {
+                        String fp = "debugger/tempfiles/aqlproctimeout/" + Runner.thisRunName + System.currentTimeMillis() + "_log.txt";
                         File f = new File(fp);
                         f.mkdirs();
                         if(f.exists())
@@ -75,8 +89,6 @@ public class ProcessThread extends Thread{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
     }
 
     private class ProcessIThread extends Thread{
@@ -94,7 +106,7 @@ public class ProcessThread extends Thread{
 
                     while (reader.ready()) {
                         if(Runner.LOG_MESSAGES){
-                            System.out.println("In Iloop: Reading... Current time: " + System.currentTimeMillis() + " Time_out time: "+startTime+timeOutLong);
+                            System.out.println("In Iloop: Reading... Current time: " + System.currentTimeMillis() + " Time_out time: "+(startTime+timeOutLong));
                         }
                         String s="";
                         s = reader.readLine();
@@ -133,7 +145,7 @@ public class ProcessThread extends Thread{
 
                     while (reader.ready()) {
                         if(Runner.LOG_MESSAGES){
-                            System.out.println("In Eloop: Reading... Current time: " + System.currentTimeMillis() + " Time_out time: "+startTime+timeOutLong);
+                            System.out.println("In Eloop: Reading... Current time: " + System.currentTimeMillis() + " Time_out time: "+(startTime+timeOutLong));
                         }
                         String s="";
                         s = reader.readLine();
@@ -147,7 +159,7 @@ public class ProcessThread extends Thread{
                 if(System.currentTimeMillis()>startTime+timeOutLong) {
                     doWriteProcess = true;
                     if(Runner.LOG_MESSAGES){
-                        System.out.println("Out of Eloop, over time: Current time: " + System.currentTimeMillis() + " Time_out time: "+startTime+timeOutLong);
+                        System.out.println("Out of Eloop, over time: Current time: " + System.currentTimeMillis() + " Time_out time: "+(startTime+timeOutLong));
                     }
                 }
             }catch(Exception e){e.printStackTrace();}

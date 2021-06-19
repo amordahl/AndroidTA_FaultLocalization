@@ -87,6 +87,11 @@
             <artifactId>DroidbenchProjectCreator</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>cs.utd.soles</groupId>
+            <artifactId>ProjectLineCounter</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 

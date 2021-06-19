@@ -1,128 +1,131 @@
 package cs.utd.soles;
 
+import java.util.ArrayList;
+
 public class PerfTimer {
 
 
-    static int totalChangesCount=0;
-    static int proposedChangesCount=0;
-    public static void addToTotalChanges(int x){totalChangesCount+=x;}
-    public static void addToProposedChanges(int x){proposedChangesCount+=x;}
+      long startLineCount=0;
+      long endLineCount=0;
+      int changeNum=0;
+      int currentRotation=0;
 
-    public static long getTotalOfRotations() {
-        return totalOfRotations;
+      ArrayList<CodeChange> codeChanges = new ArrayList<>();
+
+    public void addCodeChange(long currentLines){
+        double timeMade=(System.currentTimeMillis()-programStartTime)/1000.0;
+        long linesRemoved=startLineCount-currentLines;
+        codeChanges.add(new CodeChange(timeMade, linesRemoved, currentRotation, changeNum));
     }
 
-    public static long getTotalRotations() {
+
+
+    private class CodeChange{
+
+        //the time (measured from the start of the programs execution) of the change
+        private double timeMade;
+        //how many lines of code were removed
+        private long linesRemoved;
+        //what rotation are we in?
+        private int currentRotation;
+        //What iteration of the ast is this
+        private int changeNumber;
+
+        public CodeChange(double timeMade, long linesRemoved, int currentRot, int changeNumber){
+            this.timeMade = timeMade;
+            this.linesRemoved=linesRemoved;
+            this.currentRotation=currentRot;
+            this.changeNumber=changeNumber;
+        }
+
+    }
+
+
+    public String writeCodeChanges(){
+        String returnLine="\nSTARTCODECHANGES: \ntimeMade,rotation,changeNumber,linesRemoved\n";
+        for(CodeChange x: codeChanges){
+            returnLine+=x.timeMade+","+x.currentRotation+","+x.changeNumber+","+x.linesRemoved+"\n";
+        }
+        return returnLine;
+    }
+
+    public   long getTotalRotations() {
         return totalRotations;
     }
 
-    public static double getAverageOfRotations() {
+    public void addChangeNum(){
+        changeNum++;
+    }
+
+    public   double getAverageOfRotations() {
         return ((double)totalOfRotations)/totalRotations;
     }
 
-
-    public static long getTotalOfASTChanges() {
-        return totalOfASTChanges;
-    }
-
-    public static long getTotalASTChanges() {
-        return totalASTChanges;
-    }
-
-    public static double getAverageOfASTChanges() {
-        return ((double)totalOfASTChanges)/totalASTChanges;
-    }
-
-    public static long getTotalOfAQLRuns() {
-        return totalOfAQLRuns;
-    }
-
-    public static long getTotalAQLRuns() {
+    public   long getTotalAQLRuns() {
         return totalAQLRuns;
     }
 
-    public static double getAverageOfAQLRuns() {
+    public   double getAverageOfAQLRuns() {
         return ((double)totalOfAQLRuns)/totalAQLRuns;
     }
 
-    public static long getTotalOfCompileRuns() {
-        return totalOfCompileRuns;
-    }
-
-    public static long getTotalCompileRuns() {
+    public   long getTotalCompileRuns() {
         return totalCompileRuns;
     }
 
-    public static double getAverageOfCompileRuns() {
+    public   double getAverageOfCompileRuns() {
         return ((double)totalOfCompileRuns)/totalCompileRuns;
     }
 
-
-    public static void startOneRotation(){
+    public   void startOneRotation(){
         thisRotation=System.currentTimeMillis();
+        currentRotation++;
     }
-    public static void endOneRotation(){
+
+    public   void endOneRotation(){
         totalOfRotations += System.currentTimeMillis() - thisRotation;
         totalRotations++;
     }
-    public static void startOneAQLRun(){
+    public   void startOneAQLRun(){
         thisAQLRun=System.currentTimeMillis();
     }
-    public static void endOneAQLRun(){
+    public   void endOneAQLRun(){
         totalOfAQLRuns += System.currentTimeMillis() - thisAQLRun;
         totalAQLRuns++;
     }
-    public static void startOneCompileRun(){
+    public   void startOneCompileRun(){
         thisCompileRun=System.currentTimeMillis();
     }
-    public static void endOneCompileRun(){
+    public   void endOneCompileRun(){
         totalOfCompileRuns += System.currentTimeMillis() - thisCompileRun;
         totalCompileRuns++;
     }
-    public static void endOneFailedCompileRun(){
+    public   void endOneFailedCompileRun(){
         totalCompileRuns++;
     }
-    public static void startOneASTChange(){
-        thisCompileRun=System.currentTimeMillis();
-    }
-    public static void endOneASTChange(){
-        totalOfASTChanges += System.currentTimeMillis() - thisASTChange;
-        totalASTChanges++;
-    }
-
-    public static void startProgramRunTime(){
+    public   void startProgramRunTime(){
         thisProgramRuntime=System.currentTimeMillis();
+        programStartTime=thisProgramRuntime;
     }
-    public static long getProgramRunTime(){
+    public   long getProgramRunTime(){
         totalProgramTime=System.currentTimeMillis()-thisProgramRuntime;
         return totalProgramTime;
     }
 
-    private static long thisProgramRuntime=0;
+    private long programStartTime=0;
+    private   long thisProgramRuntime=0;
+    private   long thisRotation=0;
+    private   long thisAQLRun=0;
+    private   long thisCompileRun=0;
+    private   long totalOfRotations=0;
+    private   long totalRotations=0;
+    private   long totalProgramTime=0;
+    private   long totalOfAQLRuns=0;
+    private   long totalAQLRuns=0;
+    private   long totalOfCompileRuns=0;
+    private   long totalCompileRuns=0;
 
-    private static long thisRotation=0;
-
-    private static long thisAQLRun=0;
-
-    private static long thisASTChange=0;
-    private static long thisCompileRun=0;
-
-
-    private static long totalOfRotations=0;
-    private static long totalRotations=0;
-
-    private static long totalProgramTime=0;
-
-    private static long totalOfASTChanges=0;
-    private static long totalASTChanges=0;
-
-    private static long totalOfAQLRuns=0;
-    private static long totalAQLRuns=0;
-
-    private static long totalOfCompileRuns=0;
-    private static long totalCompileRuns=0;
-
-    public static String getPercentages(){
+    public   String getPercentages(){
 
         double totalRunTime = totalProgramTime;
 

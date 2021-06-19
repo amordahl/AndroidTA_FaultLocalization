@@ -90,7 +90,7 @@ public class TesterUtil implements ThreadHandler{
     //this just calls gradlew assembleDebug in the right directory
     //this needs the gradlew file path and the root directory of the project
     public void createApk(String gradlewFilePath, String rootDir, ArrayList<CompilationUnit> list, ArrayList<File> javaFiles, int positionChanged, CompilationUnit changedUnit){
-        PerfTimer.startOneCompileRun();
+        Runner.performanceLog.startOneCompileRun();
         String[] command = {gradlewFilePath, "assembleDebug", "-p", rootDir, "--info", "--stacktrace"};
         try {
             saveCompilationUnits(list,javaFiles,positionChanged, changedUnit);
@@ -103,7 +103,7 @@ public class TesterUtil implements ThreadHandler{
                 if(Runner.LOG_MESSAGES)
                     System.out.println(out);
                 compilationFailedCount++;
-                PerfTimer.endOneFailedCompileRun();
+                Runner.performanceLog.endOneFailedCompileRun();
                 return false;
             }*/
         }catch(IOException e){
@@ -112,7 +112,7 @@ public class TesterUtil implements ThreadHandler{
     }
 
     public void runAQL(String apk, String generatingConfig1, String generatingConfig2, String programConfigString) throws IOException {
-        PerfTimer.startOneAQLRun();
+        Runner.performanceLog.startOneAQLRun();
         //this bit runs and captures the output of the aql script
         String command1 = "python runaql.py "+generatingConfig1+" "+apk+" -f";
         String command2 = "python runaql.py "+generatingConfig2+" "+apk+" -f";
@@ -123,7 +123,7 @@ public class TesterUtil implements ThreadHandler{
         aqlThread.start();
         //File output1 = handleOutput("1",Long.toHexString(System.currentTimeMillis()), command1Out,programConfigString);
         //File output2 = handleOutput("2",Long.toHexString(System.currentTimeMillis()), command2Out,programConfigString);
-        //PerfTimer.endOneAQLRun();
+        //Runner.performanceLog.endOneAQLRun();
         //return handleAQL(output1, output2);
 
     }
@@ -138,6 +138,7 @@ public class TesterUtil implements ThreadHandler{
         if(f.exists())
             f.delete();
         f.createNewFile();
+
         String xmlString ="";
         if(outString.contains("<answer/>")){
             xmlString ="<answer>\n</answer>";
@@ -147,10 +148,10 @@ public class TesterUtil implements ThreadHandler{
             return null;
         }
         String header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n";
-
         if(Runner.LOG_MESSAGES){
             System.out.println("this run used this file:" +f.getName());
         }
+
 
         FileWriter fw = new FileWriter(f);
         fw.write(header);
@@ -295,12 +296,12 @@ public class TesterUtil implements ThreadHandler{
                         if (Runner.LOG_MESSAGES)
                             System.out.println(finalString);
                         compilationFailedCount++;
-                        PerfTimer.endOneFailedCompileRun();
+                        Runner.performanceLog.endOneFailedCompileRun();
                         threadResult=false;
                         lockObj.notify();
                         return;
                     }
-                    PerfTimer.endOneCompileRun();
+                    Runner.performanceLog.endOneCompileRun();
                     //build worked
                     threadResult=true;
                     lockObj.notify();
@@ -310,16 +311,19 @@ public class TesterUtil implements ThreadHandler{
             case AQL_RUN:
                 synchronized(lockObj){
                     threadResult=false;
-                    PerfTimer.endOneAQLRun();
+                    Runner.performanceLog.endOneAQLRun();
                     //final results of aql are in both finalString1 and finalString2 respectively
                     //order is config1, config2
 
                     try {
-                        threadResult=handleAQL(handleOutput("1",Long.toHexString(System.currentTimeMillis()), finalString,Runner.thisRunName),handleOutput("2",Long.toHexString(System.currentTimeMillis()), finalString2,Runner.thisRunName));
+                        File o1 = handleOutput("1",Long.toHexString(System.currentTimeMillis()), finalString,Runner.thisRunName);
+                        File o2 = handleOutput("2",Long.toHexString(System.currentTimeMillis()), finalString2,Runner.thisRunName);
+                        threadResult=handleAQL(o1,o2);
                     } catch (IOException e) {
-                        e.printStackTrace();
-                    }
 
+                        e.printStackTrace();
+                        lockObj.notify();
+                    }
 
                     lockObj.notify();
                 }

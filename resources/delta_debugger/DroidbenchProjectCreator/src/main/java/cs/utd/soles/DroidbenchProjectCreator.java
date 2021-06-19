@@ -30,7 +30,7 @@ public class DroidbenchProjectCreator {
         //which project are we copying
         findAndCopyProject();
 
-        Logger.getGlobal().log(Level.INFO, "Project Creation: Success");
+        Logger/*        */.getGlobal().log(Level.INFO, "Project Creation: Success");
     }
 
     private static void findAndCopyProject() {
