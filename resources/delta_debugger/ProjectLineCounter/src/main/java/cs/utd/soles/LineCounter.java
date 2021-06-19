@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LineCounter {
@@ -47,9 +48,17 @@ public class LineCounter {
         }
 
         //get rid of all the comments
-        Pattern blockP = Pattern.compile("/\\*(.|[\\r\\n])*?\\*/");
+        //this one causes stack overflow for whatever reason
+        //Pattern blockP = Pattern.compile("/\\*(.|[\\r\\n])*?\\*/");
+        Pattern blockP = Pattern.compile("/\\*(?s).*?\\*/");
         Pattern lineP = Pattern.compile("//.*");
-        bigString = bigString.replaceAll(blockP.pattern(),"").replaceAll(lineP.pattern(),"");
+
+        bigString = bigString.replaceAll(lineP.pattern(),"");
+        bigString = bigString.replaceAll(blockP.pattern(),"");
+
+
+        //bigString = bigString.replaceAll(blockP.pattern(),"");
+
 
         //get rid of all the blank space
         String[] bigStringArr = bigString.split("\n");
@@ -60,7 +69,6 @@ public class LineCounter {
             }
 
         }
-
         return lines;
     }
 
