@@ -79,6 +79,7 @@ public class Runner {
             }
             //get the lines count before any changes
             performanceLog.startLineCount=LineCounter.countLinesDir(projectSrcPath);
+            performanceLog.lastCurrentLines=performanceLog.startLineCount;
         }catch(IOException e){
             e.printStackTrace();
         }

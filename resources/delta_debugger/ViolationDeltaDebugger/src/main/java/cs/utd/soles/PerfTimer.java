@@ -12,9 +12,13 @@ public class PerfTimer {
 
       ArrayList<CodeChange> codeChanges = new ArrayList<>();
 
+      public long lastCurrentLines=0;
     public void addCodeChange(long currentLines){
         double timeMade=(System.currentTimeMillis()-programStartTime)/1000.0;
-        long linesRemoved=startLineCount-currentLines;
+        //check against the last size of the program
+        long linesRemoved=lastCurrentLines-currentLines;
+        //update current lines
+        lastCurrentLines=currentLines;
         codeChanges.add(new CodeChange(timeMade, linesRemoved, currentRotation, changeNum));
     }
 
@@ -46,7 +50,8 @@ public class PerfTimer {
         for(CodeChange x: codeChanges){
 
             double percentChanged=(x.linesRemoved/((double)startLineCount))*100;
-            returnLine+=x.timeMade+","+x.currentRotation+","+x.changeNumber+","+x.linesRemoved+","+percentChanged+"\n";
+            String percentChangedS= String.format("%.2f",percentChanged);
+            returnLine+=x.timeMade+","+x.currentRotation+","+x.changeNumber+","+x.linesRemoved+","+percentChangedS+"\n";
         }
         return returnLine;
     }
