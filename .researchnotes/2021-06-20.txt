@@ -1,0 +1,8 @@
+This update covers the last few days of work.
+
+I have been modifying ObjSim to remove the functionality that requires the patches in a CSV. Basically, our goal is to make ObjSim continue to work as a Maven plugin, so that we can hook it into our build process and have it instrument.
+
+Meeting with Dr. Wei:
+1. Focus on first fixing this exception with the prelude transformer, then go on to hook it into flowdroid and figure out if it can handle the large program.
+
+1. For our talk, we should start by talking about related work. Problem statement, make sure they understand what our talk is supposed to be, with motivation and necessary background. 
