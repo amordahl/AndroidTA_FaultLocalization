@@ -21,11 +21,11 @@ public class AQLThread extends Thread implements ThreadHandler{
     }
 
     public void run(){
-
-        ProcessThread aql1Thread = new ProcessThread(aql1,this,ProcessType.AQL_PROCESS1, 300000);
+        //timeout is like, two hours. (5 minutes * 24 = 2 hours)
+        ProcessThread aql1Thread = new ProcessThread(aql1,this,ProcessType.AQL_PROCESS1, 300000*24);
         aql1Thread.start();
 
-        ProcessThread aql2Thread = new ProcessThread(aql2,this,ProcessType.AQL_PROCESS2, 300000);
+        ProcessThread aql2Thread = new ProcessThread(aql2,this,ProcessType.AQL_PROCESS2, 300000*24);
         aql2Thread.start();
         synchronized(lockObj){
             try {
