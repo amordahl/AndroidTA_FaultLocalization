@@ -1,0 +1,14 @@
+* TODO Objsim Debugging
+** DONE Why aren't there any output files being produced?
+The program isn't producing any output files, meaning that the instrumentation is not occurring.
+*** TODO What is causing this?
+I don't know. The problem appeared to be fixed.
+** TODO What is causing PITest to fail?
+*** DONE What actually is failing?
+As of now, I'm unsure. It appears there is some issue when writing/reading to the SafeDataStream.
+*** DONE Which I/O Operation is failing?
+The I/O operation that is failing is getting the socket output stream. It throws a NoClassDefFoundError, and the only message is the name of the SnapshotTracker.java class. After going through the documentation, I can't find anywhere within this call that would throw this error.
+**** Successful Ones
+- Read on Profile.java:91. Reading in profiler arguments.
+* TODO Talk slides
+Push to tomorrow.
