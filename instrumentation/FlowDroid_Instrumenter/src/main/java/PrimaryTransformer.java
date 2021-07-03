@@ -63,8 +63,8 @@ public class PrimaryTransformer implements ClassFileTransformer {
         final ClassVisitor classVisitor = new LoggerClassAdapter(classWriter);
         classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
 
-        Path outputDirectory = Paths.get("/home/asm140830/Documents/git/AndroidTA_FaultLocalization/instrumentation/FlowDroid_Instrumenter/outputs");
-        //System.out.println("Output directory is " + outputDirectory.toString());
+        Path outputDirectory = Paths.get("/Users/austin/git/AndroidTA_FaultLocalization/instrumentation/FlowDroid_Instrumenter/outputs");
+        System.out.println("Output directory is " + outputDirectory.toString());
         // Write to output so we can inspect outputs.
 
         //System.out.println("Class being redefined is " + className.replace("/", "_"));
