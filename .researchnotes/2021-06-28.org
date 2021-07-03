@@ -1,0 +1,13 @@
+* Meeting with Dakota and Dr. Wei
+** Status Updates
+- All but two DroidBench apps are ready. (The two that are not are from IAC, which we can't really use for our research anyway.)
+- FossDroid are still in progress. We have ~20 APKs remaining.
+- Wishmaster is too large -- the debugger ran for ~4 days without termination.
+
+** Todos 
+*** TODO Check the wishmaster violations.
+*** TODO Updates on progress 
+
+* Meeting with Dr. Wei
+** TODO Switch back to our own code, but use Object Utils.
+** TODO Ask Ali about the socket issue.
