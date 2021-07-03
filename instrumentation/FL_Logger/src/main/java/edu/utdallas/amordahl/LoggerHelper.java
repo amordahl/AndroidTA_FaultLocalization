@@ -1,19 +1,20 @@
 package edu.utdallas.amordahl;
-import org.jgrapht.Graph;
-import org.jgrapht.alg.cycle.CycleDetector;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleDirectedGraph;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import edu.utdallas.objectutils.Wrapped;
+import edu.utdallas.objectutils.Wrapper;
 
 public class LoggerHelper {
 
     private static Logger logger = LoggerFactory.getLogger(LoggerFactory.class);
-    private static String lastNode;
-    private static DefaultDirectedGraph<String, DefaultEdge> defaultEdgeDefaultDirectedGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
-
-    public static void logObjArray(Object[] objs, String location) {
+    private static HashMap<String, Wrapped> LOGS = new HashMap<>();
+    private static int NUM_ITERS = 0;
+    public static void logObjArray(Object[] objs, String location) throws Exception {
 //        if (lastNode != null) {
 //            defaultEdgeDefaultDirectedGraph.addVertex(lastNode);
 //            defaultEdgeDefaultDirectedGraph.addVertex(location);
@@ -26,21 +27,8 @@ public class LoggerHelper {
 //            }
 //        }
 //        lastNode = location;
-        StringBuilder sb = new StringBuilder();
-        sb.append("ObjArray on " + location + "- [ ");
-        for (Object o: objs) {
-            try {
-                sb.append(o.toString());
-            } catch (NullPointerException np) {
-                sb.append("null");
-            } catch (Exception ex) {
-                sb.append("EXCEPTION_CAUSED_WHEN_ACCESSING");
-            } catch (Error er) {
-                sb.append("ERROR_CAUSED_WHEN_ACCESSING");
-            }
-            sb.append(" ");
-        }
-        sb.append("]");
-        logger.error(sb.toString());
+    	LOGS.put(location, Wrapper.wrapObject(objs));
+        NUM_ITERS++;
+        System.out.println(String.format("Size of logs: %d (%d iterations)", LOGS.size(), NUM_ITERS));
     }
 }
