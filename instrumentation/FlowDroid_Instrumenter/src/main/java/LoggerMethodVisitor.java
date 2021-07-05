@@ -65,7 +65,7 @@ public class LoggerMethodVisitor extends MethodVisitor {
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             return;
         }
-    	if (owner.contains("soot/util/HashChain")) {
+    	if (owner.contains("chain") || owner.contains("Chain")) {
     	    logger.warn("Skipping instrumenting " + owner + "'s " + name + " method, to prevent infinite loops.");
     	    super.visitMethodInsn(opcode, owner, name, desc, itf);
     	    return;

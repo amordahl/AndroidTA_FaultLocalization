@@ -52,7 +52,9 @@ public class PrimaryTransformer implements ClassFileTransformer {
                             Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain,
                             byte[] classfileBuffer) {
-        if (!className.contains("soot")) { /* TODO: Filter appropriately. */
+        if (!className.contains("soot") || 
+        		className.toLowerCase().contains("chain") ||
+        		className.toLowerCase().contains("map")) { /* TODO: Filter appropriately. */
             logger.info("Not instrumenting the class " + className);
             return null; // no transformation
         }
