@@ -1,3 +1,4 @@
+package edu.utdallas.amordahl.coverage_instrumenter;
 /*
  * #%L
  * objsim
@@ -25,6 +26,8 @@ import org.objectweb.asm.ClassWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.utdallas.amordahl.LoggerHelper;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,46 +40,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A versatile class file transformer that adds code to record system state at the exit
- * point(s) of a patched method.
- * !Internal use only!
+ * A versatile class file transformer that adds code to record system state at
+ * the exit point(s) of a patched method. !Internal use only!
  *
  * @author Ali Ghanbari (ali.ghanbari@utdallas.edu)
  */
 public class PrimaryTransformer implements ClassFileTransformer {
 
-    private static Logger logger = LoggerFactory.getLogger(PrimaryTransformer.class);
-    @Override
-    public byte[] transform(ClassLoader loader,
-                            String className,
-                            Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain,
-                            byte[] classfileBuffer) {
-        if (!className.contains("soot") || 
-        		className.toLowerCase().contains("chain") ||
-        		className.toLowerCase().contains("map")) { /* TODO: Filter appropriately. */
-            logger.info("Not instrumenting the class " + className);
-            return null; // no transformation
-        }
+	private static Logger logger = LoggerFactory.getLogger(PrimaryTransformer.class);
 
-    	//System.out.println("In the transform method.");
-        final ClassReader classReader = new ClassReader(classfileBuffer);
-        final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        final ClassVisitor classVisitor = new LoggerClassAdapter(classWriter);
-        classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
+	@Override
+	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+			ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+		// Filter out ModuleRefType because if we don't, then we get a duplicate class definition error.
+		if (!className.contains("soot") || className.contains("ModuleRefType")) {
+			logger.info("Not instrumenting the class " + className);
+			return null; // no transformation
+		}
 
-        Path outputDirectory = Paths.get("/Users/austin/git/AndroidTA_FaultLocalization/instrumentation/FlowDroid_Instrumenter/outputs");
-        System.out.println("Output directory is " + outputDirectory.toString());
-        // Write to output so we can inspect outputs.
+		final ClassReader classReader = new ClassReader(classfileBuffer);
+		final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+		final ClassVisitor classVisitor = new LoggerClassAdapter(classWriter, className);
+		classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
 
-        //System.out.println("Class being redefined is " + className.replace("/", "_"));
-        Path outputFile = outputDirectory.resolve(className.replace("/", "_") + ".class");
-        //System.out.println("Output file is" + outputFile.toString());
-        try {
-            Files.write(outputFile, classWriter.toByteArray());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return classWriter.toByteArray();
-    }
+		try {
+			Path outputDirectory = new PropReader().getOutputFile();
+			// Write to output so we can inspect outputs.
+			Path outputFile = outputDirectory.resolve(className.replace("/", "_") + ".class");
+			// System.out.println("Output file is" + outputFile.toString());
+			Files.write(outputFile, classWriter.toByteArray());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return classWriter.toByteArray();
+	}
 }
