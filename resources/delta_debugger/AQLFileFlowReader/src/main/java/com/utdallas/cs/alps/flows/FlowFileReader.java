@@ -12,4 +12,6 @@ public interface FlowFileReader {
      * supplied by the application.
      */
     Iterator<Flow> getFlows(File flowFile);
+
+    Iterator<ClassifiedFlow> getClassifiedFlows(File flowFile);
 }

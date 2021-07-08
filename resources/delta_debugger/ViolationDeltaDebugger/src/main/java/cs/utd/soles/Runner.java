@@ -5,12 +5,11 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Flow;
-import com.utdallas.cs.alps.flows.Violation;
+import com.utdallas.cs.alps.flows.Flowset;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -24,11 +23,11 @@ import java.util.List;
 
 public class Runner {
 
-
     static File intermediateJavaDir=null;
     public static boolean LOG_MESSAGES=false;
     static TesterUtil testerForThis=null;
     static PerfTimer performanceLog = new PerfTimer();
+    private static boolean projectNeedsToBeMinimized=true;
 
     public static void main(String[] args){
         performanceLog.startProgramRunTime();
@@ -46,12 +45,16 @@ public class Runner {
         
         //test new aql file flow reader
         /*AQLFlowFileReader bob = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
-        Violation b = bob.getThisViolation(Paths.get(args[0]).toFile());
-        System.out.println(b.getConfig1() + " " + b.getConfig2() + " " + b.getApk());
-        for(Flow x: b.getFlowList()){
+        Flowset b = bob.getFlowSet(Paths.get(args[0]).toFile());
+        System.out.println(b.getApk()+" "+b.getConfig1()+" "+b.getConfig2()+" "+b.getType()+" "+b.getViolation());
+        System.out.println("CONFIG 1");
+        for(Flow x: b.getConfig1_FlowList()){
+            System.out.println(x);
+        }
+        System.out.println("CONFIG 2");
+        for(Flow x: b.getConfig2_FlowList()){
             System.out.println(x);
         }*/
-
 
         //after we handl the args we gotta do a couple of things
         /*
@@ -63,7 +66,6 @@ public class Runner {
         * */
 
         //build the project file
-
         createTargetProject();
 
        // testerForThis = new TesterUtil(targetFile, SchemaGenerator.SCHEMA_PATH, targetType);
@@ -84,8 +86,13 @@ public class Runner {
             e.printStackTrace();
         }
 
+        //handle the projects that dont need to be minimized
+        if(!projectNeedsToBeMinimized){
+            //this should just run the gradlew assembleDebug and check if we reproduced the thing - since checklist should be 0 then yes we always get a apk
+            checkChanges(bestCUList.size()+1,null);
 
-
+            System.out.println("Saving APK, no flows given so no minimization to be done. Exiting program...");
+        }
 
 
         //start the delta debugging process
@@ -176,13 +183,30 @@ public class Runner {
         AQLFlowFileReader reader = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
 
         //everything we need is in this here object
-        Violation thisViolation = reader.getThisViolation(Paths.get(args[0]).toFile());
+        Flowset thisViolation = reader.getFlowSet(Paths.get(args[0]).toFile());
+
         apkName="/"+thisViolation.getApk();
         config1="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig1()+".xml";
         config2="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig2()+".xml";
         targetType=thisViolation.getType().equalsIgnoreCase("soundness");
+        violationOrNot=thisViolation.getViolation().toLowerCase().equals("true");;
 
-        testerForThis = new TesterUtil(thisViolation.getFlowList(), SchemaGenerator.SCHEMA_PATH,targetType, lockObject);
+        //the files with no flows we still need the apk info from so that we can save its apk, so figure out the apk from the filename
+        //fix apkName
+        if(apkName.equals("/")){
+
+            String fileName = Paths.get(args[0]).toFile().getName();
+
+            String[] split = fileName.split("_");
+
+            //TODO:: THIS WONT WORK FOR DROIDBENCH PLEASE FIX
+            apkName="/"+split[3]+"_"+split[4];
+            //this project shouldnt be minimized - nothing to minimize to.
+            projectNeedsToBeMinimized=false;
+        }
+
+        //add stuff to the tester
+        testerForThis = new TesterUtil(thisViolation.getConfig1_FlowList(), thisViolation.getConfig2_FlowList(), SchemaGenerator.SCHEMA_PATH,targetType, lockObject,violationOrNot);
 
         for(int i=1;i<args.length;i++) {
 
@@ -204,14 +228,12 @@ public class Runner {
 
 
 
+
     //this method takes in the flow information and marks some parts of the ast un-removeable (like the source and sink of a flow)
     public static void turnFlowsIntoUnremovableNodes(){
 
 
         //get the flow, parse the info and guess which node is this flow
-        for(Flow x: testerForThis.targetFlows){
-
-        }
     }
 
     //main recursion that loops through all nodes
@@ -257,7 +279,7 @@ public class Runner {
                     index++;
                 }
 
-                if(checkChanges(compPosition, copiedUnit,false,null)){
+                if(checkChanges(compPosition, copiedUnit)){
                     //if changed remove the nodes we removed from the original ast
                     for(Node x:alterableRemoves){
                         currentNode.remove(x);
@@ -285,41 +307,7 @@ public class Runner {
         //if they worked REMOVE THE SAME NODES FROM ORIGINAL DONT COPY ANYTHING
     }
 
-    //this method trys to remove entire CompilationUnits from the list
-    public static void handleCUList(List<CompilationUnit> childList){
 
-        ArrayList<CompilationUnit> copiedList = new ArrayList<>();
-        for(CompilationUnit x: childList){
-            copiedList.add(x.clone());
-        }
-        for(int i=copiedList.size();i>0;i/=2){
-            for(int j=0;j<copiedList.size();j+=i){
-                List<CompilationUnit> subList = new ArrayList<>(copiedList.subList(j,Math.min((j+i),copiedList.size())));
-                copiedList.removeAll(subList);
-                if(checkChanges(childList.size()+1,null,true,copiedList)){
-                    //the copied list worked, update regular list to reflect changes
-                    childList=copiedList;
-                    //we also need to remove the javafiles associated with the compilationUnits from the list of files
-
-                    //TODO:: maybe this is the null?
-                    for(int h=0;h<subList.size();h++){
-                        javaFiles.remove(j);
-                    }
-
-                    //restart the loop
-                    copiedList = new ArrayList<>();
-                    for(CompilationUnit x: childList){
-                        copiedList.add(x.clone());
-                    }
-                    i=copiedList.size()/2;
-                }else{
-                    //the copied list didn't work, set it back to normal
-                    copiedList.addAll(j,subList);
-                }
-            }
-        }
-
-    }
 
     //matches the currentNode to what type it is and handles appropriately
     //this returns the currentNode (could be the node we gave it or it's equivalent copy whenever we copied and killed tons of trees)
@@ -405,7 +393,7 @@ public class Runner {
 
 
     //this method is run our ast and see if the changes we made are good or bad (returning true or false) depending
-    private static boolean checkChanges(int compPosition, CompilationUnit copiedu, boolean replaceCU, ArrayList<CompilationUnit> cuList){
+    private static boolean checkChanges(int compPosition, CompilationUnit copiedu){
 
         boolean returnVal=false;
         performanceLog.addChangeNum();
@@ -543,23 +531,90 @@ public class Runner {
 
         //some projects are weird
         switch(name){
-            case "DynamicSink1":
-                projectRootPath=pathFile;
-                projectGradlewPath=pathFile+"/gradlew";
-                File f= new File(projectGradlewPath);
+            case "DynamicSink1": {
+                projectRootPath = pathFile;
+                projectGradlewPath = pathFile + "/gradlew";
+                File f = new File(projectGradlewPath);
                 f.setExecutable(true);
-                projectAPKPath=pathFile+"/dynamicLoading_DynamicSink1/build/outputs/apk/debug/dynamicLoading_DynamicSink1-debug.apk";
-                projectSrcPath=pathFile+"/dynamicLoading_DynamicSink1/src/main/java/";
+                projectAPKPath = pathFile + "/dynamicLoading_DynamicSink1/build/outputs/apk/debug/dynamicLoading_DynamicSink1-debug.apk";
+                projectSrcPath = pathFile + "/dynamicLoading_DynamicSink1/src/main/java/";
                 break;
-            case "Library2":
-                projectRootPath=pathFile;
-                projectGradlewPath=pathFile+"/gradlew";
-                File fw= new File(projectGradlewPath);
+            }
+            case "Library2": {
+                projectRootPath = pathFile;
+                projectGradlewPath = pathFile + "/gradlew";
+                File fw = new File(projectGradlewPath);
                 fw.setExecutable(true);
-                projectAPKPath=pathFile+"/androidSpecific_Library2/build/outputs/apk/debug/androidSpecific_Library2-debug.apk";
-                projectSrcPath=pathFile+"/androidSpecific_Library2/src/main/java/";
+                projectAPKPath = pathFile + "/androidSpecific_Library2/build/outputs/apk/debug/androidSpecific_Library2-debug.apk";
+                projectSrcPath = pathFile + "/androidSpecific_Library2/src/main/java/";
                 break;
+            }
+            case "DynamicBoth1":{
+                projectRootPath = pathFile;
+                projectGradlewPath = pathFile + "/gradlew";
+                File fw = new File(projectGradlewPath);
+                fw.setExecutable(true);
+                projectAPKPath = pathFile + "/dynamicLoading_DynamicBoth1/build/outputs/apk/debug/dynamicLoading_DynamicBoth1-debug.apk";
+                projectSrcPath = pathFile + "/dynamicLoading_DynamicBoth1/src/main/java/";
+                break;
+            }
+            case "DynamicSource1":{
+                projectRootPath = pathFile;
+                projectGradlewPath = pathFile + "/gradlew";
+                File fw = new File(projectGradlewPath);
+                fw.setExecutable(true);
+                projectAPKPath = pathFile + "/dynamicLoading_DynamicSource1/build/outputs/apk/debug/dynamicLoading_DynamicSource1-debug.apk";
+                projectSrcPath = pathFile + "/dynamicLoading_DynamicSource1/src/main/java/";
+                break;
+            }
+            case "DynamicLoadingTarget1":{
+                projectRootPath = pathFile;
+                projectGradlewPath = pathFile + "/gradlew";
+                File fw = new File(projectGradlewPath);
+                fw.setExecutable(true);
+                projectAPKPath = pathFile + "/dynamicLoading_DynamicLoadingTarget1/build/outputs/apk/debug/dynamicLoading_DynamicLoadingTarget1-debug.apk";
+                projectSrcPath = pathFile + "/dynamicLoading_DynamicLoadingTarget1/src/main/java/";
+                break;
+            }
+            case "uk.co.yahoo.p1rpp.calendartrigger_7":{
+                projectRootPath = pathFile;
+                projectGradlewPath = pathFile + "/gradlew";
+                File fw = new File(projectGradlewPath);
+                fw.setExecutable(true);
+                projectAPKPath = pathFile + "/app/build/outputs/apk/debug/CalendarTrigger_7-debug.apk";
+                break;
+            }
+            case "com.nutomic.ensichat_17":{
+                projectRootPath = pathFile;
+                projectGradlewPath = pathFile + "/gradlew";
+                File fw = new File(projectGradlewPath);
+                fw.setExecutable(true);
+                projectAPKPath = pathFile + "/android/build/outputs/apk/debug/android-debug.apk";
+                projectSrcPath = pathFile + "/android/src/";
+                break;
+            }
+            case "jackpal.androidterm_72":{
+                projectRootPath = pathFile;
+                projectGradlewPath = pathFile + "/gradlew";
+                File fw = new File(projectGradlewPath);
+                fw.setExecutable(true);
+                projectAPKPath = pathFile + "/term/build/outputs/apk/debug/term-debug.apk";
+                projectSrcPath = pathFile + "/term/src/";
+                break;
+            }
+            case "trikita.talalarmo_19":{
+                projectRootPath = pathFile;
+                projectGradlewPath = pathFile + "/gradlew";
+                File fw = new File(projectGradlewPath);
+                fw.setExecutable(true);
+                projectAPKPath = pathFile + "/build/outputs/apk/debug/trikita.talalarmo_19_src.tar.gz-debug.apk";
+                projectSrcPath = pathFile + "/src/";
+                break;
+            }
+
+
         }
+        //TODO:: add osmand and debian kit fossdroid projects
     }
 
     //root project of the file

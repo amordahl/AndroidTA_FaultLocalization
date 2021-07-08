@@ -21,15 +21,33 @@ public class AQLThread extends Thread implements ThreadHandler{
     }
 
     public void run(){
-        //timeout is like, two hours. (5 minutes * 24 = 2 hours)
-        ProcessThread aql1Thread = new ProcessThread(aql1,this,ProcessType.AQL_PROCESS1, 300000*24);
-        aql1Thread.start();
 
-        ProcessThread aql2Thread = new ProcessThread(aql2,this,ProcessType.AQL_PROCESS2, 300000*24);
-        aql2Thread.start();
+        //if either of the Process are null that means we didnt run that command, handle accordingly
+
+        //keep track of when we stop, normally 2 but if we got 1 we arent running then we stop at 1 rather than 2.
+        int nonNullCount=2;
+        //timeout is like, two hours. (5 minutes * 24 = 2 hours)
+        if(aql1 !=null) {
+            //run like normal - its not null
+            ProcessThread aql1Thread = new ProcessThread(aql1, this, ProcessType.AQL_PROCESS1, 300000 * 24);
+            aql1Thread.start();
+
+        }else{
+            //its null, lower the count and provide an empty answer.
+            aql1FinalString="<answer/>";
+            nonNullCount--;
+        }
+
+        if(aql2 !=null) {
+            ProcessThread aql2Thread = new ProcessThread(aql2, this, ProcessType.AQL_PROCESS2, 300000 * 24);
+            aql2Thread.start();
+        }else{
+            aql2FinalString="<answer/>";
+            nonNullCount--;
+        }
         synchronized(lockObj){
             try {
-                while(doneCount<2)
+                while(doneCount<nonNullCount)
                     lockObj.wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();

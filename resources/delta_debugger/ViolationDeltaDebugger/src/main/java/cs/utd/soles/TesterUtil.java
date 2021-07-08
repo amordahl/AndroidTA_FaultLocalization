@@ -26,22 +26,26 @@ public class TesterUtil implements ThreadHandler{
     int candidateCountJava=0;
     int compilationFailedCount=0;
     final Object lockObj;
+    boolean isViolation=false;
 
-    ArrayList<Flow> targetFlows;
+    ArrayList<Flow> config1Flows;
+    ArrayList<Flow> config2Flows;
 
     public TesterUtil(String targetFile, String xmlSchemaFile, boolean violationType, final Object lockObj){
         this.targetFile=targetFile;
         this.xmlSchemaFile=xmlSchemaFile;
         this.soundness=violationType;
-        targetFlows=FlowJSONHandler.turnTargetPathIntoFlowList(targetFile);
+        config1Flows=FlowJSONHandler.turnTargetPathIntoFlowList(targetFile);
         this.lockObj = lockObj;
     }
 
-    public TesterUtil(ArrayList<Flow> list, String xmlSchemaFile, boolean violationType, final Object lockObj){
-        this.targetFlows=list;
+    public TesterUtil(ArrayList<Flow> config1List,ArrayList<Flow> config2List, String xmlSchemaFile, boolean violationType, final Object lockObj, boolean isViolation){
+        this.config1Flows=config1List;
+        this.config2Flows=config2List;
         this.xmlSchemaFile=xmlSchemaFile;
         this.soundness=violationType;
         this.lockObj=lockObj;
+        this.isViolation=isViolation;
         System.out.println("THIS VIOLATION IS TYPE: " + this.soundness);
     }
 
@@ -91,7 +95,7 @@ public class TesterUtil implements ThreadHandler{
     //this needs the gradlew file path and the root directory of the project
     public void createApk(String gradlewFilePath, String rootDir, ArrayList<CompilationUnit> list, ArrayList<File> javaFiles, int positionChanged, CompilationUnit changedUnit){
         Runner.performanceLog.startOneCompileRun();
-        String[] command = {gradlewFilePath, "assembleDebug", "-p", rootDir, "--info", "--stacktrace"};
+        String[] command = {gradlewFilePath, "assembleDebug", "-p", rootDir};
         try {
             saveCompilationUnits(list,javaFiles,positionChanged, changedUnit);
             Process p = Runtime.getRuntime().exec(command);
@@ -113,13 +117,36 @@ public class TesterUtil implements ThreadHandler{
 
     public void runAQL(String apk, String generatingConfig1, String generatingConfig2, String programConfigString) throws IOException {
         Runner.performanceLog.startOneAQLRun();
+
         //this bit runs and captures the output of the aql script
         String command1 = "python runaql.py "+generatingConfig1+" "+apk+" -f";
         String command2 = "python runaql.py "+generatingConfig2+" "+apk+" -f";
-        Process command1Run = Runtime.getRuntime().exec(command1);
-        Process command2Run = Runtime.getRuntime().exec(command2);
+
+
+        boolean runaql1=true;
+        boolean runaql2=true;
+        //if its a violation always run both
+        if(isViolation){
+            runaql1=true;
+            runaql2=true;
+        }else{
+            if(config1Flows.size()==0)
+                runaql1=false;
+            if(config2Flows.size()==0)
+                runaql2=false;
+        }
+
         //start these commands and then handle them somewhere else
-        AQLThread aqlThread = new AQLThread(command1Run, command2Run, this);
+        Process command1Run = null;
+        Process command2Run = null;
+        if(runaql1){
+            command1Run=Runtime.getRuntime().exec(command1);
+        }
+        if(runaql2){
+            command2Run= Runtime.getRuntime().exec(command2);
+        }
+
+        AQLThread aqlThread = new AQLThread(command1Run, command2Run,this);
         aqlThread.start();
         //File output1 = handleOutput("1",Long.toHexString(System.currentTimeMillis()), command1Out,programConfigString);
         //File output2 = handleOutput("2",Long.toHexString(System.currentTimeMillis()), command2Out,programConfigString);
@@ -171,14 +198,13 @@ public class TesterUtil implements ThreadHandler{
         }
         ArrayList<Flow> flowList = new ArrayList<>();
 
-
+        boolean returnVal=false;
         //depending on if it is a precision or soundness error
 
         //for this new format. The first config is always the one that is more precise/sound. So, to check a violation
         //we get the results for the second aql, and subtract it from the results of the first.
-        flowList.addAll(getFlowStrings(o2));
-        flowList.removeAll(getFlowStrings(o1));
-        boolean returnVal=false;
+
+
         /*for(Flow x: flowList){
 
 
@@ -194,12 +220,24 @@ public class TesterUtil implements ThreadHandler{
 
         }*/
 
+
+        //add all the flows we found
+        if(isViolation){
+            flowList.addAll(getFlowStrings(o2));
+            flowList.removeAll(getFlowStrings(o1));
+        }else {
+            flowList.addAll(getFlowStrings(o2));
+            flowList.addAll(getFlowStrings(o1));
+        }
+
         //check and see if we maintain all the flows we want to
-        ArrayList<Flow> checkList = new ArrayList<>(targetFlows);
+        ArrayList<Flow> checkList = new ArrayList<>();
+        checkList.addAll(config1Flows);
+        checkList.addAll(config2Flows);
         checkList.removeAll(flowList);
 
-        System.out.println("Flows not found");
-        for(Flow x: checkList){
+        //System.out.println("Flows not found");
+        /*for(Flow x: checkList){
             System.out.println(x.getSink().getStatementFull() + " " + x.getSink().getMethod());
             System.out.println(x.getSource().getStatementFull() + " " + x.getSource().getMethod());
 
@@ -209,8 +247,9 @@ public class TesterUtil implements ThreadHandler{
             System.out.println(x.getSink().getStatementFull() + " " + x.getSink().getMethod());
             System.out.println(x.getSource().getStatementFull() + " " + x.getSource().getMethod());
 
-        }
+        }*/
 
+        //only return true if we managed a change that preserves every flow we wanted to
         if(checkList.size()==0){
             returnVal=true;
         }

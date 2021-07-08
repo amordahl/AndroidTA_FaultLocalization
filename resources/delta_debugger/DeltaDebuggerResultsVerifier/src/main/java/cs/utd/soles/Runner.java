@@ -8,9 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Runner {
 
@@ -41,7 +39,8 @@ public class Runner {
 
 
         String output="";
-        String header="apk,config1,config2,runtime,type,avgRot,totRot,avgAql,totAql,avgComp,totComp,totProposed,totComplete,numCandidate,%AQL,%Comp,compFailed\n";
+        String lineData="";
+        String header="apk,config1,config2,program_runtime,violation_type,Avg_Of_Rotations,Total_Rotations,Avg_Of_AQL,Total_AQL,Avg_Of_Compile,Total_Compile,%OfProgramRuntimeAQL,%OfProgramRuntimeCompile,Total_Proposed_Changes,Start_lines,End_lines,%OfLinesRemoved,bestRot,bestRotLines,bestRotLines%,worstRot,worstRotLines,worstRotLines%\n";
         output+=header;
         for(File x: allTXTFiles){
             //get the data, verify the results
@@ -59,6 +58,7 @@ public class Runner {
                 in+=sc.nextLine()+"\n";
             }
             in = in.replaceAll(":","");
+
             String[] inArr = in.split("\\s+");
             LineObj j = new LineObj(
                     apkName,config1,config2,
@@ -68,8 +68,41 @@ public class Runner {
                     inArr[19], inArr[21],inArr[23],
                     inArr[25], inArr[27]);
 
-            String line=j.apk+","+j.config1+","+j.config2+","+j.runtime+","+j.violation_type+","+j.avgRotation+","+j.totalRotation+","+j.avgAQL+","+j.totalAQL+","+j.avgCompile+","+j.totalCompile+","+j.totalProposed+","+j.totalComplete+","+j.numCandidate+","+j.percentAQL+","+j.percentCompile+","+j.compFailed+"\n";
+            int indexStart=0;
+            for(String f: inArr){
+                if(f.equals("STARTCODECHANGES")){
+                    break;
+                }
+                indexStart++;
+            }
 
+            //handle codechange data
+            ArrayList<CodeChange> codeChangeList = new ArrayList<>();
+
+            Comparator<CodeChange> bobC = (o1, o2) -> {
+                if(o1.timeMade<o2.timeMade)
+                    return -1;
+                else if(o1.timeMade>o2.timeMade)
+                    return 1;
+                return 0;
+            };
+
+
+            for(int i=indexStart+2;i<inArr.length;i++){
+                String[] thing = inArr[i].trim().split(",");
+                codeChangeList.add(new CodeChange(Double.parseDouble(thing[0]),Integer.parseInt(thing[1]),Integer.parseInt(thing[2]),Integer.parseInt(thing[3]),Double.parseDouble(thing[4])));
+
+            }
+
+            //bestRotation is the one that removed the most lines,
+
+
+            String line=j.apk+","+j.config1+","+j.config2+","+j.runtime+","+j.violation_type+","+j.avgRotation+","+j.totalRotation+","+j.avgAQL+","+j.totalAQL+","+j.avgCompile+","+j.totalCompile+","+j.totalProposed+","+j.totalComplete+","+j.numCandidate+","+j.percentAQL+","+j.percentCompile+","+j.compFailed+",";
+
+            String bestRotation = getBestRotation(codeChangeList,j, true);
+            line+=bestRotation+",";
+            String worstRotation = getBestRotation(codeChangeList,j,false);
+            line+=worstRotation+"\n";
 
             //if we want to verify the results of this line
             if(violationLogsDir !=null){
@@ -100,12 +133,75 @@ public class Runner {
 
 
             output+=line;
+
+
+            File outF2 = new File(apkName+config1+config2+"LineData" +".csv");
+            FileWriter fw2 = new FileWriter(outF2);
+            double currentTotal=100.0;
+            for(CodeChange b: codeChangeList){
+                currentTotal=currentTotal-b.percentProgram;
+                String str = String.format("%.3f",currentTotal);
+                String lineer=b.timeMade+","+b.linesRemoved+","+str+"\n";
+                fw2.write(lineer);
+            }
+            fw2.flush();
+            fw2.close();
         }
+
+
         File outF = new File("deltadebugger_results"+Long.toHexString(System.currentTimeMillis()) +".csv");
         FileWriter fw = new FileWriter(outF);
         fw.write(output);
         fw.flush();
         fw.close();
 
+
+
+
+
+    }
+
+    private static String getBestRotation(ArrayList<CodeChange> codeChangeList, LineObj j, boolean isMax) {
+
+        if(codeChangeList.size()==0){
+            return "";
+        }
+        String returnString="";
+
+        ArrayList<Integer> rotList = new ArrayList<>();
+        System.out.println(codeChangeList);
+        for(CodeChange x: codeChangeList){
+            //System.out.println(x);
+            if(rotList.size()<x.rot){
+                rotList.add(x.rot-1,x.linesRemoved);
+            }
+            else{
+                int old = rotList.get(x.rot-1);
+                rotList.set(x.rot-1,old+x.linesRemoved);
+            }
+            //System.out.println(rotList);
+        }
+        int max=0;
+        int worst=0;
+        for(int i=0;i<rotList.size();i++){
+
+            if(rotList.get(i)>rotList.get(max)){
+                max=i;
+            }
+            if(rotList.get(i)<rotList.get(worst)){
+                worst=i;
+            }
+        }
+        /*returnString="Rotation: "+(max+1)+" removed "+rotList.get(max)+" lines, which was "+(100*(rotList.get(max))/Double.parseDouble(j.percentAQL)) +"% of the program.\n" +
+
+            "Rotation: "+(worst+1)+" removed "+rotList.get(worst)+" lines, which was "+(100*(rotList.get(worst))/Double.parseDouble(j.percentAQL)) +"% of the program.\n";*/
+
+        if(isMax){
+            returnString=(max+1)+","+rotList.get(max)+","+(100*(rotList.get(max))/Double.parseDouble(j.percentAQL));
+        }else{
+            returnString=(worst+1)+","+rotList.get(worst)+","+(100*(rotList.get(worst))/Double.parseDouble(j.percentAQL));
+        }
+
+        return returnString;
     }
 }
