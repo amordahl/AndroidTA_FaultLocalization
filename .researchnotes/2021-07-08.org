@@ -1,0 +1,13 @@
+* Meeting with Dakota and Dr. Wei
+** TODO Update checkmate to output files in groups.
+** TODO Start DroidBench experiments today.
+- All violations are able to minimize, except for wishmaster.
+
+* Meeting with Dr. Wei
+** Things to record from coverage
+- Overhead: how does it affect performance?
+- Differences between coverage:
+  - Coverage differences between configs that have a violation and those that don't.
+  - Within each program, how different are the coverages? Is the difference consistent between violations and non-violations?
+  - Parts of flowdroid that are only executed by the faulty config?
+  - *Differences in the differences of coverages on violated APKs vs. non-violated APKs.*
