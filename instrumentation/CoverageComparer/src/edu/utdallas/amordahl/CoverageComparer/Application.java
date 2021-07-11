@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 
 import org.apache.commons.cli.CommandLine;
@@ -16,6 +17,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.json.simple.JSONObject;
 
 public class Application {
 
@@ -44,6 +46,19 @@ public class Application {
 		
 		ArrayList<String> fc1 = readFileContents(cmd.getOptionValue("c1"));
 		ArrayList<String> fc2 = readFileContents(cmd.getOptionValue("c2"));
+		
+		// Compute frequencies
+		HashMap<String, Integer> fm1, fm2;
+		fm1 = computeFrequencyMap(fc1);
+		fm2 = computeFrequencyMap(fc2);
+		
+		// Compute sets
+		HashSet<String> set1, set2;
+		set1 = convertListToSet(fc1);
+		set2 = convertListToSet(fc2);
+		
+		// Now, compute the differences.
+		JSONObject jo = new JSONObject();
 	}
 	
 	private static ArrayList<String> readFileContents(String fileName) {
@@ -64,7 +79,23 @@ public class Application {
 	private static HashMap<String, Integer> computeFrequencyMap(ArrayList<String> fileContents) {
 		HashMap<String, Integer> frequencyMap = new HashMap<String, Integer>();
 		
+		for (String k: fileContents) {
+			if (!frequencyMap.containsKey(k)) {
+				frequencyMap.put(k, Integer.valueOf(0));
+			}
+			frequencyMap.put(k, frequencyMap.get(k) + 1);
+		}
 		
+		return frequencyMap;
+		
+	}
+	
+	private static HashSet<String> convertListToSet(ArrayList<String> al) {
+		HashSet<String> hs = new HashSet<String>();
+		for (String k: al) {
+			hs.add(k);
+		}
+		return hs;
 	}
 
 }
