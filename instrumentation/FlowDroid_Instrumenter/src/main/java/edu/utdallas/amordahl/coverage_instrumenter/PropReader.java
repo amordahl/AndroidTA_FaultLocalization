@@ -29,7 +29,7 @@ public class PropReader {
 			}
 			props.load(inputStream);
 			setOutputFile(Paths.get(props.getProperty("output_dir")));
-			logger.info("outputDirectory is " + getOutputFile());
+			logger.debug("outputDirectory is " + getOutputFile());
 		}
 	}
 

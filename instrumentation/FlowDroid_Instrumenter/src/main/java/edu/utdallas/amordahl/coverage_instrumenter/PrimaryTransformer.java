@@ -29,10 +29,12 @@ import org.slf4j.LoggerFactory;
 import edu.utdallas.amordahl.LoggerHelper;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.ProtectionDomain;
@@ -57,7 +59,7 @@ public class PrimaryTransformer implements ClassFileTransformer {
 			logger.info("Not instrumenting the class " + className);
 			return null; // no transformation
 		}
-
+		logger.info("Instrumenting the class " + className);
 		final ClassReader classReader = new ClassReader(classfileBuffer);
 		final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 		final ClassVisitor classVisitor = new LoggerClassAdapter(classWriter, className);
@@ -65,6 +67,7 @@ public class PrimaryTransformer implements ClassFileTransformer {
 
 		try {
 			Path outputDirectory = new PropReader().getOutputFile();
+
 			// Write to output so we can inspect outputs.
 			Path outputFile = outputDirectory.resolve(className.replace("/", "_") + ".class");
 			// System.out.println("Output file is" + outputFile.toString());

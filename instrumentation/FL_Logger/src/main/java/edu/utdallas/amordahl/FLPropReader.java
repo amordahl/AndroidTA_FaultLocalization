@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class FLPropReader {
 	
-	public FLPropReader () throws IOException {
+	public FLPropReader() throws IOException {
 		this.setPropValues();
 	}
 	private Logger logger = LoggerFactory.getLogger(FLPropReader.class);
@@ -30,7 +30,9 @@ public class FLPropReader {
 			if (inputStream == null) {
 				throw new FileNotFoundException(String.format("Could not find property file %s", propFileName));
 			}
+			logger.info("trying to read properties from " + inputStream.toString());
 			props.load(inputStream);
+			logger.info("output file is " + props.get("output_file"));
 			setOutputFile(Paths.get(props.getProperty("output_file")));
 			logger.info("outputFile is " + getOutputFile());
 		}
