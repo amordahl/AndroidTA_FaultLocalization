@@ -42,17 +42,21 @@ public class LoggerHelper {
 				String.format("Size of logs: %d (%d iterations) (location %s)", LOGS.size(), NUM_ITERS, location));
 	}
 
+	private static Boolean canWrite = true;
 	public static void logCoverageInfo(int linenumber, String location) throws IOException {
-		logger.info("LogCoverageInfo called.");
-		try (FileWriter fw = new FileWriter(new FLPropReader().getOutputFile().toFile(), true);
-				BufferedWriter bw = new BufferedWriter(fw)) {
-			String fullLocation = String.format("%s:%d\n", location, linenumber);
-			bw.write(fullLocation);
+//		logger.debug("LogCoverageInfo called.");
+//		while (!canWrite) {}
+//		canWrite = false;
+//		try (FileWriter fw = new FileWriter(FLPropReader.getInstance().getOutputFile().toFile(), true);
+//				BufferedWriter bw = new BufferedWriter(fw)) {
+			String fullLocation = String.format("%s:%d", location, linenumber);
+			System.err.println(fullLocation);
+//			bw.write(fullLocation);
 			if (!COVERAGE.containsKey(fullLocation)) {
 				COVERAGE.put(fullLocation, Integer.valueOf(0));
 			}
 			COVERAGE.put(fullLocation, COVERAGE.get(fullLocation) + 1);
-		}
+//		}
 	}
 
 	public static void printCoverageInfo() {

@@ -15,34 +15,65 @@ import org.slf4j.LoggerFactory;
 // Accessed on 7/7/2021
 
 public class FLPropReader {
+
+	private static FLPropReader me;
+
+	public static FLPropReader getInstance() throws IOException {
+		if (me == null)
+			me = new FLPropReader();
+		return me;
+	}
+
+	private Logger logger = LoggerFactory.getLogger(FLPropReader.class);
+	private String outputFile;
+	private String outputPrefix;
+	private Path classFileOutputDir;
 	
-	public FLPropReader() throws IOException {
+	private FLPropReader() throws IOException {
 		this.setPropValues();
 	}
-	private Logger logger = LoggerFactory.getLogger(FLPropReader.class);
-	private Path outputFile;
-	
+
+	public Path getClassFileOutputDir() {
+		return classFileOutputDir;
+	}
+
+	public Path getOutputFile() throws IOException {
+		if (this.outputPrefix != null) {
+			return Paths.get(this.outputFile.replace("{}", this.outputPrefix));
+		}
+		return Paths.get(this.outputFile.replace("{}-", ""));
+	}
+
+	public String getOutputPrefix() {
+		return outputPrefix;
+	}
+
+	public void setClassFileOutputDir(Path classFileOutputDir) {
+		this.classFileOutputDir = classFileOutputDir;
+	}
+
+	public void setOutputFile(String outputFile) {
+		this.outputFile = outputFile;
+	}
+
+	public void setOutputPrefix(String outputPrefix) {
+		this.outputPrefix = outputPrefix;
+	}
+
 	public void setPropValues() throws IOException {
 		String propFileName = "config.properties";
 
-		try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propFileName)){
+		try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propFileName)) {
 			Properties props = new Properties();
 			if (inputStream == null) {
 				throw new FileNotFoundException(String.format("Could not find property file %s", propFileName));
 			}
 			logger.info("trying to read properties from " + inputStream.toString());
 			props.load(inputStream);
-			logger.info("output file is " + props.get("output_file"));
-			setOutputFile(Paths.get(props.getProperty("output_file")));
+			setOutputFile(props.getProperty("output_file"));
+			setClassFileOutputDir(Paths.get(props.getProperty("output_dir")));
 			logger.info("outputFile is " + getOutputFile());
+			logger.info("output directory is " + getClassFileOutputDir());
 		}
-	}
-
-	public Path getOutputFile() throws IOException {
-		return this.outputFile;
-	}
-
-	public void setOutputFile(Path outputFile) {
-		this.outputFile = outputFile;
 	}
 }

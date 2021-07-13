@@ -26,6 +26,7 @@ import org.objectweb.asm.ClassWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.utdallas.amordahl.FLPropReader;
 import edu.utdallas.amordahl.LoggerHelper;
 
 import java.io.File;
@@ -55,7 +56,8 @@ public class PrimaryTransformer implements ClassFileTransformer {
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) {
 		// Filter out ModuleRefType because if we don't, then we get a duplicate class definition error.
-		if (!className.contains("soot") || className.contains("ModuleRefType")) {
+		if (!className.contains("soot") || className.contains("ModuleRefType") ||
+				className.contains("AbstractFlowSet")) {
 			logger.info("Not instrumenting the class " + className);
 			return null; // no transformation
 		}
@@ -66,8 +68,8 @@ public class PrimaryTransformer implements ClassFileTransformer {
 		classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
 
 		try {
-			Path outputDirectory = new PropReader().getOutputFile();
-
+			Path outputDirectory = FLPropReader.getInstance().getClassFileOutputDir();
+			logger.info("Output directory is " + outputDirectory.toString());
 			// Write to output so we can inspect outputs.
 			Path outputFile = outputDirectory.resolve(className.replace("/", "_") + ".class");
 			// System.out.println("Output file is" + outputFile.toString());

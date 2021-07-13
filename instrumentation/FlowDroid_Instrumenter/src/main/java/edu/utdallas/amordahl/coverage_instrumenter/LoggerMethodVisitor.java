@@ -32,6 +32,7 @@ public class LoggerMethodVisitor extends MethodVisitor {
 
     @Override
     public void visitLineNumber(int line, Label start) {
+    	logger.debug("Inside visitLineNumber.");
     	mv.visitLdcInsn(line);
     	mv.visitLdcInsn(this.name);
     	mv.visitMethodInsn(INVOKESTATIC, LOG_TRACKER, "logCoverageInfo", "(ILjava/lang/String;)V", false);
