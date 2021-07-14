@@ -4,8 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -23,7 +21,27 @@ public class LoggerHelper {
 	private static int NUM_ITERS = 0;
 	private static int LAST_SIZE = -1;
 	private static long LAST_TIME = new Date().getTime();
+	private static FileWriter fw;
 
+	private static BufferedWriter bw;
+	public static void logCoverageInfo(int linenumber, String location) throws IOException {
+		if (fw == null) fw = new FileWriter(FLPropReader.getInstance().getOutputFile().toFile(), true);
+		if (bw == null && fw != null) bw = new BufferedWriter(fw);
+		synchronized (bw) {
+			bw.write(String.format("%s:%d\n", location, linenumber));
+		}
+		/*
+		 * // logger.debug("LogCoverageInfo called."); // while (!canWrite) {} //
+		 * canWrite = false; // try (FileWriter fw = new
+		 * FileWriter(FLPropReader.getInstance().getOutputFile().toFile(), true); //
+		 * BufferedWriter bw = new BufferedWriter(fw)) { String fullLocation =
+		 * String.format("logCoverageInfo %s:%d", location, linenumber);
+		 * System.out.println(fullLocation); // bw.write(fullLocation); if
+		 * (!COVERAGE.containsKey(fullLocation)) { COVERAGE.put(fullLocation,
+		 * Integer.valueOf(0)); } COVERAGE.put(fullLocation, COVERAGE.get(fullLocation)
+		 * + 1); // }
+		 */	}
+	
 	public static void logObjArray(Object[] objs, String location) throws Exception {
 		LOGS.put(location, Wrapper.wrapObject(objs));
 		if (LOGS.size() > LAST_SIZE) {
@@ -41,25 +59,13 @@ public class LoggerHelper {
 		System.out.println(
 				String.format("Size of logs: %d (%d iterations) (location %s)", LOGS.size(), NUM_ITERS, location));
 	}
-
-	private static Boolean canWrite = true;
-	public static void logCoverageInfo(int linenumber, String location) throws IOException {
-//		logger.debug("LogCoverageInfo called.");
-//		while (!canWrite) {}
-//		canWrite = false;
-//		try (FileWriter fw = new FileWriter(FLPropReader.getInstance().getOutputFile().toFile(), true);
-//				BufferedWriter bw = new BufferedWriter(fw)) {
-			String fullLocation = String.format("%s:%d", location, linenumber);
-			System.err.println(fullLocation);
-//			bw.write(fullLocation);
-			if (!COVERAGE.containsKey(fullLocation)) {
-				COVERAGE.put(fullLocation, Integer.valueOf(0));
-			}
-			COVERAGE.put(fullLocation, COVERAGE.get(fullLocation) + 1);
-//		}
-	}
-
+	
 	public static void printCoverageInfo() {
 		System.out.println(COVERAGE);
+	}
+
+	protected void finalize() throws IOException {
+		if (bw != null) bw.close();
+		if (fw != null) fw.close();
 	}
 }
