@@ -15,32 +15,31 @@ import edu.utdallas.objectutils.Wrapper;
 
 public class LoggerHelper {
 
+	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(LoggerFactory.class);
+	
 	private static HashMap<String, Wrapped> LOGS = new HashMap<>();
 	private static HashMap<String, Integer> COVERAGE = new HashMap<>();
 	private static int NUM_ITERS = 0;
 	private static int LAST_SIZE = -1;
 	private static long LAST_TIME = new Date().getTime();
 	private static FileWriter fw;
-
 	private static BufferedWriter bw;
+	
+
+	/** Threadsafe way to log coverage information. Will await a lock on the file before writing to
+	 *  prevent crashes.
+	 * @param linenumber The linenumber to log that was covered.
+	 * @param location The class in which the coverage is being recorded.
+	 * @throws IOException
+	 */
 	public static void logCoverageInfo(int linenumber, String location) throws IOException {
 		if (fw == null) fw = new FileWriter(FLPropReader.getInstance().getOutputFile().toFile(), true);
 		if (bw == null && fw != null) bw = new BufferedWriter(fw);
 		synchronized (bw) {
 			bw.write(String.format("%s:%d\n", location, linenumber));
 		}
-		/*
-		 * // logger.debug("LogCoverageInfo called."); // while (!canWrite) {} //
-		 * canWrite = false; // try (FileWriter fw = new
-		 * FileWriter(FLPropReader.getInstance().getOutputFile().toFile(), true); //
-		 * BufferedWriter bw = new BufferedWriter(fw)) { String fullLocation =
-		 * String.format("logCoverageInfo %s:%d", location, linenumber);
-		 * System.out.println(fullLocation); // bw.write(fullLocation); if
-		 * (!COVERAGE.containsKey(fullLocation)) { COVERAGE.put(fullLocation,
-		 * Integer.valueOf(0)); } COVERAGE.put(fullLocation, COVERAGE.get(fullLocation)
-		 * + 1); // }
-		 */	}
+	}
 	
 	public static void logObjArray(Object[] objs, String location) throws Exception {
 		LOGS.put(location, Wrapper.wrapObject(objs));

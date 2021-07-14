@@ -29,11 +29,11 @@ public class WrappedAndLocation {
 			}
 			
 		});
-		location = location;
+		this.location = location;
 	}
 	
 	public WrappedAndLocation(Wrapped obj, String location) throws Exception {
 		reference = obj;
-		location = location;
+		this.location = location;
 	}
 }

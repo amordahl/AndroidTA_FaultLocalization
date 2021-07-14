@@ -3,6 +3,8 @@ package edu.utdallas.amordahl.CoverageComparer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +19,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 public class Application {
@@ -34,18 +37,13 @@ public class Application {
 		return options;
 	}
 
-	public static void main(String[] args) {
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = null;
-		try {
-			cmd = parser.parse(setupCommandLineOptions(), args);
-		} catch (ParseException e) {
-			logger.error("Could not parse command line options. Please try again.");
-			System.exit(1);
-		}
+	public static void main(String[] args) throws IOException {
+		String c1 = args[0];
+		String c2 = args[1];
+		String output = args[2];
 		
-		ArrayList<String> fc1 = readFileContents(cmd.getOptionValue("c1"));
-		ArrayList<String> fc2 = readFileContents(cmd.getOptionValue("c2"));
+		ArrayList<String> fc1 = readFileContents(c1);
+		ArrayList<String> fc2 = readFileContents(c2);
 		
 		// Compute frequencies
 		HashMap<String, Integer> fm1, fm2;
@@ -59,6 +57,50 @@ public class Application {
 		
 		// Now, compute the differences.
 		JSONObject jo = new JSONObject();
+		jo.put("File1", c1);
+		jo.put("File2", c2);
+		JSONArray file1minus2 = new JSONArray();
+		for (String s: set1) {
+			if (!set2.contains(s)) {
+				file1minus2.add(s.replace("/", "_"));
+			}
+		}
+		JSONArray file2minus1 = new JSONArray();
+		for (String s: set2) {
+			if (!set1.contains(s)) {
+				file2minus1.add(s.replace("/", "_"));
+			}
+		}
+		
+		jo.put("Presence_File1MinusFile2", file1minus2);
+		jo.put("Presense_File2MinusFile1", file2minus1);
+		
+		JSONObject freq_file1minus2 = new JSONObject();
+		for (String k: fm1.keySet()) {
+			if (!fm2.containsKey(k)) {
+				freq_file1minus2.put(k.replace(",","_"), fm1.get(k));
+			}
+			else if (fm1.get(k) > fm2.get(k)) {
+				freq_file1minus2.put(k, fm1.get(k.replace(",", "_")) - fm2.get(k));
+			}
+		}
+		
+		JSONObject freq_file2minus1 = new JSONObject();
+		for (String k: fm2.keySet()) {
+			if (!fm1.containsKey(k)) {
+				freq_file2minus1.put(k, fm2.get(k));
+			}
+			else if (fm2.get(k) > fm1.get(k)) {
+				freq_file2minus1.put(k, fm2.get(k) - fm1.get(k));
+			}
+		}
+		
+		jo.put("Frequency_File1MinusFile2", freq_file1minus2);
+		jo.put("Frequency_File2MinusFile1", freq_file2minus1);
+		
+		try (FileWriter fw = new FileWriter(output)) {
+			fw.write(jo.toJSONString());
+		}
 	}
 	
 	private static ArrayList<String> readFileContents(String fileName) {

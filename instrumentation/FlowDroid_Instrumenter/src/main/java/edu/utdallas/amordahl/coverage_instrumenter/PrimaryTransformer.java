@@ -19,7 +19,6 @@ package edu.utdallas.amordahl.coverage_instrumenter;
  * #L%
  */
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -27,20 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.utdallas.amordahl.FLPropReader;
-import edu.utdallas.amordahl.LoggerHelper;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.ProtectionDomain;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A versatile class file transformer that adds code to record system state at

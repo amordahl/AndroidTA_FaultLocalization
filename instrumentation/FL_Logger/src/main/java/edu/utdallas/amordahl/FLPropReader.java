@@ -38,6 +38,8 @@ public class FLPropReader {
 	}
 
 	public Path getOutputFile() throws IOException {
+		// This is to prevent a thread from getting the output file before everything
+		//  has been set up.
 		if (this.outputPrefix != null) {
 			return Paths.get(this.outputFile.replace("{}", this.outputPrefix));
 		}
@@ -53,10 +55,12 @@ public class FLPropReader {
 	}
 
 	public void setOutputFile(String outputFile) {
+		logger.info("output file is " + outputFile);
 		this.outputFile = outputFile;
 	}
 
 	public void setOutputPrefix(String outputPrefix) {
+		logger.info("output prefix is " + outputPrefix);
 		this.outputPrefix = outputPrefix;
 	}
 
@@ -68,12 +72,12 @@ public class FLPropReader {
 			if (inputStream == null) {
 				throw new FileNotFoundException(String.format("Could not find property file %s", propFileName));
 			}
-			logger.info("trying to read properties from " + inputStream.toString());
+			//logger.info("trying to read properties from " + inputStream.toString());
 			props.load(inputStream);
 			setOutputFile(props.getProperty("output_file"));
 			setClassFileOutputDir(Paths.get(props.getProperty("output_dir")));
-			logger.info("outputFile is " + getOutputFile());
-			logger.info("output directory is " + getClassFileOutputDir());
+			//logger.info("outputFile is " + getOutputFile());
+			//logger.info("output directory is " + getClassFileOutputDir());
 		}
 	}
 }
