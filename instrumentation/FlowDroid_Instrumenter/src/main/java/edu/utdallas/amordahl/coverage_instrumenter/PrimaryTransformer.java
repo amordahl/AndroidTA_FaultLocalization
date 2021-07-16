@@ -57,16 +57,16 @@ public class PrimaryTransformer implements ClassFileTransformer {
 		final ClassVisitor classVisitor = new LoggerClassAdapter(classWriter, className);
 		classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
 
-		try {
-			Path outputDirectory = FLPropReader.getInstance().getClassFileOutputDir();
-			logger.info("Output directory is " + outputDirectory.toString());
-			// Write to output so we can inspect outputs.
-			Path outputFile = outputDirectory.resolve(className.replace("/", "_") + ".class");
-			// System.out.println("Output file is" + outputFile.toString());
-			Files.write(outputFile, classWriter.toByteArray());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Path outputDirectory = FLPropReader.getInstance().getClassFileOutputDir();
+//			logger.info("Output directory is " + outputDirectory.toString());
+//			// Write to output so we can inspect outputs.
+//			Path outputFile = outputDirectory.resolve(className.replace("/", "_") + ".class");
+//			// System.out.println("Output file is" + outputFile.toString());
+//			Files.write(outputFile, classWriter.toByteArray());
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		return classWriter.toByteArray();
 	}
 }
