@@ -192,12 +192,11 @@ public class Application {
 					// Mapping line. Need to store map in hashmap.
 					String[] tokens = line.split("=");
 					mapping.put(Integer.valueOf(tokens[1]), tokens[0]);
-				} else {
+				} else if (line.contains(":")) {
 					String[] tokens = line.split(":");
 					String actualName = mapping.get(Integer.valueOf(tokens[0]));
 					fileContent.add(String.format("%s:%d", actualName, tokens[1]));
 				}
-				fileContent.add(sc.next());
 			}
 		} catch (FileNotFoundException e) {
 			logger.error("Could not find file " + fileName);
