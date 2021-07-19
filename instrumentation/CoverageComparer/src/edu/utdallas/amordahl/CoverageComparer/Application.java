@@ -184,8 +184,19 @@ public class Application {
 
 	private static ArrayList<String> readFileContents(String fileName) {
 		ArrayList<String> fileContent = new ArrayList<String>();
+		HashMap<Integer, String> mapping = new HashMap<Integer, String>();
 		try (Scanner sc = new Scanner(new File(fileName))) {
 			while (sc.hasNext()) {
+				String line = sc.next();
+				if (line.contains("=")) {
+					// Mapping line. Need to store map in hashmap.
+					String[] tokens = line.split("=");
+					mapping.put(Integer.valueOf(tokens[1]), tokens[0]);
+				} else {
+					String[] tokens = line.split(":");
+					String actualName = mapping.get(Integer.valueOf(tokens[0]));
+					fileContent.add(String.format("%s:%d", actualName, tokens[1]));
+				}
 				fileContent.add(sc.next());
 			}
 		} catch (FileNotFoundException e) {
