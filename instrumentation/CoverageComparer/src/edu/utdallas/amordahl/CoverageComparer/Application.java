@@ -135,7 +135,6 @@ public class Application {
 		sb.append(getMax(f1minus2diffs)); sb.append(","); sb.append(getMax(f2minus1diffs)); sb.append(",");
 		sb.append(getMin(f1minus2diffs)); sb.append(","); sb.append(getMin(f2minus1diffs)); sb.append(",");
 		sb.append(getMedian(f1minus2diffs)); sb.append(","); sb.append(getMedian(f2minus1diffs));
-		
 		System.out.println(sb.toString());
 
 	}

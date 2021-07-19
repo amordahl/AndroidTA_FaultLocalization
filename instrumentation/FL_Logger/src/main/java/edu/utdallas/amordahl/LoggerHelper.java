@@ -1,5 +1,6 @@
 package edu.utdallas.amordahl;
 
+import java.awt.RenderingHints.Key;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,6 +26,7 @@ public class LoggerHelper {
 	private static long LAST_TIME = new Date().getTime();
 	private static FileWriter fw;
 	private static BufferedWriter bw;
+	private static HashMap<String, Integer> classToInt = new HashMap<String, Integer>();
 	
 
 	/** Threadsafe way to log coverage information. Will await a lock on the file before writing to
@@ -34,11 +36,28 @@ public class LoggerHelper {
 	 * @throws IOException
 	 */
 	public static void logCoverageInfo(int linenumber, String location) throws IOException {
-		if (fw == null) fw = new FileWriter(FLPropReader.getInstance().getOutputFile().toFile(), true);
-		if (bw == null && fw != null) bw = new BufferedWriter(fw);
-		synchronized (bw) {
-			bw.write(String.format("%s:%d\n", location, linenumber));
+		Integer mapping;
+		synchronized (classToInt) {
+			if (classToInt.containsKey(location)) {
+				mapping = classToInt.get(location);
+			}
+			else {
+				// Find maximum key
+				if (classToInt.size() == 0) {
+					classToInt.put(location, Integer.valueOf(1));
+				}
+				else {
+					Integer max = Integer.valueOf(-1);
+					for (String key : classToInt.keySet()) {
+						if (classToInt.get(key) > max) max = classToInt.get(key);
+					}
+					classToInt.put(location, max + 1);
+				}
+				mapping = classToInt.get(location);
+				System.out.println(String.format("%s=%d", location, mapping));
+			}
 		}
+		System.out.println(String.format("%d:%d", mapping, linenumber));
 	}
 	
 	public static void logObjArray(Object[] objs, String location) throws Exception {

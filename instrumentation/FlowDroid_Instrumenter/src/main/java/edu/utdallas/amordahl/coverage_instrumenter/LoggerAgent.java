@@ -13,7 +13,6 @@ public class LoggerAgent {
 	private static Logger logger = LoggerFactory.getLogger(LoggerAgent.class);
 	
 	public static void premain(String args, Instrumentation instrumentation) throws IOException{
-        System.out.println("In LoggerAgent.");
         if (args != null && args != "") {
         	try {
 				FLPropReader.getInstance().setOutputPrefix(args);
