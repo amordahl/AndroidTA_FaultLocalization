@@ -168,6 +168,8 @@ public class Application {
 	}
 	
 	private static Double getMedian(ArrayList<Integer> al) {
+		
+		if (al.size() == 1) return Double.valueOf(al.get(0));
 		@SuppressWarnings("unchecked")
 		ArrayList<Integer> sorted = (ArrayList<Integer>) al.clone();
 		sorted.sort(new Comparator<Integer>() {
