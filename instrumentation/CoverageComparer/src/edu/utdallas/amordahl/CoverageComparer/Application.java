@@ -15,22 +15,34 @@ import org.slf4j.LoggerFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+
 public class Application {
 
 	private static Logger logger = LoggerFactory.getLogger(Application.class);
 
-	@SuppressWarnings("unchecked")
+	@Parameter(names = {"-c1", "--coveragelog1"}, description = "The first coverage log.",
+			required = true)
+	protected String c1;
+	
+	@Parameter(names = {"-c2", "--coveragelog2"}, description = "The second coverage log.",
+			required = true)
+	protected String c2;
+	
+	@Parameter(names = {"-o", "--output"}, 
+			description = "If supplied, the application will write the " +
+	"set differences to a JSON file.")
+	protected String output;
+	
 	public static void main(String[] args) throws IOException {
-		// TODO Replace with real command-line option parser.
-		String c1 = args[0];
-		String c2 = args[1];
-		String output;
-		try {
-			output = args[2];
-		} catch (ArrayIndexOutOfBoundsException ai) {
-			output = null;
-		}
-
+		Application app = new Application();
+		JCommander.newBuilder().addObject(app).build().parse(args);
+		app.run();
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void run() throws IOException {
 		logger.info("Got arguments, now reading in file contents.");
 		ArrayList<String> fc1 = readFileContents(c1);
 		ArrayList<String> fc2 = readFileContents(c2);
