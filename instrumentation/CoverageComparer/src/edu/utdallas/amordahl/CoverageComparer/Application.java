@@ -40,7 +40,12 @@ public class Application {
 	
 	public static void main(String[] args) throws IOException {
 		Application app = new Application();
-		JCommander.newBuilder().addObject(app).build().parse(args);
+		JCommander jcmd = JCommander.newBuilder().addObject(app).build();
+		jcmd.parse(args);
+		if (app.help) {
+			jcmd.usage();
+			return;
+		}
 		app.run();
 	}
 	
