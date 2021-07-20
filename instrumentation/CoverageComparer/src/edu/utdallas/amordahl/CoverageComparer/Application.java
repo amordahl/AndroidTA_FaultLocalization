@@ -30,6 +30,9 @@ public class Application {
 			required = true)
 	protected String c2;
 	
+	@Parameter(names = "--help", help = true)
+	protected boolean help;
+	
 	@Parameter(names = {"-o", "--output"}, 
 			description = "If supplied, the application will write the " +
 	"set differences to a JSON file.")
