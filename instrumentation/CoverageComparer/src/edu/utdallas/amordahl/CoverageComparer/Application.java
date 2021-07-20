@@ -198,7 +198,7 @@ public class Application {
 				} else if (line.contains(":")) {
 					String[] tokens = line.split(":");
 					String actualName = mapping.get(Integer.valueOf(tokens[0]));
-					fileContent.add(String.format("%s:%d", actualName, tokens[1]));
+					fileContent.add(String.format("%s:%d", actualName, Integer.valueOf(tokens[1])));
 				}
 			}
 		} catch (FileNotFoundException e) {
