@@ -30,6 +30,7 @@ public class CoverageRecord {
 		f2minus1diffs = new ArrayList<Integer>();
 		
 		logger.info("Got arguments, now reading in file contents.");
+		logger.info(String.format("c1 is %s, c2 is %s", this.coverageFile1, this.coverageFile2));
 		// Read in file contents.
 		fileContent1 = readFileContents(coverageFile1);
 		fileContent2 = readFileContents(coverageFile2);
@@ -44,7 +45,7 @@ public class CoverageRecord {
 		set1 = convertListToSet(fileContent1);
 		set2 = convertListToSet(fileContent2);
 
-				for (String s : set1) {
+		for (String s : set1) {
 			if (!set2.contains(s)) {
 				file1minus2.add(s.replace("/", "_"));
 			}
@@ -78,7 +79,7 @@ public class CoverageRecord {
 		jo.put("File1", coverageFile1);
 		jo.put("File2", coverageFile2);
 		jo.put("Presence_File1MinusFile2", file1minus2);
-		jo.put("Presense_File2MinusFile1", file2minus1);
+		jo.put("Presence_File2MinusFile1", file2minus1);
 		jo.put("Frequency_File1MinusFile2", freq_file1minus2);
 		jo.put("Frequency_File2MinusFile1", freq_file2minus1);
 
