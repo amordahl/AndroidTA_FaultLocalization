@@ -46,14 +46,14 @@ public class Runner {
         //everything we need is in this here object
         Flowset thisViolation = reader.getFlowSet(Paths.get(args[0]).toFile());
 
-        apkName="/"+thisViolation.getApk();
+        apkName="/home/dakota/documents/droidbench30_apks/"+thisViolation.getApk();
         config1="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig1()+".xml";
         config2 = "/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_" + thisViolation.getConfig2() + ".xml";
         targetType=thisViolation.getType().equalsIgnoreCase("soundness");
         violationOrNot=thisViolation.getViolation().toLowerCase().equals("true");;
         config1Flows = thisViolation.getConfig1_FlowList();
         config2Flows = thisViolation.getConfig2_FlowList();
-        programConfigString = apkName+"_"+thisViolation.getConfig1()+"_"+thisViolation.getConfig1()+"_"+targetType+"_"+violationOrNot;
+        programConfigString = thisViolation.getApk()+"_"+thisViolation.getConfig1()+"_"+thisViolation.getConfig1()+"_"+targetType+"_"+violationOrNot;
         //the files with no flows we still need the apk info from so that we can save its apk, so figure out the apk from the filename
         //fix apkName
         if(apkName.equals("/")){
