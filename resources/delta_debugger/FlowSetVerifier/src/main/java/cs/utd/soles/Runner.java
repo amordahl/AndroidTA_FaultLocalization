@@ -28,9 +28,9 @@ public class Runner {
         //args is just a flowset
         handleArgs(args);
 
-
-        File p = new File("verifier/results/"+programConfigString+"_results.txt");
+        File p = new File("verifier/results/");
         p.mkdirs();
+        p = new File("verifier/results/"+programConfigString+"_results.txt");
         p.createNewFile();
         FileWriter fw = new FileWriter(p);
         String s = "" + runAQL(apkName,config1,config2,programConfigString);
