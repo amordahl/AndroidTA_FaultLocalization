@@ -28,6 +28,10 @@ public class Runner {
         //args is just a flowset
         handleArgs(args);
 
+        if(!violationOrNot){
+            System.exit(0);
+        }
+
         File p = new File("verifier/results/");
         p.mkdirs();
         p = new File("verifier/results/"+programConfigString+"_results.txt");
