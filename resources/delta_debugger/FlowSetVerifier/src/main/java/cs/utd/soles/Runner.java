@@ -71,8 +71,8 @@ public class Runner {
     public static boolean runAQL(String apk, String generatingConfig1, String generatingConfig2, String programConfigString) throws IOException, InterruptedException {
 
         //this bit runs and captures the output of the aql script
-        String command1 = "python runaql.py "+generatingConfig1+" "+apk+" -f";
-        String command2 = "python runaql.py "+generatingConfig2+" "+apk+" -f";
+        String[] command1 ={"python","runaql.py",generatingConfig1,apk,"-f"};
+        String[] command2 ={"python","runaql.py",generatingConfig2,apk,"-f"};
 
 
         ProcessBuilder pb1 = new ProcessBuilder(command1);
