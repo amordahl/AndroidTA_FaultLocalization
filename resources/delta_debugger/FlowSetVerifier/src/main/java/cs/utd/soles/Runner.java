@@ -28,6 +28,7 @@ public class Runner {
         //args is just a flowset
         handleArgs(args);
 
+
         if(!violationOrNot){
             System.exit(0);
         }
@@ -54,6 +55,7 @@ public class Runner {
         config1="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig1()+".xml";
         config2 = "/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_" + thisViolation.getConfig2() + ".xml";
         targetType=thisViolation.getType().equalsIgnoreCase("soundness");
+        System.out.println("thing: "+thisViolation.getType() + " "+ targetType + " " + violationOrNot);
         violationOrNot=thisViolation.getViolation().toLowerCase().equals("true");;
         config1Flows = thisViolation.getConfig1_FlowList();
         config2Flows = thisViolation.getConfig2_FlowList();
