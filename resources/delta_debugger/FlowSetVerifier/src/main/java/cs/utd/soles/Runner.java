@@ -84,7 +84,6 @@ public class Runner {
 
         Process command1P = pb1.start();
 
-
         String command1Out = "";
         BufferedReader in = new BufferedReader(new InputStreamReader(command1P.getInputStream()));
         while (command1P.isAlive()) {
@@ -107,6 +106,7 @@ public class Runner {
         command2P.waitFor();
 
 
+
         File output1 = handleOutput("1",Long.toHexString(System.currentTimeMillis()), command1Out,programConfigString);
         File output2 = handleOutput("2",Long.toHexString(System.currentTimeMillis()), command2Out,programConfigString);
 
@@ -122,7 +122,7 @@ public class Runner {
         if(f.exists())
             f.delete();
         f.createNewFile();
-
+        System.out.println(outString);
         String xmlString ="";
         if(outString.contains("<answer/>")){
             xmlString ="<answer>\n</answer>";
