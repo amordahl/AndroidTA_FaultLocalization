@@ -53,7 +53,7 @@ public class Runner {
         violationOrNot=thisViolation.getViolation().toLowerCase().equals("true");;
         config1Flows = thisViolation.getConfig1_FlowList();
         config2Flows = thisViolation.getConfig2_FlowList();
-        programConfigString = thisViolation.getApk()+"_"+thisViolation.getConfig1()+"_"+thisViolation.getConfig1()+"_"+targetType+"_"+violationOrNot;
+        programConfigString = thisViolation.getApk()+"_"+thisViolation.getConfig1()+"_"+thisViolation.getConfig2()+"_"+targetType+"_"+violationOrNot;
         //the files with no flows we still need the apk info from so that we can save its apk, so figure out the apk from the filename
         //fix apkName
         if(apkName.equals("/")){
