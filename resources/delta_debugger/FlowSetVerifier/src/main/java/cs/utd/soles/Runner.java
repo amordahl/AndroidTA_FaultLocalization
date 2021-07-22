@@ -23,6 +23,8 @@ public class Runner {
     public static void main(String[] args) throws IOException, InterruptedException {
 
 
+        SchemaGenerator.generateSchema();
+
         //args is just a flowset
         handleArgs(args);
 
