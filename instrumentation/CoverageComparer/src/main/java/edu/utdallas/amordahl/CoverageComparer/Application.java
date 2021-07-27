@@ -85,7 +85,7 @@ public class Application {
 	private Map<Path, Path> computePairs() {
 		File[] dirList1 = getDirList(this.c1);
 		File[] dirList2 = getDirList(this.c2);
-		if (dirList1.length == dirList2.length) {
+		if (dirList1.length != dirList2.length) {
 			throw new RuntimeException("Directories have different numbers of files in it.");
 		}
 		Map<Path, Path> pairs = new HashMap<Path, Path>();
