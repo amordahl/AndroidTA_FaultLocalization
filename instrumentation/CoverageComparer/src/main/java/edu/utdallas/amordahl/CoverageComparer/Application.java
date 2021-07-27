@@ -40,7 +40,8 @@ public class Application {
 			required = true)
 	protected String c2;
 	
-	@Parameter(names = {"-o", "--output"}, description = "The directory in which to store the output files.")
+	@Parameter(names = {"-o", "--output"}, description = "The directory in which to store the output files.",
+			required = true)
 	protected String outputDir;
 	
 	@Parameter(names = "--help", help = true)
