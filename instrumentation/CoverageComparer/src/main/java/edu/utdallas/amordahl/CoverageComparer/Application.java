@@ -111,7 +111,9 @@ public class Application {
 	 * @return The first part as a String.
 	 */
 	private String getFirstPart(File f) {
-		return f.toPath().getFileName().toString().split("_")[0];
+		String firstPart = f.toPath().getFileName().toString().split("_")[0];
+		logger.info("firstPart is " + firstPart);
+		return firstPart;
 	}
 
 	/**
