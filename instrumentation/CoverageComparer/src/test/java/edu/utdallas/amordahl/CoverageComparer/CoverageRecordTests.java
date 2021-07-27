@@ -2,6 +2,7 @@ package edu.utdallas.amordahl.CoverageComparer;
 
 import static org.junit.Assert.assertTrue;
 
+import java.nio.file.Paths;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -17,15 +18,16 @@ public class CoverageRecordTests {
 	
 	private static String file1 = "src/test/resources/sample_coverage_data1.txt";
 	private static String file2 = "src/test/resources/sample_coverage_data2.txt";
+
 	@BeforeClass
 	public static void setup() throws IOException {
-		cr = new CoverageRecord(file1, file2, null);
+		cr = new CoverageRecord(Paths.get(file1), Paths.get(file2), Paths.get("src/test/resources/json_results"));
 	}
 	
 	@Test
 	public void testFileNames() {
-		assertTrue(cr.getCoverageFile1() == file1 &&
-				cr.getCoverageFile2() == file2);
+		assertTrue(cr.getCoverageFile1().equals(Paths.get(file1)) &&
+				cr.getCoverageFile2().equals(Paths.get(file2)));
 	}
 	
 	@Test

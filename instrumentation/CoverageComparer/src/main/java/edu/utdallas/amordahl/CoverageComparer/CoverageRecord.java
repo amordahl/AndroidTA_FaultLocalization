@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,10 +19,10 @@ import org.slf4j.LoggerFactory;
 public class CoverageRecord {
 
 	@SuppressWarnings("unchecked")
-	public CoverageRecord(String coverageFile1, String coverageFile2, String output) throws IOException {
+	public CoverageRecord(Path coverageFile1, Path coverageFile2, Path outputFile) throws IOException {
 		this.coverageFile1 = coverageFile1;
 		this.coverageFile2 = coverageFile2;
-		this.output = output;
+		this.outputFile = outputFile;
 		file1minus2 = new ArrayList<String>();
 		file2minus1 = new ArrayList<String>();
 		freq_file1minus2 = new HashMap<String, Integer>();
@@ -83,8 +84,8 @@ public class CoverageRecord {
 		jo.put("Frequency_File1MinusFile2", freq_file1minus2);
 		jo.put("Frequency_File2MinusFile1", freq_file2minus1);
 
-		if (output != null) {
-			try (FileWriter fw = new FileWriter(output)) {
+		if (outputFile != null) {
+			try (FileWriter fw = new FileWriter(outputFile.toFile())) {
 				fw.write(jo.toJSONString());
 			}
 		}
@@ -138,16 +139,16 @@ public class CoverageRecord {
 		return fileContent2;
 	}
 
-	public String getCoverageFile1() {
+	public Path getCoverageFile1() {
 		return coverageFile1;
 	}
 
-	public String getCoverageFile2() {
+	public Path getCoverageFile2() {
 		return coverageFile2;
 	}
 
-	public String getOutput() {
-		return output;
+	public Path getOutput() {
+		return outputFile;
 	}
 
 	private JSONObject jo;
@@ -159,7 +160,7 @@ public class CoverageRecord {
 
 	private ArrayList<String> fileContent1, fileContent2;
 
-	private String coverageFile1, coverageFile2, output;
+	private Path coverageFile1, coverageFile2, outputFile;
 	private static Logger logger = LoggerFactory.getLogger(CoverageRecord.class);
 
 	@Override
@@ -263,10 +264,10 @@ public class CoverageRecord {
 			return Double.valueOf(sorted.get((sorted.size() - 1) / 2));
 	}
 
-	private static ArrayList<String> readFileContents(String fileName) {
+	private static ArrayList<String> readFileContents(Path coverageFile) {
 		ArrayList<String> fileContent = new ArrayList<String>();
 		HashMap<Integer, String> mapping = new HashMap<Integer, String>();
-		try (Scanner sc = new Scanner(new File(fileName))) {
+		try (Scanner sc = new Scanner(coverageFile.toFile())) {
 			while (sc.hasNext()) {
 				String line = sc.next();
 				if (line.contains("=")) {
@@ -280,7 +281,7 @@ public class CoverageRecord {
 				}
 			}
 		} catch (FileNotFoundException e) {
-			logger.error("Could not find file " + fileName);
+			logger.error("Could not find file " + coverageFile);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.exit(2);
