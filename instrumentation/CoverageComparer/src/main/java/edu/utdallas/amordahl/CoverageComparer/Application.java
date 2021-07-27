@@ -49,7 +49,7 @@ public class Application {
 	
 	@Parameter(names = {"-t", "--threads"},
 			description = "Number of threads to spawn.")
-	protected Integer threads;
+	protected Integer threads = 8;
 	
 	/**
 	 * Just sets up the JCommander argument parser.
