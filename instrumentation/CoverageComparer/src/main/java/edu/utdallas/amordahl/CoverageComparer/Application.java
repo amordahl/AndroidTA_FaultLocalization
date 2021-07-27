@@ -92,7 +92,8 @@ public class Application {
 		for (File f1: dirList1) {
 			boolean found = false;
 			for (File f2: dirList2) {
-				if (getFirstPart(f1) == getFirstPart(f2)) {
+				if (getFirstPart(f1).equals(getFirstPart(f2))) {
+					logger.info(String.format("%s and %s are matches.", f1.toString(), f2.toString()));
 					pairs.put(f1.toPath(), f2.toPath());
 					found = true;
 					break;
