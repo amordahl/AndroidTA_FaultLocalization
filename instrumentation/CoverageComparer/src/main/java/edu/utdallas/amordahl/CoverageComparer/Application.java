@@ -21,6 +21,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,8 +64,9 @@ public class Application {
 	 * 
 	 * @param args The command-line arguments.
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		Application app = new Application();
 		JCommander jcmd = JCommander.newBuilder().addObject(app).build();
 		jcmd.parse(args);
@@ -75,7 +77,7 @@ public class Application {
 		app.run();
 	}
 
-	private void run() throws IOException {
+	private void run() throws IOException, InterruptedException {
 		ExecutorService ep = Executors.newFixedThreadPool(this.threads);
 		Map<Path, Path> pairs = computePairs();
 		for (Entry<Path, Path> e : pairs.entrySet()) {
@@ -83,7 +85,7 @@ public class Application {
 			ep.execute(r);
 		}
 		ep.shutdown();
-
+		ep.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 		// Now, if there are faulty.txt files, we need to compute fault suspiciousness.
 		List<Path> faultyRuns = new ArrayList<Path>();
 		for (Path p : new Path[] { Paths.get(c1), Paths.get(c2) }) {
