@@ -1,6 +1,9 @@
 package edu.utdallas.amordahl.CoverageComparer;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -10,6 +13,13 @@ public class CoveragePairTask implements Runnable {
 	private Path file2;
 	private Path outputFile;
 	
+	// Static list of coverage records that we can access later, in order to compute suspiciousnesses.
+	private static List<CoverageRecord> records = Collections.synchronizedList(new ArrayList<CoverageRecord>());
+	
+	public static List<CoverageRecord> getRecords() {
+		return records;
+	}
+
 	public CoveragePairTask(String file1, String file2, String outputDir) {
 		this.file1 = Paths.get(file1);
 		this.file2 = Paths.get(file2);
@@ -41,6 +51,7 @@ public class CoveragePairTask implements Runnable {
 		CoverageRecord cr;
 		try {
 			cr = new CoverageRecord(file1, file2, this.outputFile);
+			records.add(cr);
 			System.out.println(cr.toString());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

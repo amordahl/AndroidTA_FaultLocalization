@@ -241,7 +241,6 @@ public class CoverageRecord {
 		return getSum(al).doubleValue() / al.size();
 	}
 
-	@SuppressWarnings("unused")
 	protected static Double getMedian(ArrayList<Integer> al) {
 		if (al == null || al.size() == 0) { return Double.NaN; }
 		if (al.size() == 1)
