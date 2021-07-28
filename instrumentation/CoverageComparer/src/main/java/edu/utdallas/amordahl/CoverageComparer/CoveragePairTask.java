@@ -44,8 +44,8 @@ public class CoveragePairTask implements Runnable {
 	private Path computeOutputFileName(Path outputDir) {
 		String f1 = this.file1.getFileName().toString();
 		String f2 = this.file2.getFileName().toString();
-		String f1NoExt = f1.split(".")[0];
-		String f2NoExt = f2.split(".")[0];
+		String f1NoExt = f1.split("\\.")[0];
+		String f2NoExt = f2.split("\\.")[0];
 		return outputDir.resolve(String.format("%s_%s.json", f1NoExt, f2NoExt));
 		
 	}
