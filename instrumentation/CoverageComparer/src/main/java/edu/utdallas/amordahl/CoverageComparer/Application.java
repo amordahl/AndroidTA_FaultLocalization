@@ -103,9 +103,9 @@ public class Application {
 		// Else, we have to compute suspiciousness.
 		logger.info("Now computing statement suspiciousness.");
 		Map<String, Pair<Integer, Integer>> statementCounts = new HashMap<String, Pair<Integer, Integer>>();
-		for (CoverageRecord cr : CoveragePairTask.getRecords()) {
-			updateStatementCounts(statementCounts, cr.getFileContent1(), faultyRuns.contains(cr.getCoverageFile1()));
-			updateStatementCounts(statementCounts, cr.getFileContent2(), faultyRuns.contains(cr.getCoverageFile2()));
+		for (Entry<Path, Set<String>> cr : CoveragePairTask.getRecords().entrySet()) {
+			updateStatementCounts(statementCounts, cr.getValue(), faultyRuns.contains(cr.getKey()));
+			updateStatementCounts(statementCounts, cr.getValue(), faultyRuns.contains(cr.getKey()));
 		}
 		Map<String, Double> tarantulaSuspiciousness = computeTarantulaSuspiciousness(statementCounts,
 				faultyRuns.size(), pairs.size() * 2 - faultyRuns.size());
@@ -114,7 +114,7 @@ public class Application {
 		tarantulaSuspiciousness.forEach((k, v) -> System.out.println(String.format("%s,%d", k, v)));
 	}
 
-	private void updateStatementCounts(Map<String, Pair<Integer, Integer>> statementCounts, List<String> fileContent,
+	private void updateStatementCounts(Map<String, Pair<Integer, Integer>> statementCounts, Iterable<String> fileContent,
 			boolean isFaulty) {
 		for (String line : fileContent) {
 			if (!statementCounts.containsKey(line)) {
