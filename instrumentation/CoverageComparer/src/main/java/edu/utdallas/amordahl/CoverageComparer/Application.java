@@ -89,10 +89,10 @@ public class Application {
 		// Now, if there are faulty.txt files, we need to compute fault suspiciousness.
 		List<Path> faultyRuns = new ArrayList<Path>();
 		for (Path p : new Path[] { Paths.get(c1), Paths.get(c2) }) {
-			for (Path p1 : p) {
-				if (p1.endsWith("faulty.txt")) {
+			for (File p1 : p.toFile().listFiles()) {
+				if (p1.getName().endsWith("faulty.txt")) {
 					faultyRuns.addAll(
-							Files.readAllLines(p1).stream().map(st -> Paths.get(st)).collect(Collectors.toList()));
+							Files.readAllLines(p1.toPath()).stream().map(st -> Paths.get(st)).collect(Collectors.toList()));
 				}
 			}
 		}
