@@ -1,12 +1,9 @@
-* High-Level Goals for Today
-** TODO Add code to compute most likely fault sites to coveragecomparer.
-- I added the code to take all files instead of a pair. But I still have to write the code to actually compute the suspiciousness of statements.
-** DONE Look through Dakota's violation differences to figure out why he can't recreate the ones my script gave.
-- It does not seem my script is the issue. It seems something went wrong when generating the droidbench files with AQL. Dakota will further investigate.
-** DONE Investigate the dataflowsolver flowinsensitive option and see why it produces a violation.
+* Research Notes
+- I have continued attempting to debug the dataflowsolver problem.
 
-- I don't know why this is happening but it's clear the flowsensitive implementation is unsound. I.e., this found a bug in the default configuration. Button5.apk gives an interesting perspective of the type of flows the flowsensitive wrapper cannot analyze.
-* Meeting with Dakota
-- Dakota will investigate why droidbench results are incorrect and inconsistent on the server. Probably an issue with parallelism.
-- Dakota will also read the paper again and see if there is an algorithm to compute transitive closures, so we can reimplement this strategy in our own code.
+** Theory 1: The dummy main method is incorrectly modeling the method calls.
+*** Test: I went into the code to generate the dummy main method, and duplicated the line that adds callback methods in (i.e., the call to "buildMethodCall" on line 320 of AbstractComponentEntryPointCreator.java)
+*** Result: This isn't the issue -- even duplicating the method changed nothing, indicating the problem is something deeper into the flow sensitive dataflow solver.
 
+** Attempt 2: Try localizing by replacement.
+*** Interesting finding -- changing the 

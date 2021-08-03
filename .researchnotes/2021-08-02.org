@@ -1,0 +1,3 @@
+* Investigation of IFDS Solver
+
+- I found the statement in the IFDS solver that seems to prevent the dataflow solver from being fully sound. Specifically, the line we are looking at is in soot.jimple.infoflow.problems.rules.SinkPropagationRule.java:138. The context is incorrect, in that the abstraction that reaches the sink claims to only be activated when it passes the statement that sets the hint. The abstraction seems to be implemented for the purpose of having flow-sensitive aliasing.
