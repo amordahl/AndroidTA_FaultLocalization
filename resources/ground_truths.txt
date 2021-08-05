@@ -1,0 +1,21 @@
+1. Violation of codeeliminationmode |-> REMOVECODE <=S default
+
+Ground truth is in InterproceduralConstantValuePropagator.java:612, in the implementation of hasSideEffectsOrReadsSink. hasSideEffectsOrReadsThis(), which is called from internalTransform() on line 259:
+
+boolean remove = callee.getReturnType() == VoidType.v() && !hasSideEffectsOrReadsThis(callee);
+remove |= !hasSideEffectsOrCallsSink(callee);
+
+The call to hasSideEffectsOrReadsThis will store false in methodSideEffects if the method has no side effects and doesn't read the "this" variable. Then, in the code for hasSideEffectsOrCallsSink(), on line 610, the method checks if hasSideEffects is set. No matter what the value, if hasSideEffects is set, it returns the value. Thus, even if hasSideEffects is false, but the method has a sink, it will be removed.
+
+2. Violation of callbackanalyzer |-> FAST <=S callbackanalyzer |-> DEFAULT
+
+Ground truth is line 50 of FastCallbackAnalyzer.java, which contains a call to analyzemethodForCallbackRegistrations. This passes null as the first parameter, which causes anonymous classes to be missing the mapping to their enclosing class.
+
+3. Violation of dataflowsolver |-> FLOWSENSITIVE <=S dataflowsolver |-> FLOWINSENSITIVE
+
+Ground truth is in FlowSensitiveAliasStrategy.java:31, inside the definition of computeAliasTaints, where the activation unit is added through deriveInactiveAbstraction, and the backward solver is spawned. For methods that are in a cycle on the ICFG, it is possible that they may be called twice (such as in Button5), and so the activation unit being added to make the abstraction inactive is unsound.
+
+4. Additional problem in dataflowsolver |-> FLOWSENSITIVE <=S dataflowsolver |-> FLOWINSENSITIVE
+
+I created a mutant of Button5.apk by switching the statement order in sendMessage(). Recall the flow in Button5 happens on the second invocation of sendMessage -- however, in this case, it would happen the first time. The reason the analysis doesn't model this correctly is that the StrongUpdatePropagationRule is killing the taint. On line 79 of the strong propagation rule, there is a rule to kill taints where x = y and x.f is tainted. This happens when $r1 is cast to a button type ($r2 = (Button) $r1). However, this implementation is unsound, because what should be happening is that if x and y alias each other, the taint should not be killed.
+
