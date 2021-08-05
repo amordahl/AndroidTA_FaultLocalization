@@ -699,6 +699,7 @@ public class Runner {
         projectSrcPath=pathFile+"/app/src/";
         dealWithSpecialProjects(APKName, pathFile);
         projectClassFiles = pathFile+"/"+projectAPKPath.substring(pathFile.length()+1,projectAPKPath.indexOf("/",pathFile.length()+1))+"/build/intermediates/javac/debug/classes";
+        dotFile = new File(projectClassFiles+"/dotfiles/classes.dot");
     }
 
     private static void dealWithSpecialProjects(String name, String pathFile) {
