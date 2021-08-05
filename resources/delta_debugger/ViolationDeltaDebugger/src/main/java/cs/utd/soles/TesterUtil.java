@@ -3,6 +3,7 @@ package cs.utd.soles;
 import com.github.javaparser.ast.CompilationUnit;
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Flow;
+import org.javatuples.Pair;
 
 
 import java.io.*;
@@ -51,11 +52,11 @@ public class TesterUtil implements ThreadHandler{
 
 
     //this saves the compilation units to the correct files
-    public void saveCompilationUnits(ArrayList<CompilationUnit> list, ArrayList<File> files, int positionChanged, CompilationUnit changedUnit) throws IOException {
+    public void saveCompilationUnits(ArrayList<Pair<File,CompilationUnit>> compilationUnits, int positionChanged, CompilationUnit changedUnit) throws IOException {
         int i=0;
-        for(File x: files){
+        for(Pair<File,CompilationUnit> x: compilationUnits){
 
-            FileWriter fw = new FileWriter(x);
+            FileWriter fw = new FileWriter(x.getValue0());
             if(Runner.LOG_MESSAGES) {
 
                 if(i==positionChanged)
@@ -69,7 +70,7 @@ public class TesterUtil implements ThreadHandler{
 
                 //this writes the unit we changed to the intermedateJavaDir and gives it a number telling the order
                 if(Runner.LOG_MESSAGES) {
-                    File intermediateFile = new File(Runner.intermediateJavaDir + "/" + candidateCountJava + x.getName());
+                    File intermediateFile = new File(Runner.intermediateJavaDir + "/" + candidateCountJava + x.getValue0().getName());
                     if (intermediateFile.exists())
                         intermediateFile.delete();
                     intermediateFile.createNewFile();
@@ -82,7 +83,7 @@ public class TesterUtil implements ThreadHandler{
                 }
 
             }else {
-                fw.write(list.get(i).toString());
+                fw.write(x.getValue1().toString());
             }
             fw.flush();
             fw.close();
@@ -90,14 +91,48 @@ public class TesterUtil implements ThreadHandler{
         }
     }
 
+    //save compilation units from list
+    public static void saveCompilationUnits(ArrayList<Pair<File,CompilationUnit>> saveThese) throws IOException {
+
+        for (Pair<File,CompilationUnit> p : saveThese) {
+            File x = p.getValue0();
+            x.createNewFile();
+            CompilationUnit changedUnit = p.getValue1();
+            FileWriter fw = new FileWriter(x);
+            fw.write(changedUnit.toString());
+            fw.flush();
+            fw.close();
+
+        }
+
+    }
+
+    //create apk from list
+    public void startApkCreation(String projectGradlewPath, String projectRootPath, ArrayList<Pair<File, CompilationUnit>> bestCUList) {
+
+        //this method is for removing entire files, so we got to actually remove them
+        cleanseFiles();
+        createApk(projectGradlewPath,projectRootPath,bestCUList,bestCUList.size()+1,null);
+    }
+
+    public void cleanseFiles(){
+        for(Pair<File,CompilationUnit> p : Runner.originalCUnits){
+            File path = p.getValue0();
+            if(path.exists())
+                path.delete();
+        }
+    }
+
+
+
 
     //this just calls gradlew assembleDebug in the right directory
     //this needs the gradlew file path and the root directory of the project
-    public void createApk(String gradlewFilePath, String rootDir, ArrayList<CompilationUnit> list, ArrayList<File> javaFiles, int positionChanged, CompilationUnit changedUnit){
+    public void createApk(String gradlewFilePath, String rootDir, ArrayList<Pair<File,CompilationUnit>> list, int positionChanged, CompilationUnit changedUnit){
         Runner.performanceLog.startOneCompileRun();
         String[] command = {gradlewFilePath, "assembleDebug", "-p", rootDir};
         try {
-            saveCompilationUnits(list,javaFiles,positionChanged, changedUnit);
+            saveCompilationUnits(list,positionChanged, changedUnit);
             Process p = Runtime.getRuntime().exec(command);
 
             ProcessThread pThread = new ProcessThread(p,this,ProcessType.CREATE_APK_PROCESS, 300000);
@@ -303,8 +338,8 @@ public class TesterUtil implements ThreadHandler{
         return output;
     }*/
 
-    public void startApkCreation(String projectGradlewPath, String projectRootPath, ArrayList<CompilationUnit> bestCUList, ArrayList<File> javaFiles, int compPosition, CompilationUnit copiedu) {
-        createApk(projectGradlewPath,projectRootPath,bestCUList,javaFiles,compPosition,copiedu);
+    public void startApkCreation(String projectGradlewPath, String projectRootPath, ArrayList<Pair<File, CompilationUnit>> bestCUList, int compPosition, CompilationUnit copiedu) {
+        createApk(projectGradlewPath,projectRootPath,bestCUList,compPosition,copiedu);
     }
 
     public void startAQLProcess(String projectAPKPath, String config1, String config2, String thisRunName) {

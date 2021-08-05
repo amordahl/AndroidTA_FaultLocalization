@@ -11,14 +11,15 @@ import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Flow;
 import com.utdallas.cs.alps.flows.Flowset;
 import org.apache.commons.io.FileUtils;
+import org.javatuples.Pair;
 
 import java.io.*;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+
+import static cs.utd.soles.TesterUtil.saveCompilationUnits;
 
 
 public class Runner {
@@ -28,6 +29,7 @@ public class Runner {
     static TesterUtil testerForThis=null;
     static PerfTimer performanceLog = new PerfTimer();
     private static boolean projectNeedsToBeMinimized=true;
+    private static String projectClassFiles;
 
     public static void main(String[] args){
         performanceLog.startProgramRunTime();
@@ -68,7 +70,7 @@ public class Runner {
         //build the project file
         createTargetProject();
 
-       // testerForThis = new TesterUtil(targetFile, SchemaGenerator.SCHEMA_PATH, targetType);
+
 
         //HANDLE THE SOURCE DIRECTORY (THIS SHOULD JUST BE JAVA DIR IN PROJECT)
         try{
@@ -95,6 +97,32 @@ public class Runner {
         }
 
 
+        //associate classes to files
+        fillNamesToPaths();
+
+        //generate dot file // dependency graph
+        DependencyGraph dg = null;
+        try {
+            dg = makeDependencyNodes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+            
+
+
+        //Before we start delta debugging lets, work on finding the best files to deal with
+        ArrayList<HashSet<ClassNode>> closures = dg.getTransitiveClosuresDifferent();
+        try {
+            reduceFromClosures(closures);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
         //start the delta debugging process
         while(!minimized){
 
@@ -102,11 +130,9 @@ public class Runner {
             //this is set here because if a change is made to ANY ast we want to say we haven't minimized yet
             minimized=true;
             int i=0;
-            //TODO:: Test if this method actually works
-            //if(bestCUList.size()>1)
-                //handleCUList(bestCUList);
-            for (CompilationUnit compilationUnit : bestCUList) {
-                traverseTree(i, compilationUnit);
+
+            for (Pair<File,CompilationUnit> compilationUnit : bestCUList) {
+                traverseTree(i, compilationUnit.getValue1());
                 i++;
             }
             System.out.println("Done with 1 rotation");
@@ -117,7 +143,7 @@ public class Runner {
         try {
             String filePathName = "debugger/java_files/"+thisRunName+"/";
             for (int i = 0; i < bestCUList.size(); i++) {
-                File file = new File(filePathName +programFileNames.get(i) + ".java");
+                File file = new File(filePathName +bestCUList.get(i).getValue0().getName() + ".java");
                 file.mkdirs();
                 if (file.exists())
                     file.delete();
@@ -158,13 +184,168 @@ public class Runner {
 
 
             //let the final version of the project_file be the minimized version so we dont have to replace java file manually
-            testerForThis.saveCompilationUnits(bestCUList,unchangedJavaFiles, originalCUnits.size()+1,null);
+            //replace this trash
+            saveCompilationUnits(bestCUList);
         }catch(IOException e){
             e.printStackTrace();
         }
 
     }
 
+    private static DependencyGraph makeDependencyNodes() throws IOException, InterruptedException {
+        //grab our class files
+        String[] command = {"jdeps","-R","-verbose","-dotoutput",projectClassFiles+"/dotfiles",projectClassFiles};
+
+        ProcessBuilder pb = new ProcessBuilder(command);
+        pb.redirectErrorStream(true);
+
+        Process p = pb.start();
+        String result = "";
+        BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line;
+        while (p.isAlive())
+            while (in.ready()) {
+                result += in.readLine() + "\n";
+            }
+        p.waitFor();
+
+        DependencyGraph rg = new DependencyGraph();
+        rg.parseGraphFromDot(dotFile);
+        return rg;
+    }
+    public static void reduceFromClosures(List<HashSet<ClassNode>> closures) throws IOException, InterruptedException {
+        HashSet<ClassNode> knownNodes = new HashSet<>();
+
+        List<HashSet<ClassNode>> unknownNodes = new ArrayList<>(closures);
+
+        Comparator<HashSet<ClassNode>> sorting = (o1, o2) -> {
+
+            HashSet<ClassNode> u1 = new HashSet<>(o1);
+            u1.addAll(knownNodes);
+            HashSet<ClassNode> u2 = new HashSet<>(o2);
+            u2.addAll(knownNodes);
+            if(u1.size()<u2.size()){
+                return -1;
+            }
+            else if(u1.size()>u2.size()){
+                return 1;
+            }
+            return 0;
+        };
+
+        unknownNodes.sort(sorting);
+        //System.out.println(unknownNodes);
+
+        //ill have to ask Austin what the point of running this multiple times is, seems like the first closure we find is our answer?
+        //Doesn't make sense that we would require multiple closures?
+
+        for(int i=0;i<unknownNodes.size();i++){
+
+            HashSet<ClassNode> proposal = new HashSet<>(knownNodes);
+            proposal.addAll(unknownNodes.get(i));
+
+            //match the proposal to the compilation units
+
+            ArrayList<Pair<File,CompilationUnit>> newProgramConfig = matchProposal(proposal);
+            //if this works then update namedBestCUS to be good else
+            if(checkProposal(newProgramConfig)){
+                bestCUList=newProgramConfig;
+                break;
+            }
+            //revert, just write all the things from namedbestcus
+            else{
+                testerForThis.cleanseFiles();
+                saveCompilationUnits(bestCUList);
+            }
+
+
+        }
+
+
+
+
+    }
+    private static ArrayList<Pair<File,CompilationUnit>> matchProposal(HashSet<ClassNode> proposal){
+        ArrayList<Pair<File,CompilationUnit>> matchedProposal = new ArrayList<>();
+
+        for(ClassNode x: proposal){
+            String filePath = x.getFilePath();
+            for(Pair pir: bestCUList){
+                if(((File)pir.getValue0()).getAbsolutePath().equals(filePath)){
+                    matchedProposal.add(pir);
+                    break;
+
+                }
+            }
+            //System.out.println(filePath);
+        }
+        return matchedProposal;
+    }
+
+    private static boolean checkProposal(ArrayList<Pair<File,CompilationUnit>> proposal) throws IOException, InterruptedException {
+
+        boolean returnVal=false;
+        performanceLog.addChangeNum();
+        try {
+            //enter synchronized
+            synchronized(lockObject) {
+                //create the apk using the new list of compilation units
+                testerForThis.startApkCreation(projectGradlewPath, projectRootPath, proposal);
+                    /*if (testerForThis.createApk(projectGradlewPath, projectRootPath, bestCUList, javaFiles, compPosition, copiedu)) {
+
+                        if (testerForThis.runAQL(projectAPKPath, config1, config2, thisRunName)) {
+
+                            returnVal = true;
+                            minimized = false;
+                            //this is the best apk yet, save it.
+                            saveBestAPK();
+                            System.out.println("Successful One\n\n------------------------------------\n\n\n");
+                            //for (CompilationUnit x : bestCUList) {
+                            //    System.out.println(x);
+                            //}
+                            System.out.println("CopiedUnit:" + copiedu);
+                        }
+                    }*/
+                //wait for createApk to be done
+                lockObject.wait();
+                //get the results
+                //if this is true, then the apk created succesfully
+                if(!testerForThis.threadResult){
+                    return false;
+                }
+                //start aql process
+                testerForThis.startAQLProcess(projectAPKPath, config1, config2, thisRunName);
+                //testerUtil.startAQLProcess
+                //wait for aqlprocess to be done
+                lockObject.wait();
+                //get the results
+                if(!testerForThis.threadResult){
+                    return false;
+                }
+
+                //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!
+                try {
+                    long currentLineCount = LineCounter.countLinesDir(projectSrcPath);
+                    performanceLog.addCodeChange(currentLineCount);
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+                returnVal = true;
+                minimized = false;
+                //this is the best apk yet, save it.
+                saveBestAPK();
+                System.out.println("Successful One\n\n------------------------------------\n\n\n");
+                //for (CompilationUnit x : bestCUList) {
+                //    System.out.println(x);
+                //}
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return returnVal;
+    }
 
     //INPUT FOR THE DEBUGGER SHOULD BE APK NAME (droidbench), CONFIG 1, CONFIG 2, TRUE OR FALSE (type of violation), TRUE OR FALSE (violation or nonviolation), target_file??
 
@@ -173,7 +354,7 @@ public class Runner {
     static String config2;
     static boolean targetType;
     static boolean violationOrNot;
-
+    static File dotFile;
 
     static final Object lockObject = new Object();
 
@@ -190,7 +371,6 @@ public class Runner {
         config2="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig2()+".xml";
         targetType=thisViolation.getType().equalsIgnoreCase("soundness");
         violationOrNot=thisViolation.getViolation().toLowerCase().equals("true");;
-
         //the files with no flows we still need the apk info from so that we can save its apk, so figure out the apk from the filename
         //fix apkName
         if(apkName.equals("/")){
@@ -219,11 +399,11 @@ public class Runner {
 
 
     static boolean minimized=false;
-    static ArrayList<CompilationUnit> bestCUList = new ArrayList<>();
-    static ArrayList<CompilationUnit> originalCUnits = new ArrayList();
-    static ArrayList<String> programFileNames= new ArrayList<>();
-    static ArrayList<File> javaFiles = new ArrayList<>();
-    static ArrayList<File> unchangedJavaFiles = new ArrayList<>();
+    static ArrayList<Pair<File,CompilationUnit>> bestCUList = new ArrayList<>();
+    static ArrayList<Pair<File,CompilationUnit>> originalCUnits = new ArrayList();
+
+
+
 
 
 
@@ -256,7 +436,7 @@ public class Runner {
 
         //make a copy of the tree
 
-        CompilationUnit copiedUnit = bestCUList.get(compPosition).clone();
+        CompilationUnit copiedUnit = bestCUList.get(compPosition).getValue1().clone();
         Node copiedNode = findCurrentNode(currentNode, compPosition, copiedUnit);
         ArrayList<Node> alterableList = new ArrayList<Node>(childList);
         ArrayList<Node> copiedList = getCurrentNodeList(copiedNode, alterableList);
@@ -291,13 +471,13 @@ public class Runner {
 
 
                     //make another copy and try to run the loop again
-                    copiedUnit = bestCUList.get(compPosition).clone();
+                    copiedUnit = bestCUList.get(compPosition).getValue1().clone();
                     copiedNode = findCurrentNode(currentNode, compPosition, copiedUnit);
                     copiedList = getCurrentNodeList(copiedNode, alterableList);
                     i=copiedList.size()/2;
                     break;
                 } else{
-                    copiedUnit = bestCUList.get(compPosition).clone();
+                    copiedUnit = bestCUList.get(compPosition).getValue1().clone();
                     copiedNode = findCurrentNode(currentNode, compPosition, copiedUnit);
                     copiedList = getCurrentNodeList(copiedNode, alterableList);
                 }
@@ -401,7 +581,7 @@ public class Runner {
             //enter synchronized
             synchronized(lockObject) {
                     //create the apk
-                    testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList, javaFiles, compPosition, copiedu);
+                    testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList, compPosition, copiedu);
                     /*if (testerForThis.createApk(projectGradlewPath, projectRootPath, bestCUList, javaFiles, compPosition, copiedu)) {
 
                         if (testerForThis.runAQL(projectAPKPath, config1, config2, thisRunName)) {
@@ -450,7 +630,6 @@ public class Runner {
                 //    System.out.println(x);
                 //}
                 System.out.println("CopiedUnit:" + copiedu);
-
             }
 
         } catch (InterruptedException e) {
@@ -473,24 +652,18 @@ public class Runner {
         String[] extensions = {"java"};
         List<File> allJFiles = ((List<File>) FileUtils.listFiles(f, extensions, true));
 
-        ArrayList<CompilationUnit> returnList = new ArrayList<>();
-        ArrayList<CompilationUnit> cloneList = new ArrayList<>();
-        ArrayList<String> nameList = new ArrayList<>();
+
         int i=0;
         for(File x: allJFiles){
             //don't add the unmodified source files cause they will just duplicate endlessly
             if(!x.getAbsolutePath().contains("unmodified_src")) {
-                nameList.add(x.getName().substring(0, x.getName().length() - 5));
-                returnList.add(StaticJavaParser.parse(x.getAbsoluteFile()));
-                cloneList.add(returnList.get(i).clone());
                 i++;
-                javaFiles.add(x.getAbsoluteFile());
-                unchangedJavaFiles.add(x.getAbsoluteFile());
+                Pair<File, CompilationUnit> b = new Pair(x, StaticJavaParser.parse(x.getAbsoluteFile()));
+                originalCUnits.add(b);
+                bestCUList.add(b);
             }
         }
-        bestCUList = returnList;
-        programFileNames = nameList;
-        originalCUnits = cloneList;
+
         return true;
     }
     //creates a copy of the unmodified source files because we are going to modify them in-place
@@ -525,6 +698,7 @@ public class Runner {
         projectAPKPath=pathFile+"/app/build/outputs/apk/debug/app-debug.apk";
         projectSrcPath=pathFile+"/app/src/";
         dealWithSpecialProjects(APKName, pathFile);
+        projectClassFiles = pathFile+"/"+projectAPKPath.substring(1,projectAPKPath.indexOf("/",1))+"/build/intermediates/javac/debug/classes";
     }
 
     private static void dealWithSpecialProjects(String name, String pathFile) {
@@ -581,7 +755,7 @@ public class Runner {
                 projectGradlewPath = pathFile + "/gradlew";
                 File fw = new File(projectGradlewPath);
                 fw.setExecutable(true);
-                projectAPKPath = pathFile + "/app/build/outputs/apk/debug/CalendarTrigger_7-debug.apk";
+                projectAPKPath = pathFile + "/app/build/outputs/apk/debug/CalendarTrigger-debug.apk";
                 break;
             }
             case "com.nutomic.ensichat_17":{
@@ -607,7 +781,7 @@ public class Runner {
                 projectGradlewPath = pathFile + "/gradlew";
                 File fw = new File(projectGradlewPath);
                 fw.setExecutable(true);
-                projectAPKPath = pathFile + "/build/outputs/apk/debug/trikita.talalarmo_19_src.tar.gz-debug.apk";
+                projectAPKPath = pathFile + "/build/outputs/apk/debug/trikita.talalarmo_19-debug.apk";
                 projectSrcPath = pathFile + "/src/";
                 break;
             }
@@ -642,5 +816,30 @@ public class Runner {
         }
 
 
+    }
+    static HashMap<String, String> classNamesToPaths;
+    public static String getFilePathForClass(String name){
+        return classNamesToPaths.get(name);
+    }
+    private static void fillNamesToPaths(){
+        classNamesToPaths = new HashMap<>();
+
+        for(Pair x: originalCUnits){
+            findClasses((Node)x.getValue1(), ((File)x.getValue0()).getAbsolutePath());
+        }
+    }
+    private static void findClasses(Node cur, String fileName){
+
+        //this node is a class
+        if(cur instanceof ClassOrInterfaceDeclaration){
+
+            Optional<String> fullName = ((ClassOrInterfaceDeclaration) cur).getFullyQualifiedName();
+            //either get fullName or just defualt to className
+            String name = (fullName.orElseGet(((ClassOrInterfaceDeclaration) cur)::getNameAsString));
+            classNamesToPaths.put(name, fileName);
+        }
+        for(Node kid:cur.getChildNodes()){
+            findClasses(kid,fileName);
+        }
     }
 }
