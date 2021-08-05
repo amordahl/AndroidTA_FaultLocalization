@@ -698,7 +698,7 @@ public class Runner {
         projectAPKPath=pathFile+"/app/build/outputs/apk/debug/app-debug.apk";
         projectSrcPath=pathFile+"/app/src/";
         dealWithSpecialProjects(APKName, pathFile);
-        projectClassFiles = pathFile+"/"+projectAPKPath.substring(1,projectAPKPath.indexOf("/",pathFile.length()+1))+"/build/intermediates/javac/debug/classes";
+        projectClassFiles = pathFile+"/"+projectAPKPath.substring(pathFile.length()+1,projectAPKPath.indexOf("/",pathFile.length()+1))+"/build/intermediates/javac/debug/classes";
     }
 
     private static void dealWithSpecialProjects(String name, String pathFile) {
