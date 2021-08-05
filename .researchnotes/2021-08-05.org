@@ -1,0 +1,14 @@
+* Meeting with Dakota and Dr. Wei
+
+- Just running binary reduction algorithm on budgetwatch removed about 75% of the code in budgetwatch in about 6-7 minutes, but 0% of wfwt.
+
+* Meeting with Dr. Wei
+- We should keep in mind the idea of mutating FlowDroid in order to produce more 
+
+* Tasks for Today
+** DONE Why do we need to loop and do the binary search? Why not just return the first closure that reproduces the violation?
+** DONE Email Sai to arrange a meeting.
+** TODO Create a file to hold all of our ground truths.
+** TODO Refresh myself on the particulars of CHA and RTA.
+** TODO Begin investigating FlowDroid to determine the reason behind the violation between CHA and RTA. Is RTA actually supposed to be as sound as CHA?
+
