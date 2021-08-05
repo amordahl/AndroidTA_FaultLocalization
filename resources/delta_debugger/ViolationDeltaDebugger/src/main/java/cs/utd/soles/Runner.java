@@ -114,6 +114,7 @@ public class Runner {
 
         //Before we start delta debugging lets, work on finding the best files to deal with
         ArrayList<HashSet<ClassNode>> closures = dg.getTransitiveClosuresDifferent();
+        System.out.println("CLOSURES: "+closures);
         try {
             reduceFromClosures(closures);
         } catch (IOException e) {
@@ -123,8 +124,9 @@ public class Runner {
         }
 
 
+
         //start the delta debugging process
-        while(!minimized){
+        while(!minimized&&!CLASS_FILES_ONLY){
 
             performanceLog.startOneRotation();
             //this is set here because if a change is made to ANY ast we want to say we haven't minimized yet
@@ -249,6 +251,7 @@ public class Runner {
             ArrayList<Pair<File,CompilationUnit>> newProgramConfig = matchProposal(proposal);
             //if this works then update namedBestCUS to be good else
             if(checkProposal(newProgramConfig)){
+                System.out.println("Working proposal: "+proposal);
                 bestCUList=newProgramConfig;
                 break;
             }
@@ -393,9 +396,13 @@ public class Runner {
             if (args[i].equals("-l")) {
                 LOG_MESSAGES = true;
             }
+            if(args[i].equals("-c")){
+                CLASS_FILES_ONLY=true;
+            }
             //add other args here if we want em
         }
     }
+    static boolean CLASS_FILES_ONLY=false;
 
 
     static boolean minimized=false;
