@@ -3,6 +3,7 @@ package cs.utd.soles;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.stmt.BlockStmt;
@@ -867,15 +868,16 @@ public class Runner {
     private static void findClasses(Node cur, String fileName){
 
         //this node is a class
-        if(cur instanceof ClassOrInterfaceDeclaration){
 
-            Optional<String> fullName = ((ClassOrInterfaceDeclaration) cur).getFullyQualifiedName();
-            //either get fullName or just defualt to className
-            String name = (fullName.orElseGet(((ClassOrInterfaceDeclaration) cur)::getNameAsString));
-            classNamesToPaths.put(name, fileName);
+        Optional<PackageDeclaration> fullName = ((CompilationUnit) cur).getPackageDeclaration();
+        //either get fullName or just defualt to className
+        String name = fullName.isPresent()? fullName.get().getNameAsString(): "";
+        if(!name.isEmpty())
+            name=name+"."+fileName.substring(fileName.lastIndexOf(File.separator)+1,fileName.lastIndexOf(".java"));
+        else{
+            name=fileName.substring(fileName.lastIndexOf(File.separator)+1,fileName.lastIndexOf(".java"));
         }
-        for(Node kid:cur.getChildNodes()){
-            findClasses(kid,fileName);
-        }
+        classNamesToPaths.put(name, fileName);
+
     }
 }
