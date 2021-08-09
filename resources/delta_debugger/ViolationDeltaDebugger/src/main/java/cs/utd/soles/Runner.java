@@ -261,6 +261,11 @@ public class Runner {
                 r=j-1;
                 //resort
                 knownNodes.addAll(unknownNodes.get(j-1));
+                System.out.println("Known nodes: ");
+                for(ClassNode x: knownNodes){
+                    System.out.print(x.getName()+ " ");
+                }
+                System.out.println();
                 List<HashSet<ClassNode>> newList = new ArrayList<>();
                 for(int k=0;k<r;k++){
                     newList.add(unknownNodes.get(k));
