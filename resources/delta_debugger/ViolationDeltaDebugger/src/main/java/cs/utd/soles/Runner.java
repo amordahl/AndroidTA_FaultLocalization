@@ -77,7 +77,7 @@ public class Runner {
         try{
             handleSrcDirectory(projectSrcPath);
             if(LOG_MESSAGES) {
-                String filePathName = "debugger/java_files/" + THIS_RUN_PREFIX + thisRunName + "/intermediate_java/";
+                String filePathName = "debugger/java_files/" + thisRunName + "/intermediate_java/";
                 File f = new File(filePathName);
                 f.mkdirs();
                 intermediateJavaDir=f;
@@ -144,7 +144,7 @@ public class Runner {
 
         //log a bunch of information
         try {
-            String filePathName = "debugger/java_files/"+ Runner.THIS_RUN_PREFIX +thisRunName+"/";
+            String filePathName = "debugger/java_files/" +thisRunName+"/";
             for (int i = 0; i < bestCUList.size(); i++) {
                 File file = new File(filePathName +bestCUList.get(i).getValue0().getName() + ".java");
                 file.mkdirs();
@@ -160,9 +160,9 @@ public class Runner {
             //get the lines count after all changes
             performanceLog.endLineCount=LineCounter.countLinesDir(projectSrcPath);
 
-            filePathName = "debugger/"+ Runner.THIS_RUN_PREFIX +thisRunName+"_time.txt";
+            filePathName = "debugger/"+thisRunName+"_time.txt";
             File file = new File(filePathName);
-
+            file.mkdirs();
             if (file.exists())
                 file.delete();
             file.createNewFile();
@@ -242,11 +242,14 @@ public class Runner {
         //Doesn't make sense that we would require multiple closures?
         int r= unknownNodes.size();
         int i=0;
-        while(r>0&&i<r){
+        while(r>0&&i<=r){
 
             HashSet<ClassNode> proposal = new HashSet<>(knownNodes);
+            if(proposal.size()==0&&i==0){
+                i++;
+            }
             int j=0;
-            for(;j<=i;j++){
+            for(;j<i;j++){
                 proposal.addAll(unknownNodes.get(j));
             }
             //match the proposal to the compilation units
@@ -280,7 +283,8 @@ public class Runner {
         HashSet<ClassNode> proposal = new HashSet<>(knownNodes);
         ArrayList<Pair<File,CompilationUnit>> newProgramConfig = matchProposal(proposal);
         bestCUList=newProgramConfig;
-
+        testerForThis.cleanseFiles();
+        saveCompilationUnits(bestCUList);
 
     }
     
@@ -418,6 +422,7 @@ public class Runner {
             if(args[i].equals("-p")){
                 THIS_RUN_PREFIX=args[i+1];
                 THIS_RUN_PREFIX = ""+thisViolation.getConfig1()+"_"+thisViolation.getConfig2()+"/"+THIS_RUN_PREFIX.replace("/","");
+                thisRunName=THIS_RUN_PREFIX+thisRunName;
                 i++;
             }
 
@@ -708,7 +713,7 @@ public class Runner {
         String actualConfig1 = config1.substring(config1.lastIndexOf("/")+1,config1.lastIndexOf(".xml"));
         String actualConfig2 = config2.substring(config2.lastIndexOf("/")+1,config2.lastIndexOf(".xml"));
         thisRunName=actualAPK+actualConfig1+actualConfig2;
-        String pathFile="debugger/project_files/"+ Runner.THIS_RUN_PREFIX +thisRunName;
+        String pathFile="debugger/project_files/"+thisRunName;
         System.out.println(pathFile);
 
         String[] args = {actualAPK, pathFile};
@@ -834,7 +839,7 @@ public class Runner {
     //this method updates the best apk for this run or creates it if it needs to, by the end of the run the best apk should be saved
     private static void saveBestAPK(){
         try {
-            File f= new File("debugger/minimized_apks/"+ Runner.THIS_RUN_PREFIX +thisRunName+".apk");
+            File f= new File("debugger/minimized_apks/" +thisRunName+".apk");
             f.mkdirs();
             if(f.exists()){
                 f.delete();

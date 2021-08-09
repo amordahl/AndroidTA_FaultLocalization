@@ -51,7 +51,7 @@ public class ProcessThread extends Thread{
                 thisProc.destroyForcibly();
                 if(doWriteProcess&&Runner.LOG_MESSAGES&& this.type == ThreadHandler.ProcessType.CREATE_APK_PROCESS){
                     try {
-                        String fp = "debugger/tempfiles/gradleproctimeout/" + Runner.THIS_RUN_PREFIX + Runner.thisRunName + System.currentTimeMillis() + "_log.txt";
+                        String fp = "debugger/tempfiles/gradleproctimeout/" + Runner.thisRunName + System.currentTimeMillis() + "_log.txt";
                         File f = new File(fp);
                         f.mkdirs();
                         if(f.exists())
@@ -68,7 +68,7 @@ public class ProcessThread extends Thread{
                 else if(doWriteProcess&&Runner.LOG_MESSAGES&&
                         (this.type == ThreadHandler.ProcessType.AQL_PROCESS1|| this.type== ThreadHandler.ProcessType.AQL_PROCESS2)){
                     try {
-                        String fp = "debugger/tempfiles/aqlproctimeout/" + Runner.THIS_RUN_PREFIX + Runner.thisRunName + System.currentTimeMillis() + "_log.txt";
+                        String fp = "debugger/tempfiles/aqlproctimeout/"+ Runner.thisRunName + System.currentTimeMillis() + "_log.txt";
                         File f = new File(fp);
                         f.mkdirs();
                         if(f.exists())
