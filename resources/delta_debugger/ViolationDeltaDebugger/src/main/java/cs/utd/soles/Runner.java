@@ -30,6 +30,7 @@ public class Runner {
     static PerfTimer performanceLog = new PerfTimer();
     private static boolean projectNeedsToBeMinimized=true;
     private static String projectClassFiles;
+    public static String THIS_RUN_PREFIX;
 
     public static void main(String[] args){
         performanceLog.startProgramRunTime();
@@ -76,7 +77,7 @@ public class Runner {
         try{
             handleSrcDirectory(projectSrcPath);
             if(LOG_MESSAGES) {
-                String filePathName = "debugger/java_files/" + thisRunName + "/intermediate_java/";
+                String filePathName = "debugger/java_files/" + THIS_RUN_PREFIX + thisRunName + "/intermediate_java/";
                 File f = new File(filePathName);
                 f.mkdirs();
                 intermediateJavaDir=f;
@@ -143,7 +144,7 @@ public class Runner {
 
         //log a bunch of information
         try {
-            String filePathName = "debugger/java_files/"+thisRunName+"/";
+            String filePathName = "debugger/java_files/"+ Runner.THIS_RUN_PREFIX +thisRunName+"/";
             for (int i = 0; i < bestCUList.size(); i++) {
                 File file = new File(filePathName +bestCUList.get(i).getValue0().getName() + ".java");
                 file.mkdirs();
@@ -159,7 +160,7 @@ public class Runner {
             //get the lines count after all changes
             performanceLog.endLineCount=LineCounter.countLinesDir(projectSrcPath);
 
-            filePathName = "debugger/"+thisRunName+"_time.txt";
+            filePathName = "debugger/"+ Runner.THIS_RUN_PREFIX +thisRunName+"_time.txt";
             File file = new File(filePathName);
 
             if (file.exists())
@@ -237,37 +238,52 @@ public class Runner {
 
         unknownNodes.sort(sorting);
         //System.out.println(unknownNodes);
-
         //ill have to ask Austin what the point of running this multiple times is, seems like the first closure we find is our answer?
         //Doesn't make sense that we would require multiple closures?
-
-        for(int i=0;i<unknownNodes.size();i++){
+        int r= unknownNodes.size();
+        int i=0;
+        while(r>0&&i<r){
 
             HashSet<ClassNode> proposal = new HashSet<>(knownNodes);
-            proposal.addAll(unknownNodes.get(i));
-
+            int j=0;
+            for(;j<=i;j++){
+                proposal.addAll(unknownNodes.get(j));
+            }
             //match the proposal to the compilation units
 
             ArrayList<Pair<File,CompilationUnit>> newProgramConfig = matchProposal(proposal);
             //if this works then update namedBestCUS to be good else
             if(checkProposal(newProgramConfig)){
-                System.out.println("Working proposal: "+proposal);
-                bestCUList=newProgramConfig;
-                break;
+                //if this works then add to list of known nodes and re-sort
+                r=j-1;
+                //resort
+                knownNodes.addAll(unknownNodes.get(j-1));
+                List<HashSet<ClassNode>> newList = new ArrayList<>();
+                for(int k=0;k<r;k++){
+                    newList.add(unknownNodes.get(k));
+                }
+                newList.sort(sorting);
+                unknownNodes=newList;
+                //restart our search
+                i=0;
             }
             //revert, just write all the things from namedbestcus
             else{
                 testerForThis.cleanseFiles();
                 saveCompilationUnits(bestCUList);
             }
-
+            i++;
 
         }
 
-
+        //This algo is done, we now set our CU list to this and be done.
+        HashSet<ClassNode> proposal = new HashSet<>(knownNodes);
+        ArrayList<Pair<File,CompilationUnit>> newProgramConfig = matchProposal(proposal);
+        bestCUList=newProgramConfig;
 
 
     }
+    
     private static ArrayList<Pair<File,CompilationUnit>> matchProposal(HashSet<ClassNode> proposal){
         ArrayList<Pair<File,CompilationUnit>> matchedProposal = new ArrayList<>();
 
@@ -399,6 +415,13 @@ public class Runner {
             if(args[i].equals("-c")){
                 CLASS_FILES_ONLY=true;
             }
+            if(args[i].equals("-p")){
+                THIS_RUN_PREFIX=args[i+1];
+                THIS_RUN_PREFIX = ""+thisViolation.getConfig1()+"_"+thisViolation.getConfig2()+"/"+THIS_RUN_PREFIX.replace("/","");
+                i++;
+            }
+
+
             //add other args here if we want em
         }
     }
@@ -685,7 +708,7 @@ public class Runner {
         String actualConfig1 = config1.substring(config1.lastIndexOf("/")+1,config1.lastIndexOf(".xml"));
         String actualConfig2 = config2.substring(config2.lastIndexOf("/")+1,config2.lastIndexOf(".xml"));
         thisRunName=actualAPK+actualConfig1+actualConfig2;
-        String pathFile="debugger/project_files/"+thisRunName;
+        String pathFile="debugger/project_files/"+ Runner.THIS_RUN_PREFIX +thisRunName;
         System.out.println(pathFile);
 
         String[] args = {actualAPK, pathFile};
@@ -811,7 +834,7 @@ public class Runner {
     //this method updates the best apk for this run or creates it if it needs to, by the end of the run the best apk should be saved
     private static void saveBestAPK(){
         try {
-            File f= new File("debugger/minimized_apks/"+thisRunName+".apk");
+            File f= new File("debugger/minimized_apks/"+ Runner.THIS_RUN_PREFIX +thisRunName+".apk");
             f.mkdirs();
             if(f.exists()){
                 f.delete();

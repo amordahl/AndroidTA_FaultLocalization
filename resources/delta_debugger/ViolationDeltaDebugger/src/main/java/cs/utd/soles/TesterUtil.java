@@ -130,7 +130,7 @@ public class TesterUtil implements ThreadHandler{
     //this needs the gradlew file path and the root directory of the project
     public void createApk(String gradlewFilePath, String rootDir, ArrayList<Pair<File,CompilationUnit>> list, int positionChanged, CompilationUnit changedUnit){
         Runner.performanceLog.startOneCompileRun();
-        String[] command = {gradlewFilePath, "assembleDebug", "-p", rootDir};
+        String[] command = {gradlewFilePath, "clean", "assembleDebug", "-p", rootDir};
         try {
             saveCompilationUnits(list,positionChanged, changedUnit);
             Process p = Runtime.getRuntime().exec(command);
