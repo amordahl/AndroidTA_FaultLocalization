@@ -267,10 +267,11 @@ public class Runner {
                 }
                 newList.sort(sorting);
                 unknownNodes=newList;
+                bestCUList=newProgramConfig;
                 //restart our search
                 i=0;
             }
-            //revert, just write all the things from namedbestcus
+            //revert, just write all the things from bestcus
             else{
                 testerForThis.cleanseFiles();
                 saveCompilationUnits(bestCUList);
@@ -279,12 +280,7 @@ public class Runner {
 
         }
 
-        //This algo is done, we now set our CU list to this and be done.
-        HashSet<ClassNode> proposal = new HashSet<>(knownNodes);
-        ArrayList<Pair<File,CompilationUnit>> newProgramConfig = matchProposal(proposal);
-        bestCUList=newProgramConfig;
-        testerForThis.cleanseFiles();
-        saveCompilationUnits(bestCUList);
+
 
     }
     
