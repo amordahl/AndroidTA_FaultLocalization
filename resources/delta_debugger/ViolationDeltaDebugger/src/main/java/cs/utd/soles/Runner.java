@@ -422,7 +422,6 @@ public class Runner {
             if(args[i].equals("-p")){
                 THIS_RUN_PREFIX=args[i+1];
                 THIS_RUN_PREFIX = ""+thisViolation.getConfig1()+"_"+thisViolation.getConfig2()+"/"+THIS_RUN_PREFIX.replace("/","");
-                thisRunName=THIS_RUN_PREFIX+thisRunName;
                 i++;
             }
 
@@ -712,7 +711,7 @@ public class Runner {
         String actualAPK = apkName.substring(apkName.lastIndexOf("/")+1,apkName.lastIndexOf(".apk"));
         String actualConfig1 = config1.substring(config1.lastIndexOf("/")+1,config1.lastIndexOf(".xml"));
         String actualConfig2 = config2.substring(config2.lastIndexOf("/")+1,config2.lastIndexOf(".xml"));
-        thisRunName=actualAPK+actualConfig1+actualConfig2;
+        thisRunName=THIS_RUN_PREFIX+actualAPK+actualConfig1+actualConfig2;
         String pathFile="debugger/project_files/"+thisRunName;
         System.out.println(pathFile);
 
