@@ -22,7 +22,7 @@ public class Runner {
 
 
         List<File> everyrunFile = new ArrayList<>();
-        List<File> allDirFile = (List<File>) FileUtils.listFiles(debuggerDir,null,false);
+        File[] allDirFile = debuggerDir.listFiles();
         System.out.println(allDirFile);
         for(File x: allDirFile) {
             String[] extensions = {"txt"};
