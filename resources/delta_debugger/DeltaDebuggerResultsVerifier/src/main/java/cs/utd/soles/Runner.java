@@ -23,9 +23,11 @@ public class Runner {
 
         List<File> everyrunFile = new ArrayList<>();
         List<File> allDirFile = (List<File>) FileUtils.listFiles(debuggerDir,null,false);
+        System.out.println(allDirFile);
         for(File x: allDirFile) {
             String[] extensions = {"txt"};
             List<File> allTXTFiles = ((List<File>) FileUtils.listFiles(x, extensions, false));
+            System.out.println(allTXTFiles);
             everyrunFile.addAll(allTXTFiles);
 
         }
