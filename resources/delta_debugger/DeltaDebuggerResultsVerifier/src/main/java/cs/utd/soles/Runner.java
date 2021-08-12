@@ -19,9 +19,16 @@ public class Runner {
 
         File debuggerDir = Paths.get(args[0]).toFile();
 
-        String[] extensions = {"txt"};
-        List<File> allTXTFiles = ((List<File>) FileUtils.listFiles(debuggerDir, extensions, false));
 
+
+        List<File> everyrunFile = new ArrayList<>();
+        List<File> allDirFile = (List<File>) FileUtils.listFiles(debuggerDir,null,false);
+        for(File x: allDirFile) {
+            String[] extensions = {"txt"};
+            List<File> allTXTFiles = ((List<File>) FileUtils.listFiles(x, extensions, false));
+            everyrunFile.addAll(allTXTFiles);
+
+        }
         String runprefix="";
 
         File violationLogsDir= null;
@@ -29,13 +36,13 @@ public class Runner {
         if(args.length>1) {
             if(args[1].equals("-v")) {
                 violationLogsDir = Paths.get(args[1]).toFile();
-                extensions = new String[]{"xml"};
-                List<File> violationFiles = ((List<File>) FileUtils.listFiles(violationLogsDir, extensions, false));
-                SchemaGenerator.generateSchema();
+                //extensions = new String[]{"xml"};
+                //List<File> violationFiles = ((List<File>) FileUtils.listFiles(violationLogsDir, extensions, false));
+                /*SchemaGenerator.generateSchema();
                 for (File x : violationFiles) {
                     AQLFlowFileReader thing = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
                     violationThingList.add(thing.getFlowSet(x));
-                }
+                }*/
             }
             if(args[1].equals("-p")){
                 runprefix=args[2];
@@ -47,7 +54,7 @@ public class Runner {
         String lineData="";
         String header="apk,config1,config2,program_runtime,violation_type,Avg_Of_Rotations,Total_Rotations,Avg_Of_AQL,Total_AQL,Avg_Of_Compile,Total_Compile,%OfProgramRuntimeAQL,%OfProgramRuntimeCompile,Total_Proposed_Changes,Start_lines,End_lines,%OfLinesRemoved,bestRot,bestRotLines,bestRotLines%,worstRot,worstRotLines,worstRotLines%\n";
         output+=header;
-        for(File x: allTXTFiles){
+        for(File x: everyrunFile){
             if(!x.getName().contains(runprefix)){
                 continue;
             }
