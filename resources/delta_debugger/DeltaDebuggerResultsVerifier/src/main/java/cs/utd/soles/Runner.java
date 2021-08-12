@@ -1,7 +1,7 @@
 package cs.utd.soles;
 
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
-import com.utdallas.cs.alps.flows.Violation;
+import com.utdallas.cs.alps.flows.Flowset;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -22,18 +22,23 @@ public class Runner {
         String[] extensions = {"txt"};
         List<File> allTXTFiles = ((List<File>) FileUtils.listFiles(debuggerDir, extensions, false));
 
+        String runprefix="";
 
         File violationLogsDir= null;
-        ArrayList<Violation> violationThingList =new ArrayList<>();
+        ArrayList<Flowset> violationThingList =new ArrayList<>();
         if(args.length>1) {
-            violationLogsDir=Paths.get(args[1]).toFile();
-            extensions = new String[]{"xml"};
-            List<File> violationFiles = ((List<File>) FileUtils.listFiles(violationLogsDir, extensions, false));
-            SchemaGenerator.generateSchema();
-            for(File x: violationFiles) {
-                AQLFlowFileReader thing = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
-                violationThingList.add(thing.getThisViolation(x));
-
+            if(args[1].equals("-v")) {
+                violationLogsDir = Paths.get(args[1]).toFile();
+                extensions = new String[]{"xml"};
+                List<File> violationFiles = ((List<File>) FileUtils.listFiles(violationLogsDir, extensions, false));
+                SchemaGenerator.generateSchema();
+                for (File x : violationFiles) {
+                    AQLFlowFileReader thing = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
+                    violationThingList.add(thing.getFlowSet(x));
+                }
+            }
+            if(args[1].equals("-p")){
+                runprefix=args[2];
             }
         }
 
@@ -43,11 +48,15 @@ public class Runner {
         String header="apk,config1,config2,program_runtime,violation_type,Avg_Of_Rotations,Total_Rotations,Avg_Of_AQL,Total_AQL,Avg_Of_Compile,Total_Compile,%OfProgramRuntimeAQL,%OfProgramRuntimeCompile,Total_Proposed_Changes,Start_lines,End_lines,%OfLinesRemoved,bestRot,bestRotLines,bestRotLines%,worstRot,worstRotLines,worstRotLines%\n";
         output+=header;
         for(File x: allTXTFiles){
+            if(!x.getName().contains(runprefix)){
+                continue;
+            }
+
             //get the data, verify the results
             String name = x.getName().replace("_time.txt","");
             //apk config1 config2
-            String apkName = name.substring(0, name.indexOf("config"));
-            name = name.substring(apkName.length());
+            String apkName = name.substring(runprefix.length(), name.indexOf("config"));
+            name = name.substring(runprefix.length()+apkName.length());
             String config1 = name.substring(0, name.lastIndexOf("config"));
             name = name.substring((config1.length()));
             String config2 = name.substring(0);
@@ -105,7 +114,7 @@ public class Runner {
             line+=worstRotation+"\n";
 
             //if we want to verify the results of this line
-            if(violationLogsDir !=null){
+            /*if(violationLogsDir !=null){
 
                 //get the right input
                 Violation matchingV = null;
@@ -127,15 +136,18 @@ public class Runner {
                 //TODO:: append to end of line and also header maybe
 
 
-            }
+            }*/
 
 
 
 
             output+=line;
 
+            File thing = new File("changes_csv/");
+            thing.mkdir();
 
-            File outF2 = new File(apkName+config1+config2+"LineData" +".csv");
+            File outF2 = new File("changes_csv/"+apkName+config1+config2+"LineData" +".csv");
+
             FileWriter fw2 = new FileWriter(outF2);
             double currentTotal=100.0;
             for(CodeChange b: codeChangeList){
@@ -172,12 +184,12 @@ public class Runner {
         System.out.println(codeChangeList);
         for(CodeChange x: codeChangeList){
             //System.out.println(x);
-            if(rotList.size()<x.rot){
-                rotList.add(x.rot-1,x.linesRemoved);
+            if(rotList.size()<x.rot+1){
+                rotList.add(x.rot,x.linesRemoved);
             }
             else{
-                int old = rotList.get(x.rot-1);
-                rotList.set(x.rot-1,old+x.linesRemoved);
+                int old = rotList.get(x.rot);
+                rotList.set(x.rot,old+x.linesRemoved);
             }
             //System.out.println(rotList);
         }
