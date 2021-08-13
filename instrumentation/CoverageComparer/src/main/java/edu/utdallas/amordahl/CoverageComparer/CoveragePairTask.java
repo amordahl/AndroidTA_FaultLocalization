@@ -17,7 +17,7 @@ public class CoveragePairTask implements Runnable {
 	private Path file2;
 	private Path outputFile;
 	
-	// Static list of coverage records that we can access later, in order to compute suspiciousnesses.
+	// Static list of coverage records that we can access later, in order to compute suspiciousness.
 	private static Map<Path, Set<String>> records = Collections.synchronizedMap(new HashMap<Path, Set<String>>());
 	
 	public static Map<Path, Set<String>> getRecords() {
@@ -55,8 +55,8 @@ public class CoveragePairTask implements Runnable {
 		CoverageRecord cr;
 		try {
 			cr = new CoverageRecord(file1, file2, this.outputFile);
-			records.put(cr.getCoverageFile1(), cr.getFileContent1().stream().collect(Collectors.toSet()));
-			records.put(cr.getCoverageFile2(), cr.getFileContent2().stream().collect(Collectors.toSet()));
+			records.put(cr.getCoverageFile1(), cr.getSet1());
+			records.put(cr.getCoverageFile2(), cr.getSet2());
 			System.out.println(cr.toString());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

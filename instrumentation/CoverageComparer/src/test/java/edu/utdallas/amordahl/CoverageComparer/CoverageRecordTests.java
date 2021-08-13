@@ -32,8 +32,8 @@ public class CoverageRecordTests {
 	
 	@Test
 	public void testFileContentLength() {
-		assertTrue(cr.getFileContent1().size() == 11 &&
-				cr.getFileContent2().size() == 12);
+		assertTrue(cr.getFrequencyMap1().values().stream().mapToInt(i -> i).sum() == 11 &&
+				cr.getFrequencyMap2().values().stream().mapToInt(i -> i).sum() == 12);
 	}
 	
 	@Test

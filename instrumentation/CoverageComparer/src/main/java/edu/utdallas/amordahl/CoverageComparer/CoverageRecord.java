@@ -1,17 +1,21 @@
 package edu.utdallas.amordahl.CoverageComparer;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,28 +27,26 @@ public class CoverageRecord {
 		this.coverageFile1 = coverageFile1;
 		this.coverageFile2 = coverageFile2;
 		this.outputFile = outputFile;
-		file1minus2 = new ArrayList<String>();
-		file2minus1 = new ArrayList<String>();
-		freq_file1minus2 = new HashMap<String, Integer>();
-		freq_file2minus1 = new HashMap<String, Integer>();
-		f1minus2diffs = new ArrayList<Integer>();
-		f2minus1diffs = new ArrayList<Integer>();
-		
+		file1minus2 = new ArrayList<>();
+		file2minus1 = new ArrayList<>();
+		freq_file1minus2 = new HashMap<>();
+		freq_file2minus1 = new HashMap<>();
+		f1minus2diffs = new ArrayList<>();
+		f2minus1diffs = new ArrayList<>();
+
 		logger.info("Got arguments, now reading in file contents.");
 		logger.info(String.format("c1 is %s, c2 is %s", this.coverageFile1, this.coverageFile2));
 		// Read in file contents.
-		fileContent1 = readFileContents(coverageFile1);
-		fileContent2 = readFileContents(coverageFile2);
+		frequencyMap1 = readFileContents(coverageFile1);
+		frequencyMap2 = readFileContents(coverageFile2);
 
 		logger.info("Computing frequency map.");
 		// Compute frequencies
-		frequencyMap1 = computeFrequencyMap(fileContent1);
-		frequencyMap2 = computeFrequencyMap(fileContent2);
 
 		// Compute sets
 		logger.info("Computing sets.");
-		set1 = convertListToSet(fileContent1);
-		set2 = convertListToSet(fileContent2);
+		set1 = convertListToSet(frequencyMap1);
+		set2 = convertListToSet(frequencyMap2);
 
 		for (String s : set1) {
 			if (!set2.contains(s)) {
@@ -91,11 +93,11 @@ public class CoverageRecord {
 		}
 	}
 
-	public HashMap<String, Integer> getFreq_file1minus2() {
+	public Map<String, Integer> getFreq_file1minus2() {
 		return freq_file1minus2;
 	}
 
-	public HashMap<String, Integer> getFreq_file2minus1() {
+	public Map<String, Integer> getFreq_file2minus1() {
 		return freq_file2minus1;
 	}
 
@@ -115,28 +117,20 @@ public class CoverageRecord {
 		return file2minus1;
 	}
 
-	public HashSet<String> getSet1() {
+	public Set<String> getSet1() {
 		return set1;
 	}
 
-	public HashSet<String> getSet2() {
+	public Set<String> getSet2() {
 		return set2;
 	}
 
-	public HashMap<String, Integer> getFrequencyMap1() {
+	public Map<String, Integer> getFrequencyMap1() {
 		return frequencyMap1;
 	}
 
-	public HashMap<String, Integer> getFrequencyMap2() {
+	public Map<String, Integer> getFrequencyMap2() {
 		return frequencyMap2;
-	}
-
-	public ArrayList<String> getFileContent1() {
-		return fileContent1;
-	}
-
-	public ArrayList<String> getFileContent2() {
-		return fileContent2;
 	}
 
 	public Path getCoverageFile1() {
@@ -154,11 +148,11 @@ public class CoverageRecord {
 	private JSONObject jo;
 	private ArrayList<Integer> f1minus2diffs, f2minus1diffs;
 	private ArrayList<String> file1minus2, file2minus1;
-	private HashSet<String> set1, set2;
+	private Set<String> set1;
+	private Set<String> set2;
 
-	private HashMap<String, Integer> frequencyMap1, frequencyMap2, freq_file1minus2, freq_file2minus1;
-
-	private ArrayList<String> fileContent1, fileContent2;
+	Map<String, Integer> frequencyMap1, freq_file1minus2, freq_file2minus1;
+	Map<String, Integer> frequencyMap2;
 
 	private Path coverageFile1, coverageFile2, outputFile;
 	private static Logger logger = LoggerFactory.getLogger(CoverageRecord.class);
@@ -175,9 +169,9 @@ public class CoverageRecord {
 		sb.append(",");
 		sb.append(coverageFile2);
 		sb.append(",");
-		sb.append(fileContent1.size());
+		sb.append(frequencyMap1.values().stream().mapToInt(i -> i).sum());
 		sb.append(",");
-		sb.append(fileContent2.size());
+		sb.append(frequencyMap2.values().stream().mapToInt(i -> i).sum());
 		sb.append(",");
 		sb.append(set1.size());
 		sb.append(",");
@@ -186,26 +180,6 @@ public class CoverageRecord {
 		sb.append(file1minus2.size());
 		sb.append(",");
 		sb.append(file2minus1.size());
-//		sb.append(",");
-//		sb.append(getSum(f1minus2diffs));
-//		sb.append(",");
-//		sb.append(getSum(f2minus1diffs));
-//		sb.append(",");
-//		sb.append(getMean(f1minus2diffs));
-//		sb.append(",");
-//		sb.append(getMean(f2minus1diffs));
-//		sb.append(",");
-//		sb.append(getMax(f1minus2diffs));
-//		sb.append(",");
-//		sb.append(getMax(f2minus1diffs));
-//		sb.append(",");
-//		sb.append(getMin(f1minus2diffs));
-//		sb.append(",");
-//		sb.append(getMin(f2minus1diffs));
-//		sb.append(",");
-//		sb.append(getMedian(f1minus2diffs));
-//		sb.append(",");
-//		sb.append(getMedian(f2minus1diffs));
 		return sb.toString();
 	}
 
@@ -230,7 +204,7 @@ public class CoverageRecord {
 	}
 
 	private static Integer getSum(ArrayList<Integer> al) {
-		Integer sum = Integer.valueOf(0);
+		int sum = 0;
 		for (Integer i : al)
 			sum += i;
 		return sum;
@@ -242,7 +216,9 @@ public class CoverageRecord {
 	}
 
 	protected static Double getMedian(ArrayList<Integer> al) {
-		if (al == null || al.size() == 0) { return Double.NaN; }
+		if (al == null || al.size() == 0) {
+			return Double.NaN;
+		}
 		if (al.size() == 1)
 			return Double.valueOf(al.get(0));
 		@SuppressWarnings("unchecked")
@@ -257,15 +233,21 @@ public class CoverageRecord {
 		});
 		if (sorted.size() % 2 == 0) {
 			// Even, we have to average the two middle elements.
-			return (sorted.get((int) (Math.ceil((sorted.size() - 1) / 2.0))) + 
-					sorted.get((int) (Math.floor((sorted.size() - 1) / 2.0)))) / 2.0;
+			return (sorted.get((int) (Math.ceil((sorted.size() - 1) / 2.0)))
+					+ sorted.get((int) (Math.floor((sorted.size() - 1) / 2.0)))) / 2.0;
 		} else
 			return Double.valueOf(sorted.get((sorted.size() - 1) / 2));
 	}
 
-	private static ArrayList<String> readFileContents(Path coverageFile) {
-		ArrayList<String> fileContent = new ArrayList<String>();
-		HashMap<Integer, String> mapping = new HashMap<Integer, String>();
+	private static Map<String, Integer> readFileContents(Path coverageFile) {
+
+		Path intermediate = coverageFile.resolveSibling("." + coverageFile.getFileName() + ".set");
+		if (Files.exists(intermediate)) {
+			return readSetFromFile(intermediate);
+		}
+
+		ArrayList<String> fileContent = new ArrayList<>();
+		HashMap<Integer, String> mapping = new HashMap<>();
 		try (Scanner sc = new Scanner(coverageFile.toFile())) {
 			while (sc.hasNext()) {
 				String line = sc.next();
@@ -285,11 +267,30 @@ public class CoverageRecord {
 			e.printStackTrace();
 			System.exit(2);
 		}
-		return fileContent;
+		return computeFrequencyMap(fileContent, intermediate);
 	}
 
-	private static HashMap<String, Integer> computeFrequencyMap(ArrayList<String> fileContents) {
-		HashMap<String, Integer> frequencyMap = new HashMap<String, Integer>();
+	@SuppressWarnings("unchecked")
+	private static Map<String, Integer> readSetFromFile(Path intermediate) {
+		Map<String, Integer> result = null;
+		try (FileInputStream f = new FileInputStream(intermediate.toFile());
+				ObjectInputStream o = new ObjectInputStream(f)) {
+			result = (Map<String, Integer>) o.readObject();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	private static Map<String, Integer> computeFrequencyMap(ArrayList<String> fileContents, Path intermediate) {
+		HashMap<String, Integer> frequencyMap = new HashMap<>();
 
 		for (String k : fileContents) {
 			if (!frequencyMap.containsKey(k)) {
@@ -298,16 +299,31 @@ public class CoverageRecord {
 			frequencyMap.put(k, frequencyMap.get(k) + 1);
 		}
 
+		writeSetToFile(frequencyMap, intermediate);
 		return frequencyMap;
 
 	}
 
-	private static HashSet<String> convertListToSet(ArrayList<String> al) {
-		HashSet<String> hs = new HashSet<String>();
-		for (String k : al) {
-			hs.add(k);
+	/**
+	 * Writes the frequencyMap to a file. This way, once that the initial
+	 * computation is done, we can easily read it back in instead of doing the very
+	 * expensive I/O.
+	 *
+	 * @param frequencyMap
+	 * @param intermediate
+	 */
+	private static void writeSetToFile(Map<String, Integer> frequencyMap, Path intermediate) {
+		try (FileOutputStream f = new FileOutputStream(intermediate.toFile());
+				ObjectOutputStream o = new ObjectOutputStream(f)) {
+			o.writeObject(frequencyMap);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return hs;
+	}
+
+	private static Set<String> convertListToSet(Map<String, ?> map) {
+		return map.keySet();
 	}
 
 }
