@@ -1,0 +1,41 @@
+* Meeting with Dr. Wei and Dakota
+
+- We discussed Dakota's progress. He is continuing to work on the problem of seemingly nondeterministic results in the execution of DroidBench.
+- Dakota also brought to us the idea of refining the Binary Reduction algorithm to work on methods, rather than the class dependence graph. We discussed what we would need in order to do this: just a call graph. Once we have the call graph, the algorithm should be roughly the same.
+
+* Meeting with Dr. Wei
+
+- We discussed the general direction forward for this work. Dr. Wei proposed the following scope of the paper: we pick up where our ISSTA work left off, making the contributions in that work the inputs to this one. Specifically, the work proposes a framework for debugging configurable static analyzers, starting from partial orders. With the partial orders, we can automatically generate test cases and evaluate them to check for bugs (i.e., violations). Then, we apply modified fault-localization formulae in order to figure out statement rankings based on the diff. Given these statement rankings, we take my proposal of doing a more expensive but limited instrumentation to find data structures that these statements use (essentially, collect read/write/use info and run fault localization again on that in order to identify the data structure that is most responsible for the issue.)
+- Dr. Wei suggested we continue to push for ICSE, whose deadline is on September 3rd. In order to do this, we have quite a few important TO-DOs to get through.
+
+** TODO Continue investigating the ground truth definitions.
+Given concerns about the pace at which I am able to identify ground truths, we decided to set a cutoff for these violations. My goal is to try to get the rest of the definitions solved as soon as possible. Thus, I am setting a limit to myself of two full work days. If I cannot figure out a violation in that amount of time, I will move on to the next one for now. It is possible that a lot of the future violations are difficult, so it will be imperative upon me to take detailed notes such that were I to not finish an investigation, I can pick it back up later if we ultimately have too few ground truths.
+
+** TODO Fix the fault localizer.
+The fault localizer is taking far too long to run. One idea is to save intermediate results -- from my observations, it seems that the primary overhead is I/O. Potentially, saving the intermediate results to disk would help (although only in subsequent runs -- we still incur the cost of calculating the dictionary the first time). Still, this will help avoid the overhead for subsequent calculations. 
+
+** TODO Outline the paper.
+Not the highest priority right now, but I do need to start thinking about the story of the paper and outlining it.
+
+** TODO Talk to Dakota about call graph construction.
+
+* Investigation Notes
+
+One suggestion Dr. Wei made was to focus first on understanding the actual mechanism of the code, before I start going through the debugger to understand what is happening. As such, today, I will focus on understanding the RTA callgraph construction algorithm. So that is what I will focus on for the next few hours.
+
+** Understanding the RTA Algorithm
+
+*** Constructing the Callgraph
+
+The callgraph begins to be constructed when, in SetupApplication.java:1359, we call processEntryPoint. This leads to a call to calculateCallbacks, which leads to a call to calculateCallbackMethods. In the body of the implementation of calculateCallbackMethods, on line 682 of SetupApplication.java, we see the call to greate the callgraph -- constructCallgraphInternal. This goes through the PackManager and ends up in SparkTransformer.java.
+
+*** The Spark internalTransform.
+
+The internalTransform method of SparkTransformer (line 87) controls the callgraph construction. We start by creating an instance of ContextInsensitiveBuilder(), and then building it on line 101. The context insensitive builder.
+
+The setup step sets up the call graph builder as one with an instance of DumbPointerAnalysis (ContextInsensitiveBuilder.java:90). The PAG is constructed from the Soot options.
+
+*** TODO Where does RTA come in?
+
+*** ContextInsensitiveBuilder.build().
+Here is the meat and potatoes of what is going on in the callgraph construction. We set up a queue of Edges called callEdges, and then reference the on-the-fly callgraph builder. Since it its null, we will set up callEdges as a listener on the 
