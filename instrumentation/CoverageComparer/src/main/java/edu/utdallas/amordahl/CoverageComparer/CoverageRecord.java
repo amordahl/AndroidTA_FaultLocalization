@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -250,7 +251,7 @@ public class CoverageRecord {
 		HashMap<Integer, String> mapping = new HashMap<>();
 		try (Scanner sc = new Scanner(coverageFile.toFile())) {
 			while (sc.hasNext()) {
-				String line = sc.next();
+			    String line = sc.next().replaceAll("\\P{Print}", "");
 				if (line.contains("=")) {
 					// Mapping line. Need to store map in hashmap.
 					String[] tokens = line.split("=");

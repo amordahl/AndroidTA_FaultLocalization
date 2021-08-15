@@ -115,7 +115,7 @@ public class Application {
 				faultyRuns.size(), pairs.size() * 2 - faultyRuns.size());
 		
 		// Output suspiciousness of each statement.
-		tarantulaSuspiciousness.forEach((k, v) -> System.out.println(String.format("%s,%d", k, v)));
+		tarantulaSuspiciousness.forEach((k, v) -> System.out.println(String.format("%s,%f", k, v)));
 	}
 
 	private void updateStatementCounts(Map<String, Pair<Integer, Integer>> statementCounts, Iterable<String> fileContent,
