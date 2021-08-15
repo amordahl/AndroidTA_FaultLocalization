@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -103,12 +104,13 @@ public class Application {
 		}
 
 		// Else, we have to compute suspiciousness.
-		logger.info("Now computing statement suspiciousness.");
+		logger.info("Now computing statement suspiciousness over " + 
+		CoveragePairTask.getRecords().size() + " records.");
 		Map<String, Pair<Integer, Integer>> statementCounts = new HashMap<String, Pair<Integer, Integer>>();
 		for (Entry<Path, Set<String>> cr : CoveragePairTask.getRecords().entrySet()) {
 			updateStatementCounts(statementCounts, cr.getValue(), faultyRuns.contains(cr.getKey()));
-			updateStatementCounts(statementCounts, cr.getValue(), faultyRuns.contains(cr.getKey()));
 		}
+		
 		Map<String, Double> tarantulaSuspiciousness = computeTarantulaSuspiciousness(statementCounts,
 				faultyRuns.size(), pairs.size() * 2 - faultyRuns.size());
 		
@@ -134,6 +136,14 @@ public class Application {
 	private Map<String, Double> computeTarantulaSuspiciousness(
 			Map<String, Pair<Integer, Integer>> statementCounts, 
 			Integer numFaulty, Integer numSuccessful) {
+		statementCounts.forEach(new BiConsumer<String, Pair<Integer, Integer>>() {
+
+			@Override
+			public void accept(String t, Pair<Integer, Integer> u) {
+				System.out.println(String.format("Statement: %s (%d/%d)", t, u.getRight(), u.getLeft()));
+			}
+			
+		});
 		Map<String, Double> suspiciousness = 
 				statementCounts.entrySet().stream()
 				.map(pr -> new ImmutablePair<String, Double>(pr.getKey(),
