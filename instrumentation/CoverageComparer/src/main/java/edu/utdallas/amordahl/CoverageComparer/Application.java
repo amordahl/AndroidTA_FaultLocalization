@@ -107,8 +107,10 @@ public class Application {
 		logger.info("Now computing statement suspiciousness over " + 
 		CoveragePairTask.getRecords().size() + " records.");
 		Map<String, Pair<Integer, Integer>> statementCounts = new HashMap<String, Pair<Integer, Integer>>();
+		logger.info(String.format("Faulty records: %s", faultyRuns.toString()));
 		for (Entry<Path, Set<String>> cr : CoveragePairTask.getRecords().entrySet()) {
-			updateStatementCounts(statementCounts, cr.getValue(), faultyRuns.contains(cr.getKey()));
+		    logger.info("File name: " + cr.getKey());
+		    updateStatementCounts(statementCounts, cr.getValue(), faultyRuns.contains(cr.getKey().getFileName()));
 		}
 		
 		Map<String, Double> tarantulaSuspiciousness = computeTarantulaSuspiciousness(statementCounts,
