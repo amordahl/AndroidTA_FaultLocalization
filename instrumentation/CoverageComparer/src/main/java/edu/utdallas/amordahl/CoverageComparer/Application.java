@@ -60,6 +60,15 @@ public class Application {
 	@Parameter(names = { "-t", "--threads" }, description = "Number of threads to spawn.")
 	protected Integer threads = 8;
 
+	@Parameter(names = "--no-delta", description = "Do not compute fault localization rankings on the delta.")
+	protected boolean noDelta = false;
+
+	@Parameter(names = "--minuend", description = "A string indicating which "
+			+ "member of the pair should be considered the minuend (i.e., A in A - B) "
+			+ "in the delta computation. The file names will be searched for this string, "
+			+ "and those that match will be considered as the minuend. In general, "
+			+ "this should be the faulty configuration.")
+	protected String minuend;
 	/**
 	 * Just sets up the JCommander argument parser.
 	 * 
@@ -106,33 +115,106 @@ public class Application {
 		// Else, we have to compute suspiciousness.
 		logger.info("Now computing statement suspiciousness over " + 
 		CoveragePairTask.getRecords().size() + " records.");
-		Map<String, Pair<Integer, Integer>> statementCounts = new HashMap<String, Pair<Integer, Integer>>();
-		logger.info(String.format("Faulty records: %s", faultyRuns.toString()));
-		for (Entry<Path, Set<String>> cr : CoveragePairTask.getRecords().entrySet()) {
-		    logger.info("File name: " + cr.getKey());
-		    updateStatementCounts(statementCounts, cr.getValue(), faultyRuns.contains(cr.getKey().getFileName()));
-		}
 		
+		Map<String, Pair<Integer, Integer>> statementCounts = noDelta ? 
+				getStatementCounts(CoveragePairTask.getRecords(), faultyRuns) :
+				getStatementCountsOnDelta(CoveragePairTask.getRecords(), faultyRuns);
+					
 		Map<String, Double> tarantulaSuspiciousness = computeTarantulaSuspiciousness(statementCounts,
 				faultyRuns.size(), pairs.size() * 2 - faultyRuns.size());
 		
 		// Output suspiciousness of each statement.
 		tarantulaSuspiciousness.forEach((k, v) -> System.out.println(String.format("%s,%f", k, v)));
 	}
+	
+	
 
-	private void updateStatementCounts(Map<String, Pair<Integer, Integer>> statementCounts, Iterable<String> fileContent,
-			boolean isFaulty) {
-		for (String line : fileContent) {
-			if (!statementCounts.containsKey(line)) {
-				statementCounts.put(line, new ImmutablePair<Integer, Integer>(0, 0));
+	private Map<String, Pair<Integer, Integer>> getStatementCountsOnDelta(Map<Path, Set<String>> records,
+			List<Path> faultyRuns) {
+		// This method needs to reference the faultyRuns list and the minuend field
+		// to figure out which pairs to make. Then, it should compute the delta.
+		Map<String, MutablePair<Path, Path>> pairs = new HashMap<String, MutablePair<Path, Path>>();
+		for (Path p: records.keySet()) {
+			// This for loop iterates through the paths and adds them to the
+			//  map. It uses the minuend filter to identify which path should be added
+			//  as the minuend (i.e., A in A - B, the left half of the pair) and the
+			//  subtrahend (i.e., B in A - B).
+			String apk = p.getFileName().toString().split("_")[0];
+			if (!pairs.containsKey(apk)) {
+				pairs.put(apk, new MutablePair<Path, Path>());
 			}
-			Pair<Integer, Integer> old = statementCounts.get(line);
-			if (isFaulty) {
-				statementCounts.put(line, new ImmutablePair<Integer, Integer>(old.getLeft() + 1, old.getRight()));
+			MutablePair<Path, Path> pair = pairs.get(apk);
+			if (p.getFileName().toString().contains(minuend)) {
+				if (pair.getLeft() != null) {
+					throw new RuntimeException(String.format("Trying to add %s as minuend, "
+							+ "but %s is already listed as the minuend. "
+							+ "Perhaps the minuend filter %s is too broad?", 
+							p.toString(), pair.getLeft().toString(),
+							minuend));
+				}
+				else {
+					pair.setLeft(p);
+				}
 			} else {
-				statementCounts.put(line, new ImmutablePair<Integer, Integer>(old.getLeft(), old.getRight() + 1));
+				if (pair.getRight() != null) {
+					throw new RuntimeException(String.format("Trying to add %s as the "
+							+ "subtrahend, but %s is already listed as the subtrahend. "
+							+ "Perhaps the minuend filter %s is too narrow?",
+							p.toString(), pair.getRight().toString(),
+							minuend));
+				}
 			}
 		}
+		
+		Map<Path, Set<String>> deltaRecords = new HashMap<Path, Set<String>>();
+		
+		for (Pair p: pairs.values()) {
+			if (p.getLeft() == null || p.getRight() == null) {
+				throw new RuntimeException(String.format("Could not find a partner for %s!",
+						p.getLeft() == null ? p.getRight() : p.getLeft()));
+			}
+			// Compute the difference.
+			records.get(p.getLeft()).removeAll(records.get(p.getRight()));
+			
+			if (faultyRuns.contains(p.getRight())) {
+				logger.warn(String.format("The subtrahend %s is listed as faulty. "
+						+ "Unless you're sure what you're doing, this likely indicates that "
+						+ "you've used the incorrect minuend (typically, the minuend should "
+						+ "match the faulty records.", p.getRight().toString()));
+			}
+			
+			deltaRecords.put((Path) p.getLeft(), records.get(p.getLeft()));
+		}
+		
+		return getStatementCounts(deltaRecords, faultyRuns);
+	}
+
+	/**
+	 * Computes statement counts for standard fault localization (no delta).
+	 * @param records Records mapping paths to a set of statements executed.
+	 * @param faultyRuns The list of faulty runs.
+	 * @return A map, mapping linenumbers to how many times they were executed by failed and successful test cases.
+	 */
+	private Map<String, Pair<Integer, Integer>> getStatementCounts(Map<Path, Set<String>> records, List<Path> faultyRuns) {
+		Map<String, Pair<Integer, Integer>> statementCounts = new HashMap<String, Pair<Integer, Integer>>();
+		for (Entry<Path, Set<String>> entry : records.entrySet()) {
+			Set<String> fileContent = entry.getValue();
+			Path file = entry.getKey();
+			boolean isFaulty = faultyRuns.contains(file);
+			for (String line : fileContent) {
+				if (!statementCounts.containsKey(line)) {
+					statementCounts.put(line, new ImmutablePair<Integer, Integer>(0, 0));
+				}
+				Pair<Integer, Integer> old = statementCounts.get(line);
+				if (isFaulty) {
+					statementCounts.put(line, new ImmutablePair<Integer, Integer>(old.getLeft() + 1, old.getRight()));
+				} else {
+					statementCounts.put(line, new ImmutablePair<Integer, Integer>(old.getLeft(), old.getRight() + 1));
+				}
+			}
+		}
+		
+		return statementCounts;
 	}
 
 	private Map<String, Double> computeTarantulaSuspiciousness(
