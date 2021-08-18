@@ -124,27 +124,7 @@ public abstract class XMLFlowFileReader implements FlowFileReader {
 
     protected abstract ArrayList<ArrayList<Flow>> getPreserveIterator(DefaultHandler fh);
 
-    public Iterator<ClassifiedFlow> getCFlows(File flowFile, File schemaFile) throws IOException, SAXException, ParserConfigurationException {
-        // set up SAX parser factory (using SAX because the files can be very large).
-        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-        if (schemaFile != null) {
-            // Need to set these properties for the sax parser factory in order for
-            // validation to actually occur.
-            saxParserFactory.setNamespaceAware(true);
-            saxParserFactory.setValidating(true);
-        }
-        SAXParser saxParser = saxParserFactory.newSAXParser();
-        if (schemaFile != null) {
-            saxParser.setProperty(SAXLocalNameCount.JAXP_SCHEMA_LANGUAGE, SAXLocalNameCount.W3C_XML_SCHEMA);
-            saxParser.setProperty(SAXLocalNameCount.JAXP_SCHEMA_SOURCE, schemaFile);
-        }
-        XMLReader xmlReader = saxParser.getXMLReader();
-        DefaultHandler fh = getFlowHandler();
-        xmlReader.setContentHandler(fh);
-        xmlReader.setErrorHandler(fh);
-        xmlReader.parse(convertToFileURL(flowFile.getAbsolutePath()));
-        return getCFlowIterator(fh);
-    }
+
 
     /**
      * Get a SAX handler to perform the XML parsing. Should override {@link DefaultHandler}
@@ -155,7 +135,6 @@ public abstract class XMLFlowFileReader implements FlowFileReader {
      * @return The implementation of DefaultHandler.
      */
     abstract DefaultHandler getFlowHandler();
-
     /**
      * Given an implementation of {@link DefaultHandler}, use it to
      * parse the XML file and read the flows.
@@ -165,7 +144,6 @@ public abstract class XMLFlowFileReader implements FlowFileReader {
      * in the XML file.
      */
     abstract Iterator<com.utdallas.cs.alps.flows.Flow> getFlowIterator(DefaultHandler dh);
-    abstract Iterator<com.utdallas.cs.alps.flows.ClassifiedFlow> getCFlowIterator(DefaultHandler dh);
 
     /**
      * Processes the given file and returns an iterator to the flows in it.

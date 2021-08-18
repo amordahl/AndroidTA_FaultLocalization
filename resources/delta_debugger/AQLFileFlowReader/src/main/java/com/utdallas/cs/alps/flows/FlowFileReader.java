@@ -13,5 +13,4 @@ public interface FlowFileReader {
      */
     Iterator<Flow> getFlows(File flowFile);
 
-    Iterator<ClassifiedFlow> getClassifiedFlows(File flowFile);
 }
