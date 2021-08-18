@@ -16,13 +16,6 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static cs.utd.soles.TesterUtil.saveCompilationUnits;
-
-
-
-//TODO:: FIX LINE COUNT PROBLEM
-//TODO:: RUN CODE A BUNCH?
-
 public class Runner {
 
     static File intermediateJavaDir=null;
@@ -72,6 +65,7 @@ public class Runner {
                 intermediateJavaDir=f;
             }
             //get the lines count before any changes
+            testerForThis.saveCompilationUnits(bestCUList);
             performanceLog.startLineCount=LineCounter.countLinesDir(projectSrcPath);
             performanceLog.lastCurrentLines=performanceLog.startLineCount;
         }catch(IOException e){
@@ -192,7 +186,7 @@ public class Runner {
 
             //let the final version of the project_file be the minimized version so we dont have to replace java file manually
             //replace this trash
-            saveCompilationUnits(bestCUList);
+            testerForThis.saveCompilationUnits(bestCUList);
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -283,8 +277,7 @@ public class Runner {
             }
             //revert, just write all the things from bestcus
             else{
-                testerForThis.cleanseFiles();
-                saveCompilationUnits(bestCUList);
+                testerForThis.saveCompilationUnits(bestCUList);
             }
             i++;
 

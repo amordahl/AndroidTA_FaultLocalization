@@ -92,8 +92,9 @@ public class TesterUtil implements ThreadHandler{
     }
 
     //save compilation units from list
-    public static void saveCompilationUnits(ArrayList<Pair<File,CompilationUnit>> saveThese) throws IOException {
+    public void saveCompilationUnits(ArrayList<Pair<File,CompilationUnit>> saveThese) throws IOException {
 
+        cleanseFiles();
         for (Pair<File,CompilationUnit> p : saveThese) {
             File x = p.getValue0();
             x.createNewFile();
