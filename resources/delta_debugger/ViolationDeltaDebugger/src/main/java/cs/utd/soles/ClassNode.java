@@ -7,9 +7,20 @@ public class ClassNode {
 
     LinkedList<ClassNode> dependencies;
 
+    public int getClosureSize() {
+        return closureSize;
+    }
+
+    public void setClosureSize(int closureSize) {
+        this.closureSize = closureSize;
+    }
+
+    private int closureSize=1;
+
     private String name = "";
 
     private String filePath="";
+
 
 
     public ClassNode(String name, String filePath){
@@ -25,10 +36,10 @@ public class ClassNode {
     public void addDependency(ClassNode n){
         dependencies.addLast(n);
     }
+
     public LinkedList<ClassNode> getDependencies(){
         return dependencies;
     }
-
 
     @Override
     public boolean equals(Object o){

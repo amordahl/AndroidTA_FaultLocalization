@@ -19,8 +19,6 @@ public class Runner {
 
         File debuggerDir = Paths.get(args[0]).toFile();
 
-
-
         List<File> everyrunFile = new ArrayList<>();
         File[] allDirFile = debuggerDir.listFiles();
         System.out.println(allDirFile);
@@ -64,8 +62,8 @@ public class Runner {
             //get the data, verify the results
             String name = x.getName().replace("_time.txt","");
             //apk config1 config2
-            String apkName = name.substring(runprefix.length(), name.indexOf("config"));
-            name = name.substring(runprefix.length()+apkName.length());
+            String apkName = name.substring(runprefix.length()+1, name.indexOf("config"));
+            name = name.substring(runprefix.length()+1+apkName.length());
             String config1 = name.substring(0, name.lastIndexOf("config"));
             name = name.substring((config1.length()));
             String config2 = name.substring(0);

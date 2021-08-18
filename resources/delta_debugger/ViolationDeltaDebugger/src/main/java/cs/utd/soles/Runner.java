@@ -9,19 +9,19 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
-import com.utdallas.cs.alps.flows.Flow;
 import com.utdallas.cs.alps.flows.Flowset;
 import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
-
 import java.io.*;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
 import static cs.utd.soles.TesterUtil.saveCompilationUnits;
 
+
+
+//TODO:: FIX LINE COUNT PROBLEM
+//TODO:: RUN CODE A BUNCH?
 
 public class Runner {
 
@@ -32,6 +32,7 @@ public class Runner {
     private static boolean projectNeedsToBeMinimized=true;
     private static String projectClassFiles;
     public static String THIS_RUN_PREFIX;
+    private static DependencyGraph dg = null;
 
     public static void main(String[] args){
         performanceLog.startProgramRunTime();
@@ -46,19 +47,6 @@ public class Runner {
 
         //handle the arguments
         handleArgs(args);
-        
-        //test new aql file flow reader
-        /*AQLFlowFileReader bob = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
-        Flowset b = bob.getFlowSet(Paths.get(args[0]).toFile());
-        System.out.println(b.getApk()+" "+b.getConfig1()+" "+b.getConfig2()+" "+b.getType()+" "+b.getViolation());
-        System.out.println("CONFIG 1");
-        for(Flow x: b.getConfig1_FlowList()){
-            System.out.println(x);
-        }
-        System.out.println("CONFIG 2");
-        for(Flow x: b.getConfig2_FlowList()){
-            System.out.println(x);
-        }*/
 
         //after we handl the args we gotta do a couple of things
         /*
@@ -89,7 +77,6 @@ public class Runner {
         }catch(IOException e){
             e.printStackTrace();
         }
-
         //handle the projects that dont need to be minimized
         if(!projectNeedsToBeMinimized){
             //this should just run the gradlew assembleDebug and check if we reproduced the thing - since checklist should be 0 then yes we always get a apk
@@ -103,7 +90,7 @@ public class Runner {
         fillNamesToPaths();
 
         //generate dot file // dependency graph
-        DependencyGraph dg = null;
+
         try {
             dg = makeDependencyNodes();
         } catch (IOException e) {
@@ -111,7 +98,6 @@ public class Runner {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
 
 
         //Before we start delta debugging lets, work on finding the best files to deal with
@@ -126,6 +112,23 @@ public class Runner {
         }
 
 
+
+        //before we start debugging, sort the pairs based on whos the most dependant
+
+        Comparator<Pair<File,CompilationUnit>> cuListComp = new Comparator<Pair<File, CompilationUnit>>() {
+            @Override
+            public int compare(Pair<File, CompilationUnit> o1, Pair<File, CompilationUnit> o2) {
+
+                if(matchPair(o1).getClosureSize()<matchPair(o2).getClosureSize()){
+                    return -1;
+                }
+                else if(matchPair(o1).getClosureSize()>matchPair(o2).getClosureSize()){
+                    return 1;
+                }
+                return 0;
+            }
+        };
+        Collections.sort(bestCUList,cuListComp);
 
         //start the delta debugging process
         while(!minimized&&!CLASS_FILES_ONLY){
@@ -217,6 +220,7 @@ public class Runner {
         rg.parseGraphFromDot(dotFile);
         return rg;
     }
+
     public static void reduceFromClosures(List<HashSet<ClassNode>> closures) throws IOException, InterruptedException {
         HashSet<ClassNode> knownNodes = new HashSet<>();
 
@@ -286,8 +290,6 @@ public class Runner {
 
         }
 
-
-
     }
     
     private static ArrayList<Pair<File,CompilationUnit>> matchProposal(HashSet<ClassNode> proposal){
@@ -305,6 +307,15 @@ public class Runner {
             //System.out.println(filePath);
         }
         return matchedProposal;
+    }
+
+    private static ClassNode matchPair(Pair<File,CompilationUnit> pair){
+        for(ClassNode x: dg.graph){
+            if(pair.getValue0().getAbsolutePath().equals(x.getFilePath())){
+                return x;
+            }
+        }
+        return null;
     }
 
     private static boolean checkProposal(ArrayList<Pair<File,CompilationUnit>> proposal) throws IOException, InterruptedException {
@@ -373,7 +384,6 @@ public class Runner {
     }
 
     //INPUT FOR THE DEBUGGER SHOULD BE APK NAME (droidbench), CONFIG 1, CONFIG 2, TRUE OR FALSE (type of violation), TRUE OR FALSE (violation or nonviolation), target_file??
-
     static String apkName;
     static String config1;
     static String config2;
@@ -384,7 +394,6 @@ public class Runner {
     static final Object lockObject = new Object();
 
     //args should be one filepath that is the <violation xml file>
-
     private static void handleArgs(String[] args) {
         AQLFlowFileReader reader = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
 
@@ -431,19 +440,11 @@ public class Runner {
             //add other args here if we want em
         }
     }
+
     static boolean CLASS_FILES_ONLY=false;
-
-
     static boolean minimized=false;
     static ArrayList<Pair<File,CompilationUnit>> bestCUList = new ArrayList<>();
     static ArrayList<Pair<File,CompilationUnit>> originalCUnits = new ArrayList();
-
-
-
-
-
-
-
 
     //this method takes in the flow information and marks some parts of the ast un-removeable (like the source and sink of a flow)
     public static void turnFlowsIntoUnremovableNodes(){
@@ -522,8 +523,6 @@ public class Runner {
         //check changes
         //if they worked REMOVE THE SAME NODES FROM ORIGINAL DONT COPY ANYTHING
     }
-
-
 
     //matches the currentNode to what type it is and handles appropriately
     //this returns the currentNode (could be the node we gave it or it's equivalent copy whenever we copied and killed tons of trees)
@@ -606,7 +605,6 @@ public class Runner {
         return childrenWeCareAbout;
 
     }
-
 
     //this method is run our ast and see if the changes we made are good or bad (returning true or false) depending
     private static boolean checkChanges(int compPosition, CompilationUnit copiedu){
@@ -713,7 +711,7 @@ public class Runner {
         String actualAPK = apkName.substring(apkName.lastIndexOf("/")+1,apkName.lastIndexOf(".apk"));
         String actualConfig1 = config1.substring(config1.lastIndexOf("/")+1,config1.lastIndexOf(".xml"));
         String actualConfig2 = config2.substring(config2.lastIndexOf("/")+1,config2.lastIndexOf(".xml"));
-        thisRunName=THIS_RUN_PREFIX+actualAPK+actualConfig1+actualConfig2;
+        thisRunName=THIS_RUN_PREFIX+"_"+actualAPK+actualConfig1+actualConfig2;
         String pathFile="debugger/project_files/"+thisRunName;
         System.out.println(pathFile);
 
@@ -854,10 +852,13 @@ public class Runner {
 
 
     }
+
     static HashMap<String, String> classNamesToPaths;
+
     public static String getFilePathForClass(String name){
         return classNamesToPaths.get(name);
     }
+
     private static void fillNamesToPaths(){
         classNamesToPaths = new HashMap<>();
 
@@ -865,6 +866,7 @@ public class Runner {
             findClasses((Node)x.getValue1(), ((File)x.getValue0()).getAbsolutePath());
         }
     }
+
     private static void findClasses(Node cur, String fileName){
 
         //this node is a class

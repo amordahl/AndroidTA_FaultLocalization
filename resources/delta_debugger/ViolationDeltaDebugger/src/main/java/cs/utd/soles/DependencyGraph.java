@@ -5,13 +5,12 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class DependencyGraph {
-    LinkedList<ClassNode> graph = new LinkedList<ClassNode>();
 
+    LinkedList<ClassNode> graph = new LinkedList<ClassNode>();
 
     public DependencyGraph(){
         graph = new LinkedList<ClassNode>();
     }
-
 
     //construct this dependency graph from the dot file
     public void parseGraphFromDot(File f) throws FileNotFoundException {
@@ -29,6 +28,8 @@ public class DependencyGraph {
             }
         }
         sc.close();
+        if(text.length()==0)
+            return;
         String[] cut  = text.split("\\s+->\\s+");
         //System.out.println(Arrays.toString(cut));
         for(int i=0;i<cut.length;i++){
@@ -57,11 +58,8 @@ public class DependencyGraph {
 
     }
 
-
-
-
-
     private HashMap<ClassNode, HashSet<ClassNode>> visited;
+
     public ArrayList<HashSet<ClassNode>> getTransitiveClosuresDifferent(){
         long start= System.nanoTime();
         ArrayList<HashSet<ClassNode>> returnList = new ArrayList<>();
@@ -73,6 +71,7 @@ public class DependencyGraph {
             findClosureForThis(x,thing);
             returnSet.add(thing);
             visited.put(x,thing);
+            x.setClosureSize(thing.size());
         }
 
 
@@ -102,4 +101,5 @@ public class DependencyGraph {
         }
 
     }
+
 }
