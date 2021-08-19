@@ -24,10 +24,10 @@ public class Runner {
     static PerfTimer performanceLog = new PerfTimer();
     private static boolean projectNeedsToBeMinimized=true;
     private static String projectClassFiles;
-    public static String THIS_RUN_PREFIX;
+    public static String THIS_RUN_PREFIX="";
     private static DependencyGraph dg = null;
 
-    //TODO:: fix register globals problem, what if a file isnt in the dependency graph, but is in the culist?
+   
 
     public static void main(String[] args){
         performanceLog.startProgramRunTime();
