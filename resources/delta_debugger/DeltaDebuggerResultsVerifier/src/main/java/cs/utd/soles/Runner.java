@@ -34,16 +34,7 @@ public class Runner {
         File violationLogsDir= null;
         ArrayList<Flowset> violationThingList =new ArrayList<>();
         if(args.length>1) {
-            if(args[1].equals("-v")) {
-                violationLogsDir = Paths.get(args[1]).toFile();
-                //extensions = new String[]{"xml"};
-                //List<File> violationFiles = ((List<File>) FileUtils.listFiles(violationLogsDir, extensions, false));
-                /*SchemaGenerator.generateSchema();
-                for (File x : violationFiles) {
-                    AQLFlowFileReader thing = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
-                    violationThingList.add(thing.getFlowSet(x));
-                }*/
-            }
+
             if(args[1].equals("-p")){
                 runprefix=args[2];
             }
@@ -84,7 +75,7 @@ public class Runner {
                     inArr[13], inArr[15],inArr[17],
                     inArr[19], inArr[21],inArr[23],
                     inArr[25], inArr[27], inArr[29]);
-
+            System.out.println(j);
             int indexStart=0;
             for(String f: inArr){
                 if(f.equals("STARTCODECHANGES")){

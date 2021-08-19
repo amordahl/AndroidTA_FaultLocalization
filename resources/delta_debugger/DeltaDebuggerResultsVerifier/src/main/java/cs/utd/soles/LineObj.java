@@ -25,6 +25,30 @@ public class LineObj {
     String compFailed;
     String violation_or_not;
 
+    @Override
+    public String toString() {
+        return "LineObj{" +
+                "apk='" + apk + '\'' +
+                ", config1='" + config1 + '\'' +
+                ", config2='" + config2 + '\'' +
+                ", runtime='" + runtime + '\'' +
+                ", violation_type='" + violation_type + '\'' +
+                ", avgRotation='" + avgRotation + '\'' +
+                ", totalRotation='" + totalRotation + '\'' +
+                ", avgAQL='" + avgAQL + '\'' +
+                ", totalAQL='" + totalAQL + '\'' +
+                ", avgCompile='" + avgCompile + '\'' +
+                ", totalCompile='" + totalCompile + '\'' +
+                ", totalProposed='" + totalProposed + '\'' +
+                ", totalComplete='" + totalComplete + '\'' +
+                ", numCandidate='" + numCandidate + '\'' +
+                ", percentAQL='" + percentAQL + '\'' +
+                ", percentCompile='" + percentCompile + '\'' +
+                ", compFailed='" + compFailed + '\'' +
+                ", violation_or_not='" + violation_or_not + '\'' +
+                '}';
+    }
+
     public LineObj(String apk, String config1, String config2, String runtime, String violation_type, String violation_or_not, String avgRotation, String totalRotation, String avgAQL, String totalAQL, String avgCompile, String totalCompile, String totalProposed, String totalComplete, String numCandidate, String percentAQL, String percentCompile, String compFailed) {
         this.apk = apk;
         this.config1 = config1;
