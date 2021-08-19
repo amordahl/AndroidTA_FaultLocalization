@@ -62,6 +62,11 @@ public class Application {
 
 	@Parameter(names = "--no-delta", description = "Do not compute fault localization rankings on the delta.")
 	protected boolean noDelta = false;
+	
+	@Parameter(names = "--delta-based-count", description = "Compute rankings using the delta, such that if A is a failing test case "
+			+ "and B is the corresponding config on the same APK, a statement executed by A will only be counted as failed if it "
+			+ "was executed by A and not by B, otherwise it will be counted as successful.")
+	protected boolean deltaBasedCount = false;
 
 	@Parameter(names = "--minuend", description = "A string indicating which "
 			+ "member of the pair should be considered the minuend (i.e., A in A - B) "
@@ -84,7 +89,14 @@ public class Application {
 			jcmd.usage();
 			return;
 		}
+		app.sanityCheck();
 		app.run();
+	}
+	
+	private void sanityCheck() {
+		if (noDelta && deltaBasedCount) {
+			throw new RuntimeException("--no-delta and --delta-based-counts cannot be enabled simultaneously.");
+		}
 	}
 
 	private void run() throws IOException, InterruptedException {
@@ -178,8 +190,6 @@ public class Application {
 				throw new RuntimeException(String.format("Could not find a partner for %s!",
 						p.getLeft() == null ? p.getRight() : p.getLeft()));
 			}
-			// Compute the difference.
-			records.get(p.getLeft()).removeAll(records.get(p.getRight()));
 			
 			if (faultyRuns.contains(p.getRight())) {
 				logger.warn(String.format("The subtrahend %s is listed as faulty. "
@@ -187,9 +197,39 @@ public class Application {
 						+ "you've used the incorrect minuend (typically, the minuend should "
 						+ "match the faulty records.", p.getRight().toString()));
 			}
+			
+			if (deltaBasedCount) {
+				// If a configuration A is in the faulty runs, we add A-B as the statements for that.
+				//  However, we also produce a configuration A' that contains A - (A - B) that passes.
+				if (faultyRuns.contains(((Path) p.getLeft()).getFileName())) {
+					logger.info(String.format("%s is in faultyRuns, so computing the difference.", (Path)p.getLeft()));
+					// Failed statements is A - B.
+					Set<String> failedStatements = new HashSet<String>(records.get(p.getLeft()));
+					failedStatements.removeAll(records.get(p.getRight()));
+					
+					logger.info(String.format("Difference contains %d elements.", failedStatements.size()));
+					// Put in the failed statements for the record p.getLeft().
+					deltaRecords.put((Path) p.getLeft(), failedStatements);
+					
+					// Now, we generate a P' that contains A - (A - B)
+					records.get(p.getLeft()).removeAll(failedStatements);
+					logger.info(String.format("Generating a passing case %s with %d elements.", 
+							((Path)p.getLeft()).resolve("passed"), records.get(p.getLeft()).size()));
+					deltaRecords.put(((Path)p.getLeft()).resolveSibling("passed"), records.get(p.getLeft()));
+				} else {
+					deltaRecords.put((Path) p.getLeft(), records.get(p.getLeft()));
+				}
+				
+				// No matter what, we add the passing case.
+				deltaRecords.put((Path) p.getRight(), records.get(p.getRight()));
+			}
+			else {
+				// Compute the difference.
+				records.get(p.getLeft()).removeAll(records.get(p.getRight()));
 
-			logger.info(String.format("Putting delta for %s: %s", p.getLeft(), records.get(p.getLeft()).toString()));
-			deltaRecords.put((Path) p.getLeft(), records.get(p.getLeft()));
+				logger.info(String.format("Putting delta for %s: %s", p.getLeft(), records.get(p.getLeft()).toString()));
+				deltaRecords.put((Path) p.getLeft(), records.get(p.getLeft()));
+			}
 		}
 		
 		return getStatementCounts(deltaRecords, faultyRuns);
