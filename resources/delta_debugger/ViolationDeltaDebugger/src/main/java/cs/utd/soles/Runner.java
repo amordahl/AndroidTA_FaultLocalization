@@ -35,6 +35,7 @@ public class Runner {
         performanceLog.startProgramRunTime();
 
         //generate schema file
+        //maybe have the program wait until it finds the Schema??
         try {
             SchemaGenerator.generateSchema();
         } catch (IOException e) {
@@ -80,6 +81,7 @@ public class Runner {
             //this should just run the gradlew assembleDebug and check if we reproduced the thing - since checklist should be 0 then yes we always get a apk
             checkChanges(bestCUList.size()+1,null);
             System.out.println("Saving APK, no flows given so no minimization to be done. Exiting program...");
+            System.exit(0);
         }
 
 
@@ -193,6 +195,7 @@ public class Runner {
             long finalRunTimeVar= performanceLog.getProgramRunTime()/1000;
             fw.write("program_runtime: "+finalRunTimeVar+"\n"+"\n");
             fw.write("violation_type: "+targetType+"\n");
+            fw.write("violation_or_not:"+violationOrNot+"\n");
             fw.write("average_of_rotations: " + performanceLog.getAverageOfRotations()/1000+"\n");
             fw.write("total_rotations: "+ performanceLog.getTotalRotations()+"\n"+"\n");
             fw.write("average_runtime_aql: " + performanceLog.getAverageOfAQLRuns()/1000+"\n");
@@ -414,6 +417,7 @@ public class Runner {
     //args should be one filepath that is the <violation xml file>
     private static void handleArgs(String[] args) {
         AQLFlowFileReader reader = new AQLFlowFileReader(SchemaGenerator.SCHEMA_PATH);
+
 
         //everything we need is in this here object
         Flowset thisViolation = reader.getFlowSet(Paths.get(args[0]).toFile());

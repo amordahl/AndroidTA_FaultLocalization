@@ -52,7 +52,7 @@ public class Runner {
 
         String output="";
         String lineData="";
-        String header="apk,config1,config2,program_runtime,violation_type,Avg_Of_Rotations,Total_Rotations,Avg_Of_AQL,Total_AQL,Avg_Of_Compile,Total_Compile,%OfProgramRuntimeAQL,%OfProgramRuntimeCompile,Total_Proposed_Changes,Start_lines,End_lines,%OfLinesRemoved,bestRot,bestRotLines,bestRotLines%,worstRot,worstRotLines,worstRotLines%\n";
+        String header="apk,config1,config2,program_runtime,violation_type,violation_or_not,Avg_Of_Rotations,Total_Rotations,Avg_Of_AQL,Total_AQL,Avg_Of_Compile,Total_Compile,%OfProgramRuntimeAQL,%OfProgramRuntimeCompile,Total_Proposed_Changes,Start_lines,End_lines,%OfLinesRemoved,bestRot,bestRotLines,bestRotLines%,worstRot,worstRotLines,worstRotLines%\n";
         output+=header;
         for(File x: everyrunFile){
             if(!x.getName().contains(runprefix)){
@@ -82,7 +82,7 @@ public class Runner {
                     inArr[7], inArr[9],inArr[11],
                     inArr[13], inArr[15],inArr[17],
                     inArr[19], inArr[21],inArr[23],
-                    inArr[25], inArr[27]);
+                    inArr[25], inArr[27], inArr[29]);
 
             int indexStart=0;
             for(String f: inArr){
