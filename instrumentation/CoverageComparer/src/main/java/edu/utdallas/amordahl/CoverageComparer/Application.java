@@ -187,7 +187,8 @@ public class Application {
 						+ "you've used the incorrect minuend (typically, the minuend should "
 						+ "match the faulty records.", p.getRight().toString()));
 			}
-			
+
+			logger.info(String.format("Putting delta for %s: %s", p.getLeft(), records.get(p.getLeft()).toString()));
 			deltaRecords.put((Path) p.getLeft(), records.get(p.getLeft()));
 		}
 		
@@ -204,8 +205,11 @@ public class Application {
 		Map<String, Pair<Integer, Integer>> statementCounts = new HashMap<String, Pair<Integer, Integer>>();
 		for (Entry<Path, Set<String>> entry : records.entrySet()) {
 			Set<String> fileContent = entry.getValue();
-			Path file = entry.getKey();
+			Path file = entry.getKey().getFileName();
+			logger.info("Faulty runs is " + faultyRuns.toString());
+			logger.info("Checking if " + file.toString() + " is in faulty.");
 			boolean isFaulty = faultyRuns.contains(file);
+			if (isFaulty) logger.info(String.format("%s is faulty", file));
 			for (String line : fileContent) {
 				if (!statementCounts.containsKey(line)) {
 					statementCounts.put(line, new ImmutablePair<Integer, Integer>(0, 0));
