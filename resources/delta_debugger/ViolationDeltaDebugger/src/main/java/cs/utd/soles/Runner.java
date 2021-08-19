@@ -26,8 +26,10 @@ public class Runner {
     private static String projectClassFiles;
     public static String THIS_RUN_PREFIX="";
     private static DependencyGraph dg = null;
-
-   
+    private static long TIMEOUT_TIME_MINUTES=120;
+    //1 minute is this long in millis
+    private static final long M_TO_MILLIS=60000;
+    private static long SYSTEM_TIMEOUT_TIME=0;
 
     public static void main(String[] args){
         performanceLog.startProgramRunTime();
@@ -87,7 +89,18 @@ public class Runner {
         //generate dot file // dependency graph
 
         try {
-            dg = makeDependencyNodes();
+            //create the apk so we actually have something to work with.
+            synchronized(lockObject) {
+                testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList);
+                lockObject.wait();
+                if(!testerForThis.threadResult){
+                    System.out.println("BUILD FAILED, we didnt change anything so faulty project");
+                    System.exit(-1);
+                }
+
+                //then make the nodes
+                dg = makeDependencyNodes();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -132,8 +145,11 @@ public class Runner {
         };
         Collections.sort(bestCUList,cuListComp);
 
+
+        SYSTEM_TIMEOUT_TIME=System.currentTimeMillis()+(TIMEOUT_TIME_MINUTES*M_TO_MILLIS);
+
         //start the delta debugging process
-        while(!minimized&&!CLASS_FILES_ONLY){
+        while(!minimized&&!CLASS_FILES_ONLY&&SYSTEM_TIMEOUT_TIME<System.currentTimeMillis()){
 
             performanceLog.startOneRotation();
             //this is set here because if a change is made to ANY ast we want to say we haven't minimized yet
@@ -141,7 +157,8 @@ public class Runner {
             int i=0;
 
             for (Pair<File,CompilationUnit> compilationUnit : bestCUList) {
-                traverseTree(i, compilationUnit.getValue1());
+                if(SYSTEM_TIMEOUT_TIME<System.currentTimeMillis())
+                    traverseTree(i, compilationUnit.getValue1());
                 i++;
             }
             System.out.println("Done with 1 rotation");
@@ -411,16 +428,13 @@ public class Runner {
         if(apkName.equals("/")){
 
             String fileName = Paths.get(args[0]).toFile().getName();
-
-
             //split
             //flowset, violation-false(true), apk, split
             String[] split = fileName.split("_");
-
             //0, 1, 2,
-            String concatApk="";
-            for(int i=2;i<split.length-1;i++){
-                concatApk+=split[i];
+            String concatApk=split[2];
+            for(int i=3;i<split.length-1;i++){
+                concatApk+="_"+split[i];
             }
             apkName="/"+concatApk;
             //this project shouldnt be minimized - nothing to minimize to.
@@ -441,6 +455,10 @@ public class Runner {
             if(args[i].equals("-p")){
                 THIS_RUN_PREFIX=args[i+1];
                 THIS_RUN_PREFIX = ""+thisViolation.getConfig1()+"_"+thisViolation.getConfig2()+"/"+THIS_RUN_PREFIX.replace("/","");
+                i++;
+            }
+            if(args[i].equals("-t")){
+                TIMEOUT_TIME_MINUTES=Integer.parseInt(args[i+1]);
                 i++;
             }
 
@@ -468,10 +486,14 @@ public class Runner {
         if(!currentNode.getParentNode().isPresent()&&!(currentNode instanceof CompilationUnit)||currentNode==null){
             return;
         }
+        //no longer recur if we are past the time limit
+        if(SYSTEM_TIMEOUT_TIME<System.currentTimeMillis())
+            return;
         //process node
         process(currentCU, currentNode);
         //traverse children
         for(Node x: currentNode.getChildNodes()){
+
             traverseTree(currentCU, x);
         }
 
