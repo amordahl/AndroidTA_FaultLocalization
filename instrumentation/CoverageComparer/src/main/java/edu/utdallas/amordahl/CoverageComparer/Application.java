@@ -153,6 +153,7 @@ public class Application {
 							minuend));
 				}
 				else {
+				    logger.info("Setting " + p + " as left.");
 					pair.setLeft(p);
 				}
 			} else {
@@ -162,6 +163,10 @@ public class Application {
 							+ "Perhaps the minuend filter %s is too narrow?",
 							p.toString(), pair.getRight().toString(),
 							minuend));
+				}
+				else {
+				    logger.info("Setting " + p + " as right.");
+				    pair.setRight(p);
 				}
 			}
 		}
