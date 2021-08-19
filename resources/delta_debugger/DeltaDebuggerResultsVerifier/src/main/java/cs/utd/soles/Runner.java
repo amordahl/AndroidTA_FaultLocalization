@@ -21,16 +21,16 @@ public class Runner {
 
         List<File> everyrunFile = new ArrayList<>();
         File[] allDirFile = debuggerDir.listFiles();
-        System.out.println(allDirFile);
+        //System.out.println(allDirFile);
         for(File x: allDirFile) {
             String[] extensions = {"txt"};
             List<File> allTXTFiles = ((List<File>) FileUtils.listFiles(x, extensions, false));
-            System.out.println(allTXTFiles);
+            //System.out.println(allTXTFiles);
             everyrunFile.addAll(allTXTFiles);
 
         }
         String runprefix="";
-
+        System.out.println("this run prefix: "+ runprefix);
         File violationLogsDir= null;
         ArrayList<Flowset> violationThingList =new ArrayList<>();
         if(args.length>1) {
@@ -56,9 +56,10 @@ public class Runner {
         output+=header;
         for(File x: everyrunFile){
             if(!x.getName().contains(runprefix)){
+                System.out.println("THIS DONT CONTAIN PREFIX "+x.getName());
                 continue;
             }
-
+            System.out.println("THIS DO CONTAIN PREFIX "+x.getName());
             //get the data, verify the results
             String name = x.getName().replace("_time.txt","");
             //apk config1 config2
@@ -188,7 +189,7 @@ public class Runner {
         String returnString="";
 
         ArrayList<Integer> rotList = new ArrayList<>();
-        System.out.println(codeChangeList);
+        //System.out.println(codeChangeList);
         for(CodeChange x: codeChangeList){
             //System.out.println(x);
             if(rotList.size()<x.rot+1){
