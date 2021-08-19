@@ -196,7 +196,7 @@ public class Runner {
             long finalRunTimeVar= performanceLog.getProgramRunTime()/1000;
             fw.write("program_runtime: "+finalRunTimeVar+"\n"+"\n");
             fw.write("violation_type: "+targetType+"\n");
-            fw.write("violation_or_not:"+violationOrNot+"\n");
+            fw.write("violation_or_not: "+violationOrNot+"\n");
             fw.write("average_of_rotations: " + performanceLog.getAverageOfRotations()/1000+"\n");
             fw.write("total_rotations: "+ performanceLog.getTotalRotations()+"\n"+"\n");
             fw.write("average_runtime_aql: " + performanceLog.getAverageOfAQLRuns()/1000+"\n");

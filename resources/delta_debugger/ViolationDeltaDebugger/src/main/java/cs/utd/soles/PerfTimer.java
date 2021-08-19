@@ -65,6 +65,8 @@ public class PerfTimer {
     }
 
     public   double getAverageOfRotations() {
+        if(totalRotations==0)
+            return 0;
         return ((double)totalOfRotations)/totalRotations;
     }
 
@@ -73,6 +75,8 @@ public class PerfTimer {
     }
 
     public   double getAverageOfAQLRuns() {
+        if(totalAQLRuns==0)
+            return 0;
         return ((double)totalOfAQLRuns)/totalAQLRuns;
     }
 
@@ -81,6 +85,8 @@ public class PerfTimer {
     }
 
     public   double getAverageOfCompileRuns() {
+        if(totalCompileRuns==0)
+            return 0;
         return ((double)totalOfCompileRuns)/totalCompileRuns;
     }
 

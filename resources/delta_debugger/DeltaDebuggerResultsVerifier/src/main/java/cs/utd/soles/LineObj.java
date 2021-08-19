@@ -33,6 +33,7 @@ public class LineObj {
                 ", config2='" + config2 + '\'' +
                 ", runtime='" + runtime + '\'' +
                 ", violation_type='" + violation_type + '\'' +
+                ", violation_or_not='" + violation_or_not + '\'' +
                 ", avgRotation='" + avgRotation + '\'' +
                 ", totalRotation='" + totalRotation + '\'' +
                 ", avgAQL='" + avgAQL + '\'' +
@@ -45,7 +46,6 @@ public class LineObj {
                 ", percentAQL='" + percentAQL + '\'' +
                 ", percentCompile='" + percentCompile + '\'' +
                 ", compFailed='" + compFailed + '\'' +
-                ", violation_or_not='" + violation_or_not + '\'' +
                 '}';
     }
 
