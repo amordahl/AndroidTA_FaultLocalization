@@ -198,8 +198,8 @@ public class SchemaGenerator {
             "        <xsd:complexType>\n" +
             "            <xsd:sequence>\n" +
             "                <xsd:element ref=\"reference\" maxOccurs=\"unbounded\" minOccurs=\"0\"/>\n" +
-            "                <xsd:element ref=\"attributes\" minOccurs=\"0\"/>\n" +
             "                <xsd:element ref=\"classification\" minOccurs=\"0\"/>\n" +
+            "                <xsd:element ref=\"attributes\" minOccurs=\"0\"/>\n" +
             "            </xsd:sequence>\n" +
             "            <xsd:attribute type=\"xsd:string\" name=\"generating_config\"/>\n" +
             "            <xsd:attribute type=\"xsd:string\" name=\"id\"/>\n" +

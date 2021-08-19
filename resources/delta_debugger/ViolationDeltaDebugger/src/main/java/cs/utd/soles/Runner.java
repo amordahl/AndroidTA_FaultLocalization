@@ -27,6 +27,8 @@ public class Runner {
     public static String THIS_RUN_PREFIX;
     private static DependencyGraph dg = null;
 
+    //TODO:: fix register globals problem, what if a file isnt in the dependency graph, but is in the culist?
+
     public static void main(String[] args){
         performanceLog.startProgramRunTime();
 
@@ -75,7 +77,6 @@ public class Runner {
         if(!projectNeedsToBeMinimized){
             //this should just run the gradlew assembleDebug and check if we reproduced the thing - since checklist should be 0 then yes we always get a apk
             checkChanges(bestCUList.size()+1,null);
-
             System.out.println("Saving APK, no flows given so no minimization to be done. Exiting program...");
         }
 
@@ -113,6 +114,13 @@ public class Runner {
             @Override
             public int compare(Pair<File, CompilationUnit> o1, Pair<File, CompilationUnit> o2) {
 
+                ClassNode x1 = matchPair(o1);
+                ClassNode x2 = matchPair(o2);
+
+                if(x1 ==null)
+                    return 1;
+                if(x2==null)
+                    return -1;
                 if(matchPair(o1).getClosureSize()<matchPair(o2).getClosureSize()){
                     return -1;
                 }
@@ -404,10 +412,17 @@ public class Runner {
 
             String fileName = Paths.get(args[0]).toFile().getName();
 
+
+            //split
+            //flowset, violation-false(true), apk, split
             String[] split = fileName.split("_");
 
-            //TODO:: THIS WONT WORK FOR DROIDBENCH PLEASE FIX
-            apkName="/"+split[3]+"_"+split[4];
+            //0, 1, 2,
+            String concatApk="";
+            for(int i=2;i<split.length-1;i++){
+                concatApk+=split[i];
+            }
+            apkName="/"+concatApk;
             //this project shouldnt be minimized - nothing to minimize to.
             projectNeedsToBeMinimized=false;
         }
