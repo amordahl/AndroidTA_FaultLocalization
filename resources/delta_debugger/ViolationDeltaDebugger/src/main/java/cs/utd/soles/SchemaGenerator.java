@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Scanner;
 
 
 /*
@@ -23,15 +24,25 @@ public class SchemaGenerator {
     public static void generateSchema() throws IOException {
         File f = Paths.get(SCHEMA_PATH).toFile();
         f.mkdirs();
-        if(f.exists())
-            f.delete();
-        f.createNewFile();
+        if(f.exists()){
+            Scanner sc = new Scanner(f);
+            String line ="";
+            while(sc.hasNextLine()){
+                line=sc.nextLine()+"\n";
+            }
+            if(!line.equals(SCHEMA_STRING)){
+                f.delete();
+                f.createNewFile();
+            }
+            else{
+                return;
+            }
+        }
 
         FileWriter fw = new FileWriter(f);
         fw.write(SCHEMA_STRING);
         fw.flush();
         fw.close();
-
     }
 
 

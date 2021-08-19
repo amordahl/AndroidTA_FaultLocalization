@@ -38,6 +38,7 @@ public class Runner {
         //maybe have the program wait until it finds the Schema??
         try {
             SchemaGenerator.generateSchema();
+
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
