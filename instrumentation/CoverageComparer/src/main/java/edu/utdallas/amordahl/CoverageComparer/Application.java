@@ -50,6 +50,9 @@ public class Application {
 			"--coveragelog_dir2" }, description = "The directory containing the second set of coverage files.", required = true)
 	protected String c2;
 
+	@Parameter(names =  "--faulty", description = "The text file containing the faulty records.", required = true)
+	protected String faulty;
+	
 	@Parameter(names = { "-o",
 			"--output" }, description = "The directory in which to store the output files.", required = true)
 	protected String outputDir;
@@ -110,14 +113,7 @@ public class Application {
 		ep.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 		// Now, if there are faulty.txt files, we need to compute fault suspiciousness.
 		List<Path> faultyRuns = new ArrayList<Path>();
-		for (Path p : new Path[] { Paths.get(c1), Paths.get(c2) }) {
-			for (File p1 : p.toFile().listFiles()) {
-				if (p1.getName().endsWith("faulty.txt")) {
-					faultyRuns.addAll(
-							Files.readAllLines(p1.toPath()).stream().map(st -> Paths.get(st)).collect(Collectors.toList()));
-				}
-			}
-		}
+		faultyRuns.addAll(Files.readAllLines(Paths.get(faulty)).stream().map(st -> Paths.get(st)).collect(Collectors.toList()));
 
 		if (faultyRuns.size() == 0) {
 			logger.info("faulty.txt not found. Exiting without computing suspiciousness.");
