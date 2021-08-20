@@ -105,7 +105,7 @@ public class Runner {
             //bestRotation is the one that removed the most lines,
 
 
-            String line=j.apk+","+j.config1+","+j.config2+","+j.runtime+","+j.violation_type+","+j.avgRotation+","+j.totalRotation+","+j.avgAQL+","+j.totalAQL+","+j.avgCompile+","+j.totalCompile+","+j.totalProposed+","+j.totalComplete+","+j.numCandidate+","+j.percentAQL+","+j.percentCompile+","+j.compFailed+",";
+            String line=j.apk+","+j.config1+","+j.config2+","+j.runtime+","+j.violation_type+","+j.violation_or_not+","+j.avgRotation+","+j.totalRotation+","+j.avgAQL+","+j.totalAQL+","+j.avgCompile+","+j.totalCompile+","+j.totalProposed+","+j.totalComplete+","+j.numCandidate+","+j.percentAQL+","+j.percentCompile+","+j.compFailed+",";
 
             String bestRotation = getBestRotation(codeChangeList,j, true);
             line+=bestRotation+",";
