@@ -160,6 +160,7 @@ public class Runner {
             int i=0;
 
             for (Pair<File,CompilationUnit> compilationUnit : bestCUList) {
+                //if we are under the time limit, traverse the tree
                 if(System.currentTimeMillis()<SYSTEM_TIMEOUT_TIME)
                     traverseTree(i, compilationUnit.getValue1());
                 i++;
@@ -492,7 +493,7 @@ public class Runner {
             return;
         }
         //no longer recur if we are past the time limit
-        if(System.currentTimeMillis()<SYSTEM_TIMEOUT_TIME)
+        if(SYSTEM_TIMEOUT_TIME<System.currentTimeMillis())
             return;
         //process node
         process(currentCU, currentNode);
