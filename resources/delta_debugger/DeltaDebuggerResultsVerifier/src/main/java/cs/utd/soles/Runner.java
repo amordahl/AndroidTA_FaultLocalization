@@ -43,7 +43,7 @@ public class Runner {
 
         String output="";
         String lineData="";
-        String header="apk,config1,config2,program_runtime,violation_type,violation_or_not,Avg_Of_Rotations,Total_Rotations,Avg_Of_AQL,Total_AQL,Avg_Of_Compile,Total_Compile,%OfProgramRuntimeAQL,%OfProgramRuntimeCompile,Total_Proposed_Changes,Start_lines,End_lines,%OfLinesRemoved,bestRot,bestRotLines,bestRotLines%,worstRot,worstRotLines,worstRotLines%\n";
+        String header="apk,config1,config2,program_runtime,violation_type,violation_or_not,Avg_Of_Rotations,Total_Rotations,Avg_Of_AQL,Total_AQL,Avg_Of_Compile,Total_Compile,%OfProgramRuntimeAQL,%OfProgramRuntimeCompile,Total_Proposed,Start_lines,End_lines,%OfLinesRemoved,bestRot,bestRotLines,bestRotLines%,worstRot,worstRotLines,worstRotLines%\n";
         output+=header;
         for(File x: everyrunFile){
             if(!x.getName().contains(runprefix)){
@@ -69,12 +69,10 @@ public class Runner {
 
             String[] inArr = in.split("\\s+");
             LineObj j = new LineObj(
-                    apkName,config1,config2,
-                    inArr[1], inArr[3], inArr[5],
-                    inArr[7], inArr[9],inArr[11],
-                    inArr[13], inArr[15],inArr[17],
-                    inArr[19], inArr[21],inArr[23],
-                    inArr[25], inArr[27]);
+                    apkName,config1,config2,inArr[1],
+            inArr[3],inArr[5],inArr[7],inArr[9],
+                    inArr[11],inArr[13],inArr[15],
+                    inArr[17],inArr[19],inArr[21],inArr[23],inArr[25],inArr[27],inArr[29]);
             System.out.println(j);
             int indexStart=0;
             for(String f: inArr){
@@ -105,7 +103,7 @@ public class Runner {
             //bestRotation is the one that removed the most lines,
 
 
-            String line=j.apk+","+j.config1+","+j.config2+","+j.runtime+","+j.violation_type+","+j.violation_or_not+","+j.avgRotation+","+j.totalRotation+","+j.avgAQL+","+j.totalAQL+","+j.avgCompile+","+j.totalCompile+","+j.totalProposed+","+j.totalComplete+","+j.numCandidate+","+j.percentAQL+","+j.percentCompile+",";
+            String line=j.apk+","+j.config1+","+j.config2+","+j.runtime+","+j.violationType+","+j.violation_or_not+","+j.avgRotation+","+j.totalRotation+","+j.avgAQL+","+j.totalAQL+","+j.avgCompile+","+j.totalCompile+","+j.percentAQL+","+j.percentCompile+","+j.numCandidate+","+j.startLines+","+j.endLines+","+j.percentLines+",";
 
             String bestRotation = getBestRotation(codeChangeList,j, true);
             line+=bestRotation+",";
