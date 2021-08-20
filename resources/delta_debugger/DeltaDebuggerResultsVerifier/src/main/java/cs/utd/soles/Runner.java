@@ -74,7 +74,7 @@ public class Runner {
                     inArr[7], inArr[9],inArr[11],
                     inArr[13], inArr[15],inArr[17],
                     inArr[19], inArr[21],inArr[23],
-                    inArr[25], inArr[27], inArr[29]);
+                    inArr[25], inArr[27]);
             System.out.println(j);
             int indexStart=0;
             for(String f: inArr){

@@ -49,7 +49,7 @@ public class LineObj {
                 '}';
     }
 
-    public LineObj(String apk, String config1, String config2, String runtime, String violation_type, String violation_or_not, String avgRotation, String totalRotation, String avgAQL, String totalAQL, String avgCompile, String totalCompile, String totalProposed, String totalComplete, String numCandidate, String percentAQL, String percentCompile, String compFailed) {
+    public LineObj(String apk, String config1, String config2, String runtime, String violation_type, String violation_or_not, String avgRotation, String totalRotation, String avgAQL, String totalAQL, String avgCompile, String totalCompile, String totalProposed, String totalComplete, String numCandidate, String percentAQL, String percentCompile) {
         this.apk = apk;
         this.config1 = config1;
         this.config2 = config2;
@@ -67,7 +67,6 @@ public class LineObj {
         this.numCandidate = numCandidate;
         this.percentAQL = percentAQL;
         this.percentCompile = percentCompile;
-        this.compFailed = compFailed;
     }
 
     public LineObj(){
