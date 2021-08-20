@@ -183,6 +183,7 @@ public class Runner {
         String returnString="";
 
         ArrayList<Integer> rotList = new ArrayList<>();
+        rotList.add(0);
         //System.out.println(codeChangeList);
         for(CodeChange x: codeChangeList){
             //System.out.println(x);
