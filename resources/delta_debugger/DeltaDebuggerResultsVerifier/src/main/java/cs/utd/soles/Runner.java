@@ -177,6 +177,9 @@ public class Runner {
         if(codeChangeList.size()==0){
             return "";
         }
+        if(codeChangeList.size()==1){
+            return (1)+","+(codeChangeList.get(0))+","+((100*1)/Double.parseDouble(j.percentAQL));
+        }
         String returnString="";
 
         ArrayList<Integer> rotList = new ArrayList<>();
