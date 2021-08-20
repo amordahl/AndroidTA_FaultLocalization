@@ -152,7 +152,7 @@ public class Runner {
         SYSTEM_TIMEOUT_TIME=System.currentTimeMillis()+(TIMEOUT_TIME_MINUTES*M_TO_MILLIS);
 
         //start the delta debugging process
-        while(!minimized&&!CLASS_FILES_ONLY&&SYSTEM_TIMEOUT_TIME<System.currentTimeMillis()){
+        while(!minimized&&!CLASS_FILES_ONLY&&System.currentTimeMillis()<SYSTEM_TIMEOUT_TIME){
 
             performanceLog.startOneRotation();
             //this is set here because if a change is made to ANY ast we want to say we haven't minimized yet
@@ -160,7 +160,7 @@ public class Runner {
             int i=0;
 
             for (Pair<File,CompilationUnit> compilationUnit : bestCUList) {
-                if(SYSTEM_TIMEOUT_TIME<System.currentTimeMillis())
+                if(System.currentTimeMillis()<SYSTEM_TIMEOUT_TIME)
                     traverseTree(i, compilationUnit.getValue1());
                 i++;
             }
@@ -492,7 +492,7 @@ public class Runner {
             return;
         }
         //no longer recur if we are past the time limit
-        if(SYSTEM_TIMEOUT_TIME<System.currentTimeMillis())
+        if(System.currentTimeMillis()<SYSTEM_TIMEOUT_TIME)
             return;
         //process node
         process(currentCU, currentNode);
