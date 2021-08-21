@@ -17,15 +17,13 @@ public class SchemaGenerator {
 
     public static final String SCHEMA_PATH= "debugger/tempfiles/schema/aql_answer.xsd";
 
-
-
-
-
     public static void generateSchema() throws IOException {
         File f = Paths.get(SCHEMA_PATH).toFile();
         f.mkdirs();
         if(f.exists()){
-            Scanner sc = new Scanner(f);
+            //if it exists then we should just be done
+            return;
+            /*Scanner sc = new Scanner(f);
             String line ="";
             while(sc.hasNextLine()){
                 line=sc.nextLine()+"\n";
@@ -36,7 +34,9 @@ public class SchemaGenerator {
             }
             else{
                 return;
-            }
+            }*/
+        }else{
+            f.createNewFile();
         }
 
         FileWriter fw = new FileWriter(f);
