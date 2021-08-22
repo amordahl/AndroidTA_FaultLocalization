@@ -100,6 +100,7 @@ public class Runner {
                     System.out.println("BUILD FAILED, we didnt change anything so faulty project");
                     System.exit(-1);
                 }
+                saveBestAPK();
 
                 //then make the nodes
                 dg = makeDependencyNodes();
