@@ -1,0 +1,3 @@
+[submodule "resources/modified_flowdroid/FlowDroid"]
+	path = resources/modified_flowdroid/FlowDroid
+	url = https://github.com/Pancax/FlowDroid.git
