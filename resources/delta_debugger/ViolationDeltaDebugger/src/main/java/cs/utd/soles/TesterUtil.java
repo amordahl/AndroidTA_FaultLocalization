@@ -561,7 +561,7 @@ public class TesterUtil implements ThreadHandler{
 
         String[] paramsCut= new String[methodSig.length-3];
         for(int i=3;i<methodSig.length;i++){
-            paramsCut[i-3]=methodSig[i].substring(methodSig[i].lastIndexOf("."));
+            paramsCut[i-3]=methodSig[i].substring(methodSig[i].lastIndexOf(".")+1);
         }
         //idk how to anything about this;
         NodeList<Parameter> parameters = node.getParameters();
