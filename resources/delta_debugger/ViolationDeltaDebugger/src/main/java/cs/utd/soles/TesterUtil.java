@@ -500,10 +500,15 @@ public class TesterUtil implements ThreadHandler{
                 continue;
             }
             System.out.println("ASTNode Dependency: Found");
+
             String[] paramsDCut= new String[dependencyContents.length-3];
+
+            System.out.println(Arrays.toString(dependencyContents));
+            System.out.println(paramsDCut.length);
             for(int i=3;i<dependencyContents.length;i++){
                 paramsCut[i-3]=dependencyContents[i].substring(dependencyContents[i].lastIndexOf(".")+1);
             }
+            System.out.println(Arrays.toString(paramsDCut));
             MethodNode dNode = new MethodNode(dependencyContents[2],dependencyContents[1],paramsDCut, dParent, astDNode);
             System.out.println("Dependency: " + dNode);
 
