@@ -43,8 +43,8 @@ public class MethodNode {
         }
         dependenceString+="}";
         return "MethodNode{" +
-                "parent=" + parent +
-                ", methodAST=" + methodAST +
+                /*"parent=" + parent +*/
+                /*", methodAST=" + methodAST +*/
                 ", name='" + name + '\'' +
                 ", returnType='" + returnType + '\'' +
                 ", argTypes=" + Arrays.toString(argTypes) +
