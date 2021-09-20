@@ -6,7 +6,8 @@ public interface ThreadHandler {
         CREATE_APK_PROCESS,
         AQL_PROCESS1,
         AQL_PROCESS2,
-        AQL_RUN
+        AQL_RUN,
+        CALLGRAPH
     }
     void handleThread(ProcessType type, String finalString, String finalString2);
 }

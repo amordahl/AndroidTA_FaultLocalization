@@ -8,8 +8,12 @@ public class DependencyGraph {
 
     LinkedList<ClassNode> graph = new LinkedList<ClassNode>();
 
+    LinkedList<MethodNode> methodGraph = new LinkedList<>();
+
+
     public DependencyGraph(){
         graph = new LinkedList<ClassNode>();
+        methodGraph = new LinkedList<MethodNode>();
     }
 
     //construct this dependency graph from the dot file
