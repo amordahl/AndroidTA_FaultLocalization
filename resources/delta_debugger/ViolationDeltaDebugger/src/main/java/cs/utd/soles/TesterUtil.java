@@ -443,7 +443,7 @@ public class TesterUtil implements ThreadHandler{
             //much like DependencyGraph.parseGraphFromDot()
             String[] leftRight = x.split(" -> ");
 
-            System.out.println(x);
+            //System.out.println(x);
             //one problem, there might be "Ghost methods"
             //methods that flowdroid created but aren't actually real, so before we add any particular line to DependencyGraph.methodGraph we need to make sure it is a real thing
             //so basically, we gonna have to do some magic
@@ -484,16 +484,16 @@ public class TesterUtil implements ThreadHandler{
             //dependency
             String dependency = leftRight[1];
             String[] dependencyContents = convertNodeString(dependency);
-            System.out.println("Dependency contents: "+ Arrays.toString(dependencyContents));
+            //System.out.println("Dependency contents: "+ Arrays.toString(dependencyContents));
             ClassNode dParent = Runner.dg.getClassNodeForFilePath(Runner.getFilePathForClass(dependencyContents[0]));
 
-            System.out.println("Dependency parent: "+dParent);
+            //System.out.println("Dependency parent: "+dParent);
             if(null==dParent){
                 //this thing isn't in on our asts, just go on to the next
                 continue;
             }
             Node astDNode = findASTNodeFromSignature(dependencyContents, dParent);
-            System.out.println("ASTNode Dependency: "+astDNode);
+            //System.out.println("ASTNode Dependency: "+astDNode);
             if(astDNode==null) {
                 continue;
             }
@@ -502,7 +502,7 @@ public class TesterUtil implements ThreadHandler{
                 paramsCut[i-3]=dependencyContents[i].substring(dependencyContents[i].lastIndexOf(".")+1);
             }
             MethodNode dNode = new MethodNode(dependencyContents[2],dependencyContents[1],paramsDCut, dParent, astDNode);
-            System.out.println("Dependency: " + dNode);
+            //System.out.println("Dependency: " + dNode);
 
             //add to callgraph
             Runner.dg.makeCallgraphEdge(node,dNode);

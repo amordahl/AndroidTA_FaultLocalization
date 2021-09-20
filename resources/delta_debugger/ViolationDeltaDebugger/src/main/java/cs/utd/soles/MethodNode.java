@@ -26,6 +26,7 @@ public class MethodNode {
         this.argTypes=argTypes;
         this.parent=parent;
         this.methodAST=ast;
+        dependencies = new LinkedList<>();
     }
 
     public void addDependency(MethodNode n){
