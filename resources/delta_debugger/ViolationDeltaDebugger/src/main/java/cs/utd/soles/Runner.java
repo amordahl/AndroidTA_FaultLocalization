@@ -375,6 +375,14 @@ public class Runner {
         }
         return null;
     }
+    public static CompilationUnit getASTForFile(String filePath){
+            for(Pair<File,CompilationUnit> p:bestCUList){
+                if(p.getValue0().getAbsolutePath().equals(filePath))
+                    return p.getValue1();
+
+            }
+            return null;
+    }
 
     private static boolean checkProposal(ArrayList<Pair<File,CompilationUnit>> proposal) throws IOException, InterruptedException {
 

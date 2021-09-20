@@ -502,9 +502,14 @@ public class TesterUtil implements ThreadHandler{
         //N parameter Types
 
         ClassNode parent = Runner.dg.getClassNodeForFilePath(Runner.getFilePathForClass(methodSig[0]));
-        if(null!=parent){
-            System.out.println("it finds a class: " + Arrays.toString(methodSig) + " IS IN "+parent.getName());
+        if(null==parent){
+            return null;
         }
+        System.out.println("it finds a class: " + Arrays.toString(methodSig) + " IS IN "+parent.getName());
+        //get the compilation unit we think its in
+        CompilationUnit ourUnit = Runner.getASTForFile(parent.getFilePath());
+
+        System.out.println(ourUnit + "\n IT FINDS A UNIT for " + Arrays.toString(methodSig));
 
         return null;
     }
