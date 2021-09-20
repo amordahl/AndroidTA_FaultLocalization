@@ -25,7 +25,7 @@ public class Runner {
     private static boolean projectNeedsToBeMinimized=true;
     private static String projectClassFiles;
     public static String THIS_RUN_PREFIX="";
-    private static DependencyGraph dg = null;
+    public static DependencyGraph dg = null;
     private static long TIMEOUT_TIME_MINUTES=120;
     //1 minute is this long in millis
     private static final long M_TO_MILLIS=60000;

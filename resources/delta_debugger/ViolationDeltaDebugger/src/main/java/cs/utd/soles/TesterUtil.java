@@ -1,6 +1,7 @@
 package cs.utd.soles;
 
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Flow;
 import org.javatuples.Pair;
@@ -445,11 +446,17 @@ public class TesterUtil implements ThreadHandler{
             //methods that flowdroid created but aren't actually real, so before we add any particular line to DependencyGraph.methodGraph we need to make sure it is a real thing
             //so basically, we gonna have to do some magic
             //furthermore, i am ignoring anonymous class methods for this, they are too annoying to implement for now
+            //also we want only internal methods, both in and out, so resolve both before making an edge
 
             //Okay lets find out the class for left side first, helps us get the right ast and verify this method exists
             String origin = leftRight[0];
+            String[] originContents = convertNodeString(origin);
+            String dependency = leftRight[1];
+            String[] dependencyContents = convertNodeString(dependency);
 
-            String[] nodeContents = convertNodeString(origin);
+            findASTNodeFromSignature(originContents);
+
+
         }
 
         return true;
@@ -458,7 +465,7 @@ public class TesterUtil implements ThreadHandler{
     public String[] convertNodeString(String nodeString){
         //'<' .* '>': <returnType> <methodName>(<>* parameterTypes)
         ArrayList<String> stringList = new ArrayList<>();
-        System.out.println("start nodeString: "+nodeString);
+        //System.out.println("start nodeString: "+nodeString);
         //we are done with package/classname when we hit a :
         /*String packageClassName = nodeString.substring(1,nodeString.indexOf(": "));
         nodeString = nodeString.substring(0,packageClassName.length()+2);
@@ -468,16 +475,13 @@ public class TesterUtil implements ThreadHandler{
         nodeString = nodeString.substring(1,nodeString.length()-1).replace(": "," ");
         String[] elements = nodeString.split(" ");
         String classPackageName = elements[0];
-        System.out.println("ClassPackageName: "+classPackageName);
+        //System.out.println("ClassPackageName: "+classPackageName);
         String returnType = elements[1];
-        System.out.println("return type: "+returnType);
+        //System.out.println("return type: "+returnType);
         String methodName = elements[2].substring(0,elements[2].indexOf("("));
-        System.out.println("method name: "+returnType);
-
+        //System.out.println("method name: "+methodName);
         String[] parameterTypeStrings = elements[2].substring(elements[2].indexOf("(")+1, elements[2].lastIndexOf(")")).split(" ");
-
-        System.out.println("parameter types: "+Arrays.toString(parameterTypeStrings));
-
+        //System.out.println("parameter types: "+Arrays.toString(parameterTypeStrings));
         String[] returnList = new String[3+parameterTypeStrings.length];
         returnList[0]=classPackageName;
         returnList[1]=returnType;
@@ -487,5 +491,21 @@ public class TesterUtil implements ThreadHandler{
         }
 
         return returnList;
+    }
+
+    //if this returns null, then the method aint to be found in one our asts
+    public Node findASTNodeFromSignature(String[] methodSig){
+        //method sig is,
+        //0 class/package name
+        //1 return type
+        //2 method name
+        //N parameter Types
+
+        ClassNode parent = Runner.dg.getClassNodeForFilePath(Runner.getFilePathForClass(methodSig[0]));
+        if(null!=parent){
+            System.out.println("it finds a class: " + Arrays.toString(methodSig) + " IS IN "+parent.getName());
+        }
+
+        return null;
     }
 }

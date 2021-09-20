@@ -1,5 +1,7 @@
 package cs.utd.soles;
 
+import com.github.javaparser.ast.Node;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -10,6 +12,9 @@ public class MethodNode {
     ClassNode parent;
 
     LinkedList<MethodNode> dependencies;
+
+    //this is the method ast reference
+    Node methodAST;
 
     String name;
     String returnType;

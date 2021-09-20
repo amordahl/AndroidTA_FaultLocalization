@@ -106,4 +106,13 @@ public class DependencyGraph {
 
     }
 
+    public ClassNode getClassNodeForFilePath(String path){
+        for(ClassNode x: graph){
+            if(x.getFilePath()==path)
+                return x;
+
+        }
+        return null;
+    }
+
 }
