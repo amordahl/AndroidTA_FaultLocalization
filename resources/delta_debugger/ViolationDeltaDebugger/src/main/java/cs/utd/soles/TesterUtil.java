@@ -354,7 +354,7 @@ public class TesterUtil implements ThreadHandler{
 
     public void runCCGCreator(String projectApkPath, String thisRunName){
         String[] command = {"java","-jar","/home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar"
-            ,"-a",projectApkPath,"-p","/home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-android/SourcesAndSinks.txt"};
+            ,"-a",projectApkPath,"-p","/home/dakota/documents/Android/platforms/","-s","/home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-android/SourcesAndSinks.txt"};
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(command);
