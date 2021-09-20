@@ -554,6 +554,7 @@ public class TesterUtil implements ThreadHandler{
              parameterTypeStrings= elements[2].substring(startParam + 1, endParam).trim().split(",");
         }else{
             parameterTypeStrings=new String[1];
+            parameterTypeStrings[0]=elements[2].substring(startParam+1,endParam);
         }
 
         //System.out.println("parameter types: "+Arrays.toString(parameterTypeStrings));
