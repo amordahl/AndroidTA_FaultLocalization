@@ -477,6 +477,9 @@ public class TesterUtil implements ThreadHandler{
             }
             MethodNode node = new MethodNode(originContents[2],originContents[1],paramsCut, parent, astNode);
             System.out.println("Node: " + node);
+
+
+
             //dependency
             String dependency = leftRight[1];
             String[] dependencyContents = convertNodeString(dependency);
@@ -486,7 +489,7 @@ public class TesterUtil implements ThreadHandler{
                 //this thing isn't in on our asts, just go on to the next
                 continue;
             }
-            Node astDNode = findASTNodeFromSignature(dependencyContents, parent);
+            Node astDNode = findASTNodeFromSignature(dependencyContents, dParent);
             System.out.println("ASTNode Dependency: "+astDNode);
             if(astDNode==null) {
                 continue;
@@ -497,6 +500,8 @@ public class TesterUtil implements ThreadHandler{
             }
             MethodNode dNode = new MethodNode(dependencyContents[2],dependencyContents[1],paramsDCut, dParent, astDNode);
             System.out.println("Dependency: " + dNode);
+
+            //add to callgraph
             Runner.dg.makeCallgraphEdge(node,dNode);
 
         }
