@@ -36,13 +36,19 @@ public class MethodNode {
 
     @Override
     public String toString() {
+
+        String dependenceString="{";
+        for(MethodNode x: dependencies){
+            dependenceString+= "\t"+x.name+"\n";
+        }
+        dependenceString+="}";
         return "MethodNode{" +
                 "parent=" + parent +
-                ", dependencies=" + dependencies +
                 ", methodAST=" + methodAST +
                 ", name='" + name + '\'' +
                 ", returnType='" + returnType + '\'' +
                 ", argTypes=" + Arrays.toString(argTypes) +
+                dependenceString +
                 '}';
     }
 
