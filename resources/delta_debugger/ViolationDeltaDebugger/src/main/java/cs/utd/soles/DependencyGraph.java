@@ -110,6 +110,7 @@ public class DependencyGraph {
         if(path==null)
             return null;
         for(ClassNode x: graph){
+            if(x.getFilePath()!=null)
             if(x.getFilePath().equals(path))
                 return x;
 

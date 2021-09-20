@@ -443,6 +443,7 @@ public class TesterUtil implements ThreadHandler{
             //much like DependencyGraph.parseGraphFromDot()
             String[] leftRight = x.split(" -> ");
 
+            System.out.println(x);
             //one problem, there might be "Ghost methods"
             //methods that flowdroid created but aren't actually real, so before we add any particular line to DependencyGraph.methodGraph we need to make sure it is a real thing
             //so basically, we gonna have to do some magic
