@@ -537,7 +537,7 @@ public class TesterUtil implements ThreadHandler{
         //System.out.println("return type: "+returnType);
         String methodName = elements[2].substring(0,elements[2].indexOf("("));
         //System.out.println("method name: "+methodName);
-        String[] parameterTypeStrings = elements[2].substring(elements[2].indexOf("(")+1, elements[2].lastIndexOf(")")).trim().split(" ");
+        String[] parameterTypeStrings = elements[2].substring(elements[2].indexOf("(")+1, elements[2].lastIndexOf(")")).trim().split(",");
         //System.out.println("parameter types: "+Arrays.toString(parameterTypeStrings));
         String[] returnList = new String[3+parameterTypeStrings.length];
         returnList[0]=classPackageName;
