@@ -20,11 +20,29 @@ public class MethodNode {
     String returnType;
     String[] argTypes;
 
-    public MethodNode(String name, String returnType, String[] argTypes, ClassNode parent){
+    public MethodNode(String name, String returnType, String[] argTypes, ClassNode parent, Node ast){
         this.name=name;
         this.returnType=returnType;
         this.argTypes=argTypes;
         this.parent=parent;
+        this.methodAST=ast;
+    }
+
+    public void addDependency(MethodNode n){
+        if(!dependencies.contains(n))
+            dependencies.addLast(n);
+    }
+
+    @Override
+    public String toString() {
+        return "MethodNode{" +
+                "parent=" + parent +
+                ", dependencies=" + dependencies +
+                ", methodAST=" + methodAST +
+                ", name='" + name + '\'' +
+                ", returnType='" + returnType + '\'' +
+                ", argTypes=" + Arrays.toString(argTypes) +
+                '}';
     }
 
     @Override

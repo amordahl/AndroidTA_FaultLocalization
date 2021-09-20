@@ -117,4 +117,22 @@ public class DependencyGraph {
         return null;
     }
 
+
+    public void makeCallgraphEdge(MethodNode node, MethodNode dNode) {
+
+        MethodNode found = methodGraph.contains(node)? methodGraph.get(methodGraph.indexOf(node)):node;
+
+        MethodNode dFound = methodGraph.contains(dNode)? methodGraph.get(methodGraph.indexOf(dNode)):dNode;
+
+        found.addDependency(dFound);
+
+        if(node==found){
+            methodGraph.add(found);
+        }
+        if(dNode==dFound){
+            methodGraph.add(dFound);
+        }
+
+
+    }
 }

@@ -443,27 +443,64 @@ public class TesterUtil implements ThreadHandler{
             //much like DependencyGraph.parseGraphFromDot()
             String[] leftRight = x.split(" -> ");
 
-
-
-
             //one problem, there might be "Ghost methods"
             //methods that flowdroid created but aren't actually real, so before we add any particular line to DependencyGraph.methodGraph we need to make sure it is a real thing
             //so basically, we gonna have to do some magic
             //furthermore, i am ignoring anonymous class methods for this, they are too annoying to implement for now
             //also we want only internal methods, both in and out, so resolve both before making an edge
 
+
+            //okay to make sense of this, first we cut up the left side and find its AST and the node we think matches the signature, then we make a MethodNode
+            //then we do the same for the right side
+            //then we try to add to the graph
+
             //Okay lets find out the class for left side first, helps us get the right ast and verify this method exists
             String origin = leftRight[0];
+            //cut up contents
             String[] originContents = convertNodeString(origin);
+            //get the ast
+            ClassNode parent = Runner.dg.getClassNodeForFilePath(Runner.getFilePathForClass(originContents[0]));
+            if(null==parent){
+                //this thing isn't in on our asts, just go on to the next
+                continue;
+            }
+
+            Node astNode = findASTNodeFromSignature(originContents, parent);
+            if(astNode==null) {
+                //this method wasn't found in the ast, just go on to the next
+                continue;
+            }
+            String[] paramsCut= new String[originContents.length-3];
+            for(int i=3;i<originContents.length;i++){
+                paramsCut[i-3]=originContents[i].substring(originContents[i].lastIndexOf(".")+1);
+            }
+            MethodNode node = new MethodNode(originContents[2],originContents[1],paramsCut, parent, astNode);
+
+            //dependency
             String dependency = leftRight[1];
             String[] dependencyContents = convertNodeString(dependency);
 
-            //get node if we have it
+            ClassNode dParent = Runner.dg.getClassNodeForFilePath(Runner.getFilePathForClass(dependencyContents[0]));
+            if(null==dParent){
+                //this thing isn't in on our asts, just go on to the next
+                continue;
+            }
+            Node astDNode = findASTNodeFromSignature(dependencyContents, parent);
+            if(astDNode==null) {
+                continue;
+            }
+            String[] paramsDCut= new String[dependencyContents.length-3];
+            for(int i=3;i<dependencyContents.length;i++){
+                paramsCut[i-3]=dependencyContents[i].substring(dependencyContents[i].lastIndexOf(".")+1);
+            }
+            MethodNode dNode = new MethodNode(dependencyContents[2],dependencyContents[1],paramsDCut, dParent, astDNode);
 
-            //start creating a new node if its not already in the graph
-            findASTNodeFromSignature(originContents);
+            Runner.dg.makeCallgraphEdge(node,dNode);
 
+        }
 
+        for(MethodNode g: Runner.dg.methodGraph){
+            System.out.println(g);
         }
 
         return true;
@@ -501,35 +538,32 @@ public class TesterUtil implements ThreadHandler{
     }
 
     //if this returns null, then the method aint to be found in one our asts
-    public Node findASTNodeFromSignature(String[] methodSig){
+    public Node findASTNodeFromSignature(String[] methodSig, ClassNode parent){
         //method sig is,
         //0 class/package name
         //1 return type
         //2 method name
         //N parameter Types
 
-        ClassNode parent = Runner.dg.getClassNodeForFilePath(Runner.getFilePathForClass(methodSig[0]));
-        if(null==parent){
-            return null;
-        }
+
         //System.out.println("it finds a class: " + Arrays.toString(methodSig) + " IS IN "+parent.getName());
         //get the compilation unit we think its in
         CompilationUnit ourUnit = Runner.getASTForFile(parent.getFilePath());
 
         //System.out.println(ourUnit + "\n IT FINDS A UNIT for " + Arrays.toString(methodSig));
-        Node foundNode=null;
-        traverseGraphAndFind(ourUnit,methodSig,foundNode);
-
+        Node[] foundNodeArr=new Node[1];
+        traverseGraphAndFind(ourUnit,methodSig,foundNodeArr);
+        Node foundNode = foundNodeArr[0];
         System.out.println("Out the thing: "+foundNode);
 
-        return null;
+        return foundNode;
     }
 
     //returns the node that this methodSignature is referring to.
-    private void traverseGraphAndFind(Node cur, String[] methodSig, Node foundNode){
+    private void traverseGraphAndFind(Node cur, String[] methodSig, Node[] foundNode){
         if(matchesSig(cur, methodSig)){
-            foundNode=cur;
-            System.out.println("In the thing: "+foundNode);
+            foundNode[0]=cur;
+            System.out.println("In the thing: "+foundNode[0]);
         }
         else{
             for(Node child:cur.getChildNodes())
