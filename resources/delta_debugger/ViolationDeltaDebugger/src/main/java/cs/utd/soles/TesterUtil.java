@@ -470,12 +470,13 @@ public class TesterUtil implements ThreadHandler{
                 //this method wasn't found in the ast, just go on to the next
                 continue;
             }
+            System.out.println("ASTNode Node: "+astNode);
             String[] paramsCut= new String[originContents.length-3];
             for(int i=3;i<originContents.length;i++){
                 paramsCut[i-3]=originContents[i].substring(originContents[i].lastIndexOf(".")+1);
             }
             MethodNode node = new MethodNode(originContents[2],originContents[1],paramsCut, parent, astNode);
-
+            System.out.println("Node: " + node);
             //dependency
             String dependency = leftRight[1];
             String[] dependencyContents = convertNodeString(dependency);
@@ -486,6 +487,7 @@ public class TesterUtil implements ThreadHandler{
                 continue;
             }
             Node astDNode = findASTNodeFromSignature(dependencyContents, parent);
+            System.out.println("ASTNode Dependency: "+astDNode);
             if(astDNode==null) {
                 continue;
             }
@@ -494,7 +496,7 @@ public class TesterUtil implements ThreadHandler{
                 paramsCut[i-3]=dependencyContents[i].substring(dependencyContents[i].lastIndexOf(".")+1);
             }
             MethodNode dNode = new MethodNode(dependencyContents[2],dependencyContents[1],paramsDCut, dParent, astDNode);
-
+            System.out.println("Dependency: " + dNode);
             Runner.dg.makeCallgraphEdge(node,dNode);
 
         }
