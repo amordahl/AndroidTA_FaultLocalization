@@ -595,7 +595,7 @@ public class TesterUtil implements ThreadHandler{
         //1 return type
         //2 method name
         //N parameter Types
-
+        System.out.println("Method sig: "+Arrays.toString(methodSig));
         //funny how java works, im pretty sure name and parameter types are all we need to identify a method, the method type can't be different and the only
         //thing that can change is if it is overloaded
 
@@ -612,6 +612,8 @@ public class TesterUtil implements ThreadHandler{
         for(int i=3;i<methodSig.length;i++){
             paramsCut[i-3]=methodSig[i].substring(methodSig[i].lastIndexOf(".")+1);
         }
+        System.out.println("Param cut: "+ Arrays.toString(paramsCut));
+
         //idk how to anything about this;
         NodeList<Parameter> parameters = node.getParameters();
         if(parameters.size()!=paramsCut.length) {
