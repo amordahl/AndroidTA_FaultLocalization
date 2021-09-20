@@ -487,7 +487,7 @@ public class TesterUtil implements ThreadHandler{
         //System.out.println("return type: "+returnType);
         String methodName = elements[2].substring(0,elements[2].indexOf("("));
         //System.out.println("method name: "+methodName);
-        String[] parameterTypeStrings = elements[2].substring(elements[2].indexOf("(")+1, elements[2].lastIndexOf(")")).split(" ");
+        String[] parameterTypeStrings = elements[2].substring(elements[2].indexOf("(")+1, elements[2].lastIndexOf(")")).trim().split(" ");
         //System.out.println("parameter types: "+Arrays.toString(parameterTypeStrings));
         String[] returnList = new String[3+parameterTypeStrings.length];
         returnList[0]=classPackageName;
@@ -533,13 +533,12 @@ public class TesterUtil implements ThreadHandler{
         }
         else{
             for(Node child:cur.getChildNodes())
-            traverseGraphAndFind(child,methodSig,foundNode);
+                traverseGraphAndFind(child,methodSig,foundNode);
         }
     }
 
     //does this thing match the signature?
     private boolean matchesSig(Node cur, String[] methodSig) {
-
         if(!(cur instanceof MethodDeclaration))
             return false;
 
@@ -580,7 +579,6 @@ public class TesterUtil implements ThreadHandler{
         }
 
         // if we reach here, then I guess this node is equal.
-
         return true;
     }
 }
