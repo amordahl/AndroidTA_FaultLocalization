@@ -603,8 +603,10 @@ public class TesterUtil implements ThreadHandler{
         //System.out.println(methodNameAst);
         if(!methodNameAst.equals(methodSig[2])){
             //names dont match
+            System.out.println("Name dont matches!");
             return false;
         }
+        System.out.println("Name matches!");
 
         String[] paramsCut= new String[methodSig.length-3];
         for(int i=3;i<methodSig.length;i++){
@@ -612,9 +614,12 @@ public class TesterUtil implements ThreadHandler{
         }
         //idk how to anything about this;
         NodeList<Parameter> parameters = node.getParameters();
-        if(parameters.size()!=paramsCut.length)
+        if(parameters.size()!=paramsCut.length) {
+            System.out.println("Size no match paramsSize: "+ parameters.size()+"supposed: "+paramsCut.length);
             return false;
-
+        }
+        System.out.println("Size match"
+        );
         int i=0;
         for(Parameter x: parameters){
             //OKAY SO IM LIKE 100% SURE THIS IS BUGGY, its not the full name so in the awful case where you have two classes named the same, that are both parameters,
