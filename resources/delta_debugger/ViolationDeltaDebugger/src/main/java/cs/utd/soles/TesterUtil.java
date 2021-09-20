@@ -2,6 +2,10 @@ package cs.utd.soles;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.type.Type;
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Flow;
 import org.javatuples.Pair;
@@ -454,6 +458,9 @@ public class TesterUtil implements ThreadHandler{
             String dependency = leftRight[1];
             String[] dependencyContents = convertNodeString(dependency);
 
+            //get node if we have it
+
+            //start creating a new node if its not already in the graph
             findASTNodeFromSignature(originContents);
 
 
@@ -510,7 +517,51 @@ public class TesterUtil implements ThreadHandler{
         CompilationUnit ourUnit = Runner.getASTForFile(parent.getFilePath());
 
         System.out.println(ourUnit + "\n IT FINDS A UNIT for " + Arrays.toString(methodSig));
+        Node foundNode=null;
+        traverseGraphAndFind(ourUnit,methodSig,foundNode);
 
         return null;
+    }
+
+    //returns the node that this methodSignature is referring to.
+    private void traverseGraphAndFind(Node cur, String[] methodSig, Node foundNode){
+        if(matchesSig(cur, methodSig)){
+            foundNode=cur;
+        }
+        else{
+            for(Node child:cur.getChildNodes())
+            traverseGraphAndFind(child,methodSig,foundNode);
+        }
+    }
+
+    private boolean matchesSig(Node cur, String[] methodSig) {
+
+        if(!(cur instanceof MethodDeclaration))
+            return false;
+
+        MethodDeclaration node = (MethodDeclaration) cur;
+        //method sig is,
+        //0 class/package name
+        //1 return type
+        //2 method name
+        //N parameter Types
+
+        //funny how java works, im pretty sure name and parameter types are all we need to identify a method, the method type can't be different and the only
+        //thing that can change is if it is overloaded
+
+        String methodNameAst = node.getNameAsString();
+        System.out.println(methodNameAst);
+        if(methodNameAst.equals(methodSig[2])){
+            //wow this works?
+            System.out.println("Method name format is the same, dont do anything");
+        }
+
+        //idk how to anything about this;
+        NodeList<Parameter> parameters = node.getParameters();
+        for(Parameter x: parameters){
+            System.out.println("Parameter: "+x);
+        }
+
+        return false;
     }
 }
