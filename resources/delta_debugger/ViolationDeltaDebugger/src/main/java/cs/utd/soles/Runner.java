@@ -38,7 +38,6 @@ public class Runner {
         //maybe have the program wait until it finds the Schema??
         try {
             SchemaGenerator.generateSchema();
-
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
@@ -89,8 +88,8 @@ public class Runner {
         //associate classes to files
         fillNamesToPaths();
 
-        //generate dot file // dependency graph
-
+        //generate dot file
+        //dependency graph
         try {
             //create the apk so we actually have something to work with.
             synchronized(lockObject) {
@@ -116,12 +115,46 @@ public class Runner {
         ArrayList<HashSet<ClassNode>> closures = dg.getTransitiveClosuresDifferent();
         System.out.println("CLOSURES: "+closures);
         try {
-            reduceFromClosures(closures);
+            if(!DO_METHOD_ONLY)
+                reduceFromClosures(closures);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        /*
+        * Method based reduction goes here, right after class based reduction. First, run our modified Flowdroid its in
+        * /home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar
+        * //TODO:: make this thing an argument, but hard coded works fine. Anyway,
+        * */
+        try {
+            //create newest version of apk
+            synchronized (lockObject) {
+                testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList);
+                lockObject.wait();
+                if (!testerForThis.threadResult) {
+                    System.out.println("BUILD FAILED, we didnt change anything so faulty project");
+                    System.exit(-1);
+                }
+                saveBestAPK();
+
+                testerForThis.startCCGProcess(projectAPKPath,thisRunName);
+                lockObject.wait();
+                //our callgraph has now been created so I guess we just should call makeClosures,
+                //and then pass them to a method based reducer
+
+
+
+            }
+
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+
+
 
 
 
@@ -147,13 +180,14 @@ public class Runner {
                 return 0;
             }
         };
+
+        /**/
+
         Collections.sort(bestCUList,cuListComp);
-
-
         SYSTEM_TIMEOUT_TIME=System.currentTimeMillis()+(TIMEOUT_TIME_MINUTES*M_TO_MILLIS);
 
         //start the delta debugging process
-        while(!minimized&&!CLASS_FILES_ONLY&&System.currentTimeMillis()<SYSTEM_TIMEOUT_TIME){
+        while(!minimized&&!CLASS_FILES_ONLY&&!DO_METHOD_ONLY&&System.currentTimeMillis()<SYSTEM_TIMEOUT_TIME){
 
             performanceLog.startOneRotation();
             //this is set here because if a change is made to ANY ast we want to say we haven't minimized yet
@@ -459,6 +493,9 @@ public class Runner {
             if(args[i].equals("-c")){
                 CLASS_FILES_ONLY=true;
             }
+            if(args[i].equals("-m")){
+                DO_METHOD_ONLY=true;
+            }
             if(args[i].equals("-p")){
                 THIS_RUN_PREFIX=args[i+1];
                 THIS_RUN_PREFIX = ""+thisViolation.getConfig1()+"_"+thisViolation.getConfig2()+"/"+THIS_RUN_PREFIX.replace("/","");
@@ -475,6 +512,7 @@ public class Runner {
     }
 
     static boolean CLASS_FILES_ONLY=false;
+    static boolean DO_METHOD_ONLY=false;
     static boolean minimized=false;
     static ArrayList<Pair<File,CompilationUnit>> bestCUList = new ArrayList<>();
     static ArrayList<Pair<File,CompilationUnit>> originalCUnits = new ArrayList();

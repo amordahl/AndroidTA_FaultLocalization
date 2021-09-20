@@ -9,6 +9,7 @@ import org.javatuples.Pair;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -351,8 +352,23 @@ public class TesterUtil implements ThreadHandler{
         }
     }
 
+    public void runCCGCreator(String projectApkPath, String thisRunName){
+        String[] command = {"java","-jar","/home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar"
+            ,"-a",projectApkPath,"-p","/home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-android/SourcesAndSinks.txt"};
+        Process p = null;
+        try {
+            p = Runtime.getRuntime().exec(command);
+            ProcessThread pThread = new ProcessThread(p,this,ProcessType.CALLGRAPH, 30000);
+            pThread.start();
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    public void startCCGProcess(String projectAPKPath, String thisRunName){
+        runCCGCreator(projectAPKPath,thisRunName);
+    }
 
     boolean threadResult=false;
     @Override
@@ -403,7 +419,73 @@ public class TesterUtil implements ThreadHandler{
                     lockObj.notify();
                 }
                 break;
+            case CALLGRAPH:
+                synchronized (lockObj){
+                    threadResult=handleCallGraph(finalString);
+                    lockObj.notify();
+                }
+                break;
         }
 
+    }
+
+    //dependency graph is like, static so this can just access it and change its data up accordingly
+    public boolean handleCallGraph(String contents){
+        //Okay so we have the exact string we want we just need to match it up to what we already have,
+        //ClassNode and DependencyGraph
+        String[] lines = contents.split("\n+");
+        for(String x: lines){
+            //much like DependencyGraph.parseGraphFromDot()
+            String[] leftRight = x.split(" -> ");
+
+
+
+
+            //one problem, there might be "Ghost methods"
+            //methods that flowdroid created but aren't actually real, so before we add any particular line to DependencyGraph.methodGraph we need to make sure it is a real thing
+            //so basically, we gonna have to do some magic
+            //furthermore, i am ignoring anonymous class methods for this, they are too annoying to implement for now
+
+            //Okay lets find out the class for left side first, helps us get the right ast and verify this method exists
+            String origin = leftRight[0];
+
+            String[] nodeContents = convertNodeString(origin);
+        }
+
+        return true;
+    }
+
+    public String[] convertNodeString(String nodeString){
+        //'<' .* '>': <returnType> <methodName>(<>* parameterTypes)
+        ArrayList<String> stringList = new ArrayList<>();
+        System.out.println("start nodeString: "+nodeString);
+        //we are done with package/classname when we hit a :
+        /*String packageClassName = nodeString.substring(1,nodeString.indexOf(": "));
+        nodeString = nodeString.substring(0,packageClassName.length()+2);
+        System.out.println("Changed nodeString: "+nodeString);*/
+
+        //cut first and last
+        nodeString = nodeString.substring(1,nodeString.length()-1).replace(": "," ");
+        String[] elements = nodeString.split(" ");
+        String classPackageName = elements[0];
+        System.out.println("ClassPackageName: "+classPackageName);
+        String returnType = elements[1];
+        System.out.println("return type: "+returnType);
+        String methodName = elements[2].substring(0,elements[2].indexOf("("));
+        System.out.println("method name: "+returnType);
+
+        String[] parameterTypeStrings = elements[2].substring(elements[2].indexOf("(")+1, elements[2].lastIndexOf(")")).split(" ");
+
+        System.out.println("parameter types: "+Arrays.toString(parameterTypeStrings));
+
+        String[] returnList = new String[3+parameterTypeStrings.length];
+        returnList[0]=classPackageName;
+        returnList[1]=returnType;
+        returnList[2]=methodName;
+        for(int i=3;i<returnList.length;i++){
+            returnList[i]=parameterTypeStrings[i-3];
+        }
+
+        return returnList;
     }
 }

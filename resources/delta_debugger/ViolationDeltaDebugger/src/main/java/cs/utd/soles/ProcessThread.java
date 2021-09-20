@@ -47,6 +47,9 @@ public class ProcessThread extends Thread{
                 if(type == ThreadHandler.ProcessType.AQL_PROCESS1 || type == ThreadHandler.ProcessType.AQL_PROCESS2){
                     finalString=ithread.doneString+"\n\nError Messages from AQL:\n"+ethread.doneString;
                 }
+                if(type == ThreadHandler.ProcessType.CALLGRAPH){
+                    finalString=ithread.doneString;
+                }
                 //kill this process
                 thisProc.destroyForcibly();
                 if(doWriteProcess&&Runner.LOG_MESSAGES&& this.type == ThreadHandler.ProcessType.CREATE_APK_PROCESS){
