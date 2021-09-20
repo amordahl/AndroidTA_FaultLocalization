@@ -534,6 +534,7 @@ public class TesterUtil implements ThreadHandler{
         }
     }
 
+    //does this thing match the signature?
     private boolean matchesSig(Node cur, String[] methodSig) {
 
         if(!(cur instanceof MethodDeclaration))
@@ -551,15 +552,16 @@ public class TesterUtil implements ThreadHandler{
 
         String methodNameAst = node.getNameAsString();
         System.out.println(methodNameAst);
-        if(methodNameAst.equals(methodSig[2])){
-            //wow this works?
-            System.out.println("Method name format is the same, dont do anything");
+        if(!methodNameAst.equals(methodSig[2])){
+            //names dont match
         }
 
         //idk how to anything about this;
         NodeList<Parameter> parameters = node.getParameters();
         for(Parameter x: parameters){
-            System.out.println("Parameter: "+x);
+            //OKAY SO IM LIKE 100% SURE THIS IS BUGGY, its not the full name so in the awful case where you have two classes named the same, that are both parameters,
+            //while also having the same classname, this will give you the wrong node
+            System.out.println(x.getTypeAsString());
         }
 
         return false;
