@@ -512,13 +512,15 @@ public class TesterUtil implements ThreadHandler{
         if(null==parent){
             return null;
         }
-        System.out.println("it finds a class: " + Arrays.toString(methodSig) + " IS IN "+parent.getName());
+        //System.out.println("it finds a class: " + Arrays.toString(methodSig) + " IS IN "+parent.getName());
         //get the compilation unit we think its in
         CompilationUnit ourUnit = Runner.getASTForFile(parent.getFilePath());
 
-        System.out.println(ourUnit + "\n IT FINDS A UNIT for " + Arrays.toString(methodSig));
+        //System.out.println(ourUnit + "\n IT FINDS A UNIT for " + Arrays.toString(methodSig));
         Node foundNode=null;
         traverseGraphAndFind(ourUnit,methodSig,foundNode);
+
+        System.out.println("Out the thing: "+foundNode);
 
         return null;
     }
@@ -527,6 +529,7 @@ public class TesterUtil implements ThreadHandler{
     private void traverseGraphAndFind(Node cur, String[] methodSig, Node foundNode){
         if(matchesSig(cur, methodSig)){
             foundNode=cur;
+            System.out.println("In the thing: "+foundNode);
         }
         else{
             for(Node child:cur.getChildNodes())
@@ -551,19 +554,33 @@ public class TesterUtil implements ThreadHandler{
         //thing that can change is if it is overloaded
 
         String methodNameAst = node.getNameAsString();
-        System.out.println(methodNameAst);
+        //System.out.println(methodNameAst);
         if(!methodNameAst.equals(methodSig[2])){
             //names dont match
+            return false;
         }
 
+        String[] paramsCut= new String[methodSig.length-3];
+        for(int i=3;i<methodSig.length;i++){
+            paramsCut[i-3]=methodSig[i].substring(methodSig[i].lastIndexOf("."));
+        }
         //idk how to anything about this;
         NodeList<Parameter> parameters = node.getParameters();
+        if(parameters.size()!=paramsCut.length)
+            return false;
+
+        int i=0;
         for(Parameter x: parameters){
             //OKAY SO IM LIKE 100% SURE THIS IS BUGGY, its not the full name so in the awful case where you have two classes named the same, that are both parameters,
             //while also having the same classname, this will give you the wrong node
-            System.out.println(x.getTypeAsString());
+            if(!x.getTypeAsString().equals(paramsCut[i])){
+                return false;
+            }
+            i++;
         }
 
-        return false;
+        // if we reach here, then I guess this node is equal.
+
+        return true;
     }
 }
