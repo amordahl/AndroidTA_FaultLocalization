@@ -470,21 +470,23 @@ public class TesterUtil implements ThreadHandler{
                 //this method wasn't found in the ast, just go on to the next
                 continue;
             }
-            System.out.println("ASTNode Node: "+astNode);
+            //System.out.println("ASTNode Node: "+astNode);
             String[] paramsCut= new String[originContents.length-3];
             for(int i=3;i<originContents.length;i++){
                 paramsCut[i-3]=originContents[i].substring(originContents[i].lastIndexOf(".")+1);
             }
             MethodNode node = new MethodNode(originContents[2],originContents[1],paramsCut, parent, astNode);
-            System.out.println("Node: " + node);
+            //System.out.println("Node: " + node);
 
 
 
             //dependency
             String dependency = leftRight[1];
             String[] dependencyContents = convertNodeString(dependency);
-
+            System.out.println("Dependency contents: "+ Arrays.toString(dependencyContents));
             ClassNode dParent = Runner.dg.getClassNodeForFilePath(Runner.getFilePathForClass(dependencyContents[0]));
+
+            System.out.println("Dependency parent: "+dParent);
             if(null==dParent){
                 //this thing isn't in on our asts, just go on to the next
                 continue;
