@@ -554,7 +554,7 @@ public class TesterUtil implements ThreadHandler{
         Node[] foundNodeArr=new Node[1];
         traverseGraphAndFind(ourUnit,methodSig,foundNodeArr);
         Node foundNode = foundNodeArr[0];
-        System.out.println("Out the thing: "+foundNode);
+        //System.out.println("Out the thing: "+foundNode);
 
         return foundNode;
     }
@@ -563,7 +563,7 @@ public class TesterUtil implements ThreadHandler{
     private void traverseGraphAndFind(Node cur, String[] methodSig, Node[] foundNode){
         if(matchesSig(cur, methodSig)){
             foundNode[0]=cur;
-            System.out.println("In the thing: "+foundNode[0]);
+            //System.out.println("In the thing: "+foundNode[0]);
         }
         else{
             for(Node child:cur.getChildNodes())
