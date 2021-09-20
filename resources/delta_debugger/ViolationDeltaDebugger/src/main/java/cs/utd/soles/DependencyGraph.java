@@ -107,8 +107,10 @@ public class DependencyGraph {
     }
 
     public ClassNode getClassNodeForFilePath(String path){
+        if(path==null)
+            return null;
         for(ClassNode x: graph){
-            if(x.getFilePath().equals(path)) 
+            if(x.getFilePath().equals(path))
                 return x;
 
         }
