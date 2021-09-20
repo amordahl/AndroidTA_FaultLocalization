@@ -37,7 +37,7 @@ public class MethodNode {
     @Override
     public String toString() {
 
-        String dependenceString="{";
+        String dependenceString="{\n";
         for(MethodNode x: dependencies){
             dependenceString+= "\t"+x.name+"\n";
         }
@@ -45,10 +45,10 @@ public class MethodNode {
         return "MethodNode{" +
                 /*"parent=" + parent +*/
                 /*", methodAST=" + methodAST +*/
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 ", returnType='" + returnType + '\'' +
                 ", argTypes=" + Arrays.toString(argTypes) +
-                dependenceString +
+                ", Dependencies="+dependenceString +
                 '}';
     }
 

@@ -443,7 +443,7 @@ public class TesterUtil implements ThreadHandler{
             //much like DependencyGraph.parseGraphFromDot()
             String[] leftRight = x.split(" -> ");
 
-            //System.out.println(x);
+            System.out.println(x);
             //one problem, there might be "Ghost methods"
             //methods that flowdroid created but aren't actually real, so before we add any particular line to DependencyGraph.methodGraph we need to make sure it is a real thing
             //so basically, we gonna have to do some magic
@@ -463,21 +463,23 @@ public class TesterUtil implements ThreadHandler{
             ClassNode parent = Runner.dg.getClassNodeForFilePath(Runner.getFilePathForClass(originContents[0]));
             if(null==parent){
                 //this thing isn't in on our asts, just go on to the next
+                System.out.println("Node parent: not found");
                 continue;
             }
-
+            System.out.println("Node parent: found");
             Node astNode = findASTNodeFromSignature(originContents, parent);
             if(astNode==null) {
                 //this method wasn't found in the ast, just go on to the next
+                System.out.println("ASTNode Node: Not Found");
                 continue;
             }
-            //System.out.println("ASTNode Node: "+astNode);
+            System.out.println("ASTNode Node: Found");
             String[] paramsCut= new String[originContents.length-3];
             for(int i=3;i<originContents.length;i++){
                 paramsCut[i-3]=originContents[i].substring(originContents[i].lastIndexOf(".")+1);
             }
             MethodNode node = new MethodNode(originContents[2],originContents[1],paramsCut, parent, astNode);
-            //System.out.println("Node: " + node);
+            System.out.println("Node: " + node);
 
 
 
@@ -486,23 +488,24 @@ public class TesterUtil implements ThreadHandler{
             String[] dependencyContents = convertNodeString(dependency);
             //System.out.println("Dependency contents: "+ Arrays.toString(dependencyContents));
             ClassNode dParent = Runner.dg.getClassNodeForFilePath(Runner.getFilePathForClass(dependencyContents[0]));
-
-            //System.out.println("Dependency parent: "+dParent);
             if(null==dParent){
                 //this thing isn't in on our asts, just go on to the next
+                System.out.println("Dependency parent: not found");
                 continue;
             }
+            System.out.println("Dependency parent: "+dParent.getName());
             Node astDNode = findASTNodeFromSignature(dependencyContents, dParent);
-            //System.out.println("ASTNode Dependency: "+astDNode);
             if(astDNode==null) {
+                System.out.println("ASTNode Dependency: Not Found");
                 continue;
             }
+            System.out.println("ASTNode Dependency: Found");
             String[] paramsDCut= new String[dependencyContents.length-3];
             for(int i=3;i<dependencyContents.length;i++){
                 paramsCut[i-3]=dependencyContents[i].substring(dependencyContents[i].lastIndexOf(".")+1);
             }
             MethodNode dNode = new MethodNode(dependencyContents[2],dependencyContents[1],paramsDCut, dParent, astDNode);
-            //System.out.println("Dependency: " + dNode);
+            System.out.println("Dependency: " + dNode);
 
             //add to callgraph
             Runner.dg.makeCallgraphEdge(node,dNode);
