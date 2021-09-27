@@ -31,6 +31,7 @@ public class Runner {
     private static final long M_TO_MILLIS=60000;
     private static long SYSTEM_TIMEOUT_TIME=0;
 
+
     public static void main(String[] args){
         performanceLog.startProgramRunTime();
 
@@ -111,45 +112,49 @@ public class Runner {
         }
 
 
+
         //Before we start delta debugging lets, work on finding the best files to deal with
-        ArrayList<HashSet<ClassNode>> closures = dg.getTransitiveClosuresDifferent();
-        System.out.println("CLOSURES: "+closures);
-        try {
-            if(!DO_METHOD_ONLY)
+        if(DO_CLASS_REDUCTION) {
+            ArrayList<HashSet<ClassNode>> closures = dg.getTransitiveClosuresDifferent();
+            System.out.println("CLOSURES: " + closures);
+            try {
+
                 reduceFromClosures(closures);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         /*
         * Method based reduction goes here, right after class based reduction. First, run our modified Flowdroid its in
         * /home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar
         * //TODO:: make this thing an argument, but hard coded works fine. Anyway,
         * */
-        try {
-            //create newest version of apk
-            synchronized (lockObject) {
-                testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList);
-                lockObject.wait();
-                if (!testerForThis.threadResult) {
-                    System.out.println("BUILD FAILED, we didnt change anything so faulty project");
-                    System.exit(-1);
+        if(DO_METHOD_REDUCTION) {
+            try {
+                //create newest version of apk
+                synchronized (lockObject) {
+                    testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList);
+                    lockObject.wait();
+                    if (!testerForThis.threadResult) {
+                        System.out.println("BUILD FAILED, we didnt change anything so faulty project");
+                        System.exit(-1);
+                    }
+                    saveBestAPK();
+
+                    testerForThis.startCCGProcess(projectAPKPath, thisRunName);
+                    lockObject.wait();
+                    //our callgraph has now been created so I guess we just should call makeClosures,
+                    //and then pass them to a method based reducer
+
+
                 }
-                saveBestAPK();
-
-                testerForThis.startCCGProcess(projectAPKPath,thisRunName);
-                lockObject.wait();
-                //our callgraph has now been created so I guess we just should call makeClosures,
-                //and then pass them to a method based reducer
 
 
-
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
 
 
@@ -187,7 +192,7 @@ public class Runner {
         SYSTEM_TIMEOUT_TIME=System.currentTimeMillis()+(TIMEOUT_TIME_MINUTES*M_TO_MILLIS);
 
         //start the delta debugging process
-        while(!minimized&&!CLASS_FILES_ONLY&&!DO_METHOD_ONLY&&System.currentTimeMillis()<SYSTEM_TIMEOUT_TIME){
+        while(!minimized&&DO_HDD_REDUCTION&&System.currentTimeMillis()<SYSTEM_TIMEOUT_TIME){
 
             performanceLog.startOneRotation();
             //this is set here because if a change is made to ANY ast we want to say we haven't minimized yet
@@ -235,10 +240,16 @@ public class Runner {
             fw.write("violation_or_not: "+violationOrNot+"\n");
             fw.write("average_of_rotations: " + performanceLog.getAverageOfRotations()/1000+"\n");
             fw.write("total_rotations: "+ performanceLog.getTotalRotations()+"\n"+"\n");
-            fw.write("average_runtime_aql: " + performanceLog.getAverageOfAQLRuns()/1000+"\n");
-            fw.write("total_aql_runs: "+performanceLog.getTotalAQLRuns()+"\n"+"\n");
-            fw.write("average_runtime_compile: " +performanceLog.getAverageOfCompileRuns()/1000+"\n");
-            fw.write("total_compile_runs: "+ performanceLog.getTotalCompileRuns()+"\n"+"\n");
+
+            fw.write("average_of_good_runtime_aql: " + performanceLog.getAverageOfGoodAQLRuns()/1000+"\n");
+            fw.write("total_good_aql_runs: "+performanceLog.getTotalAQLRuns()+"\n"+"\n");
+            fw.write("average_of_good_runtime_compile: " +performanceLog.getAverageOfGoodCompileRuns()/1000+"\n");
+            fw.write("total_good_compile_runs: "+ performanceLog.getTotalCompileRuns()+"\n"+"\n");
+
+            fw.write("average_of_bad_runtime_aql: " + performanceLog.getAverageOfGoodAQLRuns()/1000+"\n");
+            fw.write("total_bad_aql_runs: "+performanceLog.getTotalAQLRuns()+"\n"+"\n");
+            fw.write("average_of_bad_runtime_compile: " +performanceLog.getAverageOfGoodCompileRuns()/1000+"\n");
+            fw.write("total_bad_compile_runs: "+ performanceLog.getTotalCompileRuns()+"\n"+"\n");
             fw.write("\n"+performanceLog.getPercentages());
             fw.write("\nnum_candidate_ast: " + testerForThis.candidateCountJava);
             fw.write("\nStart_line_count: "+performanceLog.startLineCount);
@@ -499,10 +510,13 @@ public class Runner {
                 LOG_MESSAGES = true;
             }
             if(args[i].equals("-c")){
-                CLASS_FILES_ONLY=true;
+                DO_CLASS_REDUCTION=true;
             }
             if(args[i].equals("-m")){
-                DO_METHOD_ONLY=true;
+                DO_METHOD_REDUCTION=true;
+            }
+            if(args[i].equals("-hdd")){
+                DO_HDD_REDUCTION=true;
             }
             if(args[i].equals("-p")){
                 THIS_RUN_PREFIX=args[i+1];
@@ -519,8 +533,9 @@ public class Runner {
         }
     }
 
-    static boolean CLASS_FILES_ONLY=false;
-    static boolean DO_METHOD_ONLY=false;
+    public static boolean DO_METHOD_REDUCTION=false;
+    public static boolean DO_CLASS_REDUCTION=false;
+    public static boolean DO_HDD_REDUCTION=false;
     static boolean minimized=false;
     static ArrayList<Pair<File,CompilationUnit>> bestCUList = new ArrayList<>();
     static ArrayList<Pair<File,CompilationUnit>> originalCUnits = new ArrayList();

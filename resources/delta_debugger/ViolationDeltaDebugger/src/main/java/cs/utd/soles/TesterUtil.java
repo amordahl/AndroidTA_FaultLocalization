@@ -3,9 +3,12 @@ package cs.utd.soles;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.symbolsolver.javaparsermodel.contexts.AnonymousClassDeclarationContext;
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Flow;
 import org.javatuples.Pair;
@@ -319,10 +322,6 @@ public class TesterUtil implements ThreadHandler{
 
     /*private String catchOutput(Process p) throws IOException {
 
-
-
-
-
         //this just reads the output of the command we just ran
         BufferedReader  input = new BufferedReader(new InputStreamReader(p.getInputStream()));
         BufferedReader  error = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -407,7 +406,7 @@ public class TesterUtil implements ThreadHandler{
             case AQL_RUN:
                 synchronized(lockObj){
                     threadResult=false;
-                    Runner.performanceLog.endOneAQLRun();
+
                     //final results of aql are in both finalString1 and finalString2 respectively
                     //order is config1, config2
 
@@ -415,6 +414,7 @@ public class TesterUtil implements ThreadHandler{
                         File o1 = handleOutput("1",Long.toHexString(System.currentTimeMillis()), finalString,Runner.thisRunName);
                         File o2 = handleOutput("2",Long.toHexString(System.currentTimeMillis()), finalString2,Runner.thisRunName);
                         threadResult=handleAQL(o1,o2);
+                        Runner.performanceLog.endOneAQLRun(threadResult);
                     } catch (IOException e) {
 
                         e.printStackTrace();
@@ -603,6 +603,52 @@ public class TesterUtil implements ThreadHandler{
         }
     }
 
+    //go through all asts and add each method to callgraph, we will add dependencies later
+    private void makeCallGraphNodes(){
+        for(Pair<File,CompilationUnit> pair: Runner.bestCUList){
+            CompilationUnit rootNode = pair.getValue1();
+
+
+        }
+
+    }
+
+
+    //interesting little problem here, callgraph isn't exactly what we want either,
+    //if I need to reconstruct this AST and the goal is no uncompilable code, I need to know what my little methods might need to compile
+    //class A{
+    // method a1();
+    // method a2();
+    // }
+    //class B{
+    // main(){
+    //  a1();
+    //  }
+    // }
+    //this is going to get interesting
+    private void traverseAndAddMethods(Node cur){
+        if(cur instanceof MethodDeclaration){
+            //this is a method handle according
+        }
+        for(Node child:cur.getChildNodes()){
+            if(child instanceof ClassOrInterfaceDeclaration){
+                //this is a class and check to make sure it isn't inner, we will handle those in a bit
+                if(((ClassOrInterfaceDeclaration)child).isInnerClass()){
+                    return;
+                }
+
+            }
+            else if(child instanceof ObjectCreationExpr){
+                //this is an object creation expr, make sure its not an anonymous class we don't want to add their methods to callgraph just yet.
+                if(((ObjectCreationExpr)child).getAnonymousClassBody().isPresent()){
+                    return;
+                }
+            }
+            traverseAndAddMethods(child);
+        }
+    }
+
+
     //does this thing match the signature?
     private boolean matchesSig(Node cur, String[] methodSig) {
         if(!(cur instanceof MethodDeclaration))
@@ -639,12 +685,13 @@ public class TesterUtil implements ThreadHandler{
             System.out.println("Size no match paramsSize: "+ parameters.size()+"supposed: "+paramsCut.length);
             return false;
         }
-        System.out.println("Size match"
-        );
+        System.out.println("Size match");
         int i=0;
         for(Parameter x: parameters){
             //OKAY SO IM LIKE 100% SURE THIS IS BUGGY, its not the full name so in the awful case where you have two classes named the same, that are both parameters,
             //while also having the same classname, this will give you the wrong node
+            //while also having same method name
+            //while also having exact same parameter length and appearing in same position
             if(!x.getTypeAsString().equals(paramsCut[i])){
                 return false;
             }

@@ -13,6 +13,11 @@ public class PerfTimer {
       ArrayList<CodeChange> codeChanges = new ArrayList<>();
 
       public long lastCurrentLines=0;
+    public long totalOfBadCompileRuns=0;
+    public int totalBadCompileRuns = 0;
+    public double totalOfBadAQLRuns = 0;
+    public int totalBadAQLRuns = 0;
+
     public void addCodeChange(long currentLines){
         double timeMade=(System.currentTimeMillis()-programStartTime)/1000.0;
         //check against the last size of the program
@@ -71,23 +76,33 @@ public class PerfTimer {
     }
 
     public   long getTotalAQLRuns() {
-        return totalAQLRuns;
+        return totalGoodAQLRuns;
     }
 
-    public   double getAverageOfAQLRuns() {
-        if(totalAQLRuns==0)
+    public   double getAverageOfGoodAQLRuns() {
+        if(totalGoodAQLRuns==0)
             return 0;
-        return ((double)totalOfAQLRuns)/totalAQLRuns;
+        return ((double)totalOfGoodAQLRuns)/totalGoodAQLRuns;
+    }
+    public   double getAverageOfBadAQLRuns() {
+        if(totalBadAQLRuns==0)
+            return 0;
+        return ((double)totalOfBadAQLRuns)/totalBadAQLRuns;
     }
 
     public   long getTotalCompileRuns() {
-        return totalCompileRuns;
+        return totalGoodCompileRuns;
     }
 
-    public   double getAverageOfCompileRuns() {
-        if(totalCompileRuns==0)
+    public   double getAverageOfGoodCompileRuns() {
+        if(totalGoodCompileRuns==0)
             return 0;
-        return ((double)totalOfCompileRuns)/totalCompileRuns;
+        return ((double)totalOfGoodCompileRuns)/totalGoodCompileRuns;
+    }
+    public   double getAverageOfBadCompileRuns() {
+        if(totalBadCompileRuns==0)
+            return 0;
+        return ((double)totalOfBadCompileRuns)/totalBadCompileRuns;
     }
 
     public   void startOneRotation(){
@@ -102,19 +117,28 @@ public class PerfTimer {
     public   void startOneAQLRun(){
         thisAQLRun=System.currentTimeMillis();
     }
-    public   void endOneAQLRun(){
-        totalOfAQLRuns += System.currentTimeMillis() - thisAQLRun;
-        totalAQLRuns++;
+    public   void endOneAQLRun(boolean success){
+        if(success) {
+            totalOfGoodAQLRuns += System.currentTimeMillis() - thisAQLRun;
+            totalGoodAQLRuns++;
+
+        }else{
+            totalOfBadAQLRuns += System.currentTimeMillis() - thisAQLRun;
+            totalBadAQLRuns++;
+        }
     }
     public   void startOneCompileRun(){
         thisCompileRun=System.currentTimeMillis();
     }
     public   void endOneCompileRun(){
-        totalOfCompileRuns += System.currentTimeMillis() - thisCompileRun;
-        totalCompileRuns++;
+
+            totalOfGoodCompileRuns += System.currentTimeMillis() - thisCompileRun;
+            totalBadCompileRuns++;
+
     }
     public   void endOneFailedCompileRun(){
-        totalCompileRuns++;
+        totalOfBadCompileRuns = System.currentTimeMillis() -thisCompileRun;
+        totalGoodCompileRuns++;
     }
     public   void startProgramRunTime(){
         thisProgramRuntime=System.currentTimeMillis();
@@ -133,18 +157,20 @@ public class PerfTimer {
     private   long totalOfRotations=0;
     private   long totalRotations=0;
     private   long totalProgramTime=0;
-    private   long totalOfAQLRuns=0;
-    private   long totalAQLRuns=0;
-    private   long totalOfCompileRuns=0;
-    private   long totalCompileRuns=0;
+    private   long totalOfGoodAQLRuns=0;
+    private   long totalGoodAQLRuns=0;
+    private   long totalOfGoodCompileRuns=0;
+    private   long totalGoodCompileRuns=0;
 
     public   String getPercentages(){
 
         double totalRunTime = totalProgramTime;
 
         String returnString ="";
-        returnString+="Percent_Of_Program_Time_Taken_By_AQL_Runs: "+((totalOfAQLRuns/totalRunTime)*100)+"\n";
-        returnString+="Percent_Of_Program_Time_Taken_By_Compile_Runs: "+((totalOfCompileRuns/totalRunTime)*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Good_AQL_Runs: "+((totalOfGoodAQLRuns/totalRunTime)*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Good_Compile_Runs: "+((totalOfGoodCompileRuns/totalRunTime)*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Bad_AQL_Runs: "+((totalOfBadAQLRuns/totalRunTime)*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Bad_Compile_Runs: "+((totalOfBadCompileRuns/totalRunTime)*100)+"\n";
         return returnString;
     }
 
