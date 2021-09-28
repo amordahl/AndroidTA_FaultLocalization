@@ -48,10 +48,10 @@ public class PrimaryTransformer implements ClassFileTransformer {
 		// Filter out ModuleRefType because if we don't, then we get a duplicate class definition error.
 		if (!className.contains("soot") || className.contains("ModuleRefType") ||
 				className.contains("AbstractFlowSet")) {
-			logger.info("Not instrumenting the class " + className);
+			logger.debug("Not instrumenting the class " + className);
 			return null; // no transformation
 		}
-		logger.info("Instrumenting the class " + className);
+		logger.debug("Instrumenting the class " + className);
 		final ClassReader classReader = new ClassReader(classfileBuffer);
 		final ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 		final ClassVisitor classVisitor = new LoggerClassAdapter(classWriter, className);

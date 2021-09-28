@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -58,6 +59,16 @@ public class LoggerHelper {
 			}
 		}
 		System.out.println(String.format("%d:%d", mapping, linenumber));
+	}
+	
+	public static void logCollectionSize(Object obj, String name, int lineNumber) {
+		try {
+			System.out.println(String.format("Data structure at location %s:%d is %d", 
+					name, lineNumber, ((Collection)obj).size()));
+		} catch (ClassCastException cce) {
+			System.out.println(String.format("Could not cast data structure at %s:%d to collection.",
+					name, lineNumber));
+		}
 	}
 	
 	public static void logObjArray(Object[] objs, String location) throws Exception {

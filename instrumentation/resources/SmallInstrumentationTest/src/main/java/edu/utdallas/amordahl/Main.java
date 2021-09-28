@@ -1,5 +1,7 @@
 package edu.utdallas.amordahl;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.Random;
 
 public class Main {
@@ -11,6 +13,11 @@ public class Main {
 
     public static void main(String[] args) {
         int a = 9;
+        try {
+        	FileReader fr = new FileReader(Integer.toString(a));
+        } catch (FileNotFoundException fn) {
+        	System.out.println("Oops");
+        }
         int b = addRandom(a);
     }
 }
