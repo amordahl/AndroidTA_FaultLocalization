@@ -77,6 +77,12 @@ public class Application {
 			+ "and those that match will be considered as the minuend. In general, "
 			+ "this should be the faulty configuration.")
 	protected String minuend;
+	
+	@Parameter(names = "--preserve", description = "How much of the output to preserve. "
+			+ "Values <= 1 are treated as percentages, while values > 1 are the number of top "
+			+ "results to include.")
+	protected double preserve = 1.0;
+	
 	/**
 	 * Just sets up the JCommander argument parser.
 	 * 
@@ -131,8 +137,17 @@ public class Application {
 		Map<String, Double> tarantulaSuspiciousness = computeTarantulaSuspiciousness(statementCounts,
 				faultyRuns.size(), pairs.size() * 2 - faultyRuns.size());
 		
+		// Sort by suspiciousness
+		List<Entry<String, Double>> sortedSus = new ArrayList<>(tarantulaSuspiciousness.entrySet());
+		sortedSus.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue()));		
+		if (this.preserve < 1.0) {
+			int sizeToKeep = (int) Math.ceil(sortedSus.size() * this.preserve);
+			sortedSus = sortedSus.subList(0, sizeToKeep);
+		} else if (this.preserve > 1.0) {
+			sortedSus = sortedSus.subList(0, (int)preserve);
+		}
 		// Output suspiciousness of each statement.
-		tarantulaSuspiciousness.forEach((k, v) -> System.out.println(String.format("%s,%f", k, v)));
+		sortedSus.forEach(e -> System.out.println(String.format("%s,%f", e.getKey(), e.getValue())));
 	}
 	
 	
@@ -224,7 +239,7 @@ public class Application {
 				// Compute the difference.
 				records.get(p.getLeft()).removeAll(records.get(p.getRight()));
 
-				logger.info(String.format("Putting delta for %s: %s", p.getLeft(), records.get(p.getLeft()).toString()));
+				logger.debug(String.format("Putting delta for %s: %s", p.getLeft(), records.get(p.getLeft()).toString()));
 				deltaRecords.put((Path) p.getLeft(), records.get(p.getLeft()));
 			}
 		}
@@ -243,10 +258,10 @@ public class Application {
 		for (Entry<Path, Set<String>> entry : records.entrySet()) {
 			Set<String> fileContent = entry.getValue();
 			Path file = entry.getKey().getFileName();
-			logger.info("Faulty runs is " + faultyRuns.toString());
-			logger.info("Checking if " + file.toString() + " is in faulty.");
+			logger.debug("Faulty runs is " + faultyRuns.toString());
+			logger.debug("Checking if " + file.toString() + " is in faulty.");
 			boolean isFaulty = faultyRuns.contains(file);
-			if (isFaulty) logger.info(String.format("%s is faulty", file));
+			if (isFaulty) logger.debug(String.format("%s is faulty", file));
 			for (String line : fileContent) {
 				if (!statementCounts.containsKey(line)) {
 					statementCounts.put(line, new ImmutablePair<Integer, Integer>(0, 0));
@@ -270,7 +285,7 @@ public class Application {
 
 			@Override
 			public void accept(String t, Pair<Integer, Integer> u) {
-				System.out.println(String.format("Statement: %s (%d/%d)", t, u.getRight(), u.getLeft()));
+				logger.debug("Statement: %s (%d/%d)", t, u.getRight(), u.getLeft());
 			}
 			
 		});
