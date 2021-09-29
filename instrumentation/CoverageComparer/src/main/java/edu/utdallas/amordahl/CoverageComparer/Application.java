@@ -147,7 +147,8 @@ public class Application {
 			//  map. It uses the minuend filter to identify which path should be added
 			//  as the minuend (i.e., A in A - B, the left half of the pair) and the
 			//  subtrahend (i.e., B in A - B).
-			String apk = p.getFileName().toString().split("_")[0];
+		    String apk = p.getFileName().toString().split("_")[0].split("\\.")[0];
+			logger.info(String.format("APK is %s", apk));
 			if (!pairs.containsKey(apk)) {
 				pairs.put(apk, new MutablePair<Path, Path>());
 			}
@@ -323,9 +324,9 @@ public class Application {
 	 * @return The first part as a String.
 	 */
 	private String getFirstPart(File f) {
-		String firstPart = f.toPath().getFileName().toString().split("_")[0];
-		logger.info("firstPart is " + firstPart);
-		return firstPart;
+	    String firstPart = f.toPath().getFileName().toString().split("_")[0].split("\\.")[0];
+	    logger.info("firstPart is " + firstPart);
+	    return firstPart;
 	}
 
 	/**

@@ -241,31 +241,32 @@ public class CoverageRecord {
 	}
 
 	private static Map<String, Integer> readFileContents(Path coverageFile) {
-
-		Path intermediate = coverageFile.resolveSibling("." + coverageFile.getFileName() + ".set");
+	    Path intermediate = coverageFile.resolveSibling("." + coverageFile.getFileName() + ".set");
 		if (Files.exists(intermediate)) {
-			return readSetFromFile(intermediate);
+		    logger.info(String.format("Intermediate file for %s exists.", coverageFile.getFileName()));
+		    return readSetFromFile(intermediate);
 		}
 
+		logger.info(String.format("Intermediate file for %s does not exist. Generating the file now.", coverageFile.getFileName()));
 		ArrayList<String> fileContent = new ArrayList<>();
 		HashMap<Integer, String> mapping = new HashMap<>();
 		try (Scanner sc = new Scanner(coverageFile.toFile())) {
-			while (sc.hasNext()) {
-			    String line = sc.next().replaceAll("\\P{Print}", "");
-				if (line.contains("=")) {
-					// Mapping line. Need to store map in hashmap.
-					String[] tokens = line.split("=");
-					mapping.put(Integer.valueOf(tokens[1]), tokens[0]);
-				} else if (line.contains(":")) {
-					String[] tokens = line.split(":");
-					String actualName = mapping.get(Integer.valueOf(tokens[0]));
-					fileContent.add(String.format("%s:%d", actualName, Integer.valueOf(tokens[1])));
-				}
+		    while (sc.hasNext()) {
+			String line = sc.next().replaceAll("\\P{Print}", "");
+			if (line.contains("=")) {
+			    // Mapping line. Need to store map in hashmap.
+			    String[] tokens = line.split("=");
+			    mapping.put(Integer.valueOf(tokens[1]), tokens[0]);
+			} else if (line.contains(":")) {
+			    String[] tokens = line.split(":");
+			    String actualName = mapping.get(Integer.valueOf(tokens[0]));
+			    fileContent.add(String.format("%s:%d", actualName, Integer.valueOf(tokens[1])));
 			}
+		    }
 		} catch (FileNotFoundException e) {
-			logger.error("Could not find file " + coverageFile);
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		    logger.error("Could not find file " + coverageFile);
+		    // TODO Auto-generated catch block
+		    e.printStackTrace();
 			System.exit(2);
 		}
 		return computeFrequencyMap(fileContent, intermediate);
