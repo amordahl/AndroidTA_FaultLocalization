@@ -86,6 +86,8 @@ public class Runner {
         }
 
 
+
+        long startTimeBinary = System.currentTimeMillis();
         //associate classes to files
         fillNamesToPaths();
 
@@ -126,6 +128,8 @@ public class Runner {
                 e.printStackTrace();
             }
         }
+
+        long endTimeBinaryReduction = System.currentTimeMillis()-startTimeBinary;
         /*
         * Method based reduction goes here, right after class based reduction. First, run our modified Flowdroid its in
         * /home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar
@@ -250,6 +254,7 @@ public class Runner {
             fw.write("total_bad_aql_runs: "+performanceLog.getTotalAQLRuns()+"\n"+"\n");
             fw.write("average_of_bad_runtime_compile: " +performanceLog.getAverageOfBadCompileRuns()/1000+"\n");
             fw.write("total_bad_compile_runs: "+ performanceLog.getTotalCompileRuns()+"\n"+"\n");
+            fw.write("Percent_Of_Program_Time_Taken_By_BinaryReduction: "+((endTimeBinaryReduction/performanceLog.totalProgramTime)*100)+"\n");
             fw.write("\n"+performanceLog.getPercentages());
             fw.write("\nnum_candidate_ast: " + testerForThis.candidateCountJava);
             fw.write("\nStart_line_count: "+performanceLog.startLineCount);

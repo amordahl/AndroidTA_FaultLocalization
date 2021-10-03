@@ -156,7 +156,7 @@ public class PerfTimer {
     private   long thisCompileRun=0;
     private   long totalOfRotations=0;
     private   long totalRotations=0;
-    private   long totalProgramTime=0;
+    public   long totalProgramTime=0;
     private   long totalOfGoodAQLRuns=0;
     private   long totalGoodAQLRuns=0;
     private   long totalOfGoodCompileRuns=0;
