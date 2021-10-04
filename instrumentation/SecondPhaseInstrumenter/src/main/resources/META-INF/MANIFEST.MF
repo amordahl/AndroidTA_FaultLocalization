@@ -1,4 +1,0 @@
-Manifest-Version: 1.0 
-Premain-Class: edu.utdallas.amordahl.coverage_instrumenter.phase2.LoggerAgent
-Agent-Class: edu.utdallas.amordahl.coverage_instrumenter.phase2.LoggerAgent
-Can-Redefine-Classes: true

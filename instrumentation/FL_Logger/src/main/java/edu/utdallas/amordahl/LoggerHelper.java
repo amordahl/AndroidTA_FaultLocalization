@@ -19,21 +19,21 @@ public class LoggerHelper {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(LoggerFactory.class);
-	
+
 	private static HashMap<String, Wrapped> LOGS = new HashMap<>();
-	private static HashMap<String, Integer> COVERAGE = new HashMap<>();
 	private static int NUM_ITERS = 0;
 	private static int LAST_SIZE = -1;
 	private static long LAST_TIME = new Date().getTime();
 	private static FileWriter fw;
 	private static BufferedWriter bw;
 	private static HashMap<String, Integer> classToInt = new HashMap<String, Integer>();
-	
 
-	/** Threadsafe way to log coverage information. Will await a lock on the file before writing to
-	 *  prevent crashes.
+	/**
+	 * Threadsafe way to log coverage information. Will await a lock on the file
+	 * before writing to prevent crashes.
+	 * 
 	 * @param linenumber The linenumber to log that was covered.
-	 * @param location The class in which the coverage is being recorded.
+	 * @param location   The class in which the coverage is being recorded.
 	 * @throws IOException
 	 */
 	public static void logCoverageInfo(int linenumber, String location) throws IOException {
@@ -41,16 +41,15 @@ public class LoggerHelper {
 		synchronized (classToInt) {
 			if (classToInt.containsKey(location)) {
 				mapping = classToInt.get(location);
-			}
-			else {
+			} else {
 				// Find maximum key
 				if (classToInt.size() == 0) {
 					classToInt.put(location, Integer.valueOf(1));
-				}
-				else {
+				} else {
 					Integer max = Integer.valueOf(-1);
 					for (String key : classToInt.keySet()) {
-						if (classToInt.get(key) > max) max = classToInt.get(key);
+						if (classToInt.get(key) > max)
+							max = classToInt.get(key);
 					}
 					classToInt.put(location, max + 1);
 				}
@@ -60,17 +59,43 @@ public class LoggerHelper {
 		}
 		System.out.println(String.format("%d:%d", mapping, linenumber));
 	}
-	
-	public static void logCollectionSize(Object obj, String name, int lineNumber) {
-		try {
-			System.out.println(String.format("Data structure at location %s:%d is %d", 
-					name, lineNumber, ((Collection)obj).size()));
-		} catch (ClassCastException cce) {
-			System.out.println(String.format("Could not cast data structure at %s:%d to collection.",
-					name, lineNumber));
-		}
+
+	public static void logDataStructure(Object obj, String name, int lineNumber) {
+		logDataStructure(obj, name, lineNumber, "size");
+	}
+
+	private static void logDataStructureInfo(Object obj, String name, int lineNumber, 
+			SupportedInstrumentations type, String content) {
+		System.out.println(String.format("Data structure at location %s:%d (%s) is %s",
+				name, lineNumber, type.toString(), content));
 	}
 	
+	public static void logDataStructure(Object obj, String name, int lineNumber, String type) {
+		if (obj == null) obj = new String[] {};
+		switch (SupportedInstrumentations.valueOf(type.toUpperCase())) {
+		case SIZE:
+			try {
+				logDataStructureInfo(obj, name, lineNumber, SupportedInstrumentations.SIZE,
+						Integer.toString(((Collection<?>)obj).size()));
+			} catch (ClassCastException cce) {
+				logger.error("Could not cast data structure at {}:{} to collection.",
+								name, lineNumber);
+			}
+			break;
+		case CONTENT:
+			logDataStructureInfo(obj, name, lineNumber, 
+					SupportedInstrumentations.CONTENT, obj.toString());
+			break;
+		case NULL:
+			logDataStructureInfo(obj, name, lineNumber, 
+					SupportedInstrumentations.NULL, (obj == null) ? "1" : "0");
+			break;
+		default:
+			logger.error("Instrumentation type %s could not be parsed.", type);
+				
+		}
+	}
+
 	public static void logObjArray(Object[] objs, String location) throws Exception {
 		LOGS.put(location, Wrapper.wrapObject(objs));
 		if (LOGS.size() > LAST_SIZE) {
@@ -88,13 +113,11 @@ public class LoggerHelper {
 		System.out.println(
 				String.format("Size of logs: %d (%d iterations) (location %s)", LOGS.size(), NUM_ITERS, location));
 	}
-	
-	public static void printCoverageInfo() {
-		System.out.println(COVERAGE);
-	}
 
 	protected void finalize() throws IOException {
-		if (bw != null) bw.close();
-		if (fw != null) fw.close();
+		if (bw != null)
+			bw.close();
+		if (fw != null)
+			fw.close();
 	}
 }

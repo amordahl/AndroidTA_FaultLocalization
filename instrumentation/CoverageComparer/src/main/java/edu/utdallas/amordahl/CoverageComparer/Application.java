@@ -147,7 +147,7 @@ public class Application {
 			sortedSus = sortedSus.subList(0, (int)preserve);
 		}
 		// Output suspiciousness of each statement.
-		sortedSus.forEach(e -> System.out.println(String.format("%s,%f", e.getKey(), e.getValue())));
+		sortedSus.forEach(e -> System.out.println(String.format("%s,SIZE", e.getKey())));
 	}
 	
 	
