@@ -93,6 +93,12 @@ public class PerfTimer {
     public   long getTotalCompileRuns() {
         return totalGoodCompileRuns;
     }
+    public long getTotalBadCompileRuns(){
+        return totalBadCompileRuns;
+    }
+    public long getTotalBadAqlRuns(){
+        return totalBadAQLRuns;
+    }
 
     public   double getAverageOfGoodCompileRuns() {
         if(totalGoodCompileRuns==0)
@@ -133,12 +139,12 @@ public class PerfTimer {
     public   void endOneCompileRun(){
 
             totalOfGoodCompileRuns += System.currentTimeMillis() - thisCompileRun;
-            totalBadCompileRuns++;
+            totalGoodCompileRuns++;
 
     }
     public   void endOneFailedCompileRun(){
         totalOfBadCompileRuns = System.currentTimeMillis() -thisCompileRun;
-        totalGoodCompileRuns++;
+        totalBadCompileRuns++;
     }
     public   void startProgramRunTime(){
         thisProgramRuntime=System.currentTimeMillis();
@@ -161,6 +167,7 @@ public class PerfTimer {
     private   long totalGoodAQLRuns=0;
     private   long totalOfGoodCompileRuns=0;
     private   long totalGoodCompileRuns=0;
+
 
     public   String getPercentages(){
 

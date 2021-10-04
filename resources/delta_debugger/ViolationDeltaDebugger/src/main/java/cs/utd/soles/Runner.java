@@ -251,10 +251,10 @@ public class Runner {
             fw.write("total_good_compile_runs: "+ performanceLog.getTotalCompileRuns()+"\n"+"\n");
 
             fw.write("average_of_bad_runtime_aql: " + performanceLog.getAverageOfBadAQLRuns()/1000+"\n");
-            fw.write("total_bad_aql_runs: "+performanceLog.getTotalAQLRuns()+"\n"+"\n");
+            fw.write("total_bad_aql_runs: "+performanceLog.getTotalBadAqlRuns()+"\n"+"\n");
             fw.write("average_of_bad_runtime_compile: " +performanceLog.getAverageOfBadCompileRuns()/1000+"\n");
-            fw.write("total_bad_compile_runs: "+ performanceLog.getTotalCompileRuns()+"\n"+"\n");
-            fw.write("Percent_Of_Program_Time_Taken_By_BinaryReduction: "+((endTimeBinaryReduction/performanceLog.totalProgramTime)*100)+"\n");
+            fw.write("total_bad_compile_runs: "+ performanceLog.getTotalBadCompileRuns()+"\n"+"\n");
+            fw.write("Percent_Of_Program_Time_Taken_By_BinaryReduction: "+((endTimeBinaryReduction/(double)performanceLog.totalProgramTime)*100)+"\n");
             fw.write("\n"+performanceLog.getPercentages());
             fw.write("\nnum_candidate_ast: " + testerForThis.candidateCountJava);
             fw.write("\nStart_line_count: "+performanceLog.startLineCount);
