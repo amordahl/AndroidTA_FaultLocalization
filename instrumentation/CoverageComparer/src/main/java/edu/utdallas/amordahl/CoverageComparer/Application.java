@@ -147,7 +147,7 @@ public class Application {
 			sortedSus = sortedSus.subList(0, (int)preserve);
 		}
 		// Output suspiciousness of each statement.
-		sortedSus.forEach(e -> System.out.println(String.format("%s,SIZE", e.getKey())));
+		sortedSus.forEach(e -> System.out.println(String.format("%s,%f", e.getKey(), e.getValue())));
 	}
 	
 	
@@ -285,7 +285,7 @@ public class Application {
 
 			@Override
 			public void accept(String t, Pair<Integer, Integer> u) {
-				logger.debug("Statement: %s (%d/%d)", t, u.getRight(), u.getLeft());
+				logger.debug("Statement: %s (successful %d/failed %d)", t, u.getRight(), u.getLeft());
 			}
 			
 		});
