@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.utdallas.amordahl.LoggerHelper;
+import edu.utdallas.amordahl.SupportedInstrumentations;
+import edu.utdallas.amordahl.multiphaseinstrumenter.SettingsManager;
 import edu.utdallas.amordahl.multiphaseinstrumenter.util.LineCoverageRecord;
 
 import org.objectweb.asm.MethodVisitor;
@@ -101,14 +103,16 @@ public class Phase2MethodVisitor extends MethodVisitor {
 	private void logDataStructure(String description) {
 		// STACK STATE: ..., OBJ
 		// First, clone object reference.
-		super.visitInsn(DUP); // ..., OBJ, OBJ
-		super.visitLdcInsn(this.name); // ..., OBJ, OBJ, name
-		super.visitLdcInsn(Phase2MethodVisitor.lineNumber); // ..., OBJ, OBJ, name, linum
-		super.visitLdcInsn(Phase2MethodVisitor.dataStructureIndex++); // ..., OBJ, OBJ, name, linum, index 
-		super.visitLdcInsn(description);
-		super.visitLdcInsn("size"); // ..., OBJ, OBJ, name, linum, index, type
-		super.visitMethodInsn(INVOKESTATIC, LOG_TRACKER, "logDataStructure", 
-				"(Ljava/lang/Object;Ljava/lang/String;IILjava/lang/String;Ljava/lang/String;)V", false); // ..., OBJ
+		for (SupportedInstrumentations s: SettingsManager.getInstrumentationType()) {
+			super.visitInsn(DUP); // ..., OBJ, OBJ
+			super.visitLdcInsn(this.name); // ..., OBJ, OBJ, name
+			super.visitLdcInsn(Phase2MethodVisitor.lineNumber); // ..., OBJ, OBJ, name, linum
+			super.visitLdcInsn(Phase2MethodVisitor.dataStructureIndex++); // ..., OBJ, OBJ, name, linum, index 
+			super.visitLdcInsn(description);
+			super.visitLdcInsn(s.toString()); // ..., OBJ, OBJ, name, linum, index, type
+			super.visitMethodInsn(INVOKESTATIC, LOG_TRACKER, "logDataStructure", 
+					"(Ljava/lang/Object;Ljava/lang/String;IILjava/lang/String;Ljava/lang/String;)V", false); // ..., OBJ
+		}	
 		
 	}
 

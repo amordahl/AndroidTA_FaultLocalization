@@ -3,17 +3,39 @@ package edu.utdallas.amordahl.multiphaseinstrumenter;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import edu.utdallas.amordahl.SupportedInstrumentations;
 
 public class SettingsManager {
 	private static Map<String, String> settingsMap = new HashMap<String,String>();
 	private static Logger logger = LoggerFactory.getLogger(SettingsManager.class);
 	
-	private Path coverageFile;
+	public static Set<SupportedInstrumentations> getInstrumentationType() {
+		Set<SupportedInstrumentations> result = new HashSet<>();
+		if (settingsMap.containsKey("type")) {
+			String val = settingsMap.get("type");
+			String[] vals = new String[] {val};
+			if (vals[0].contains(",")) {
+				vals = vals[0].split(",");
+			}
+			for (String v: vals) {
+				result.add(SupportedInstrumentations.valueOf(v.toUpperCase()));
+			}
+		}
+		else {
+			result.add(SupportedInstrumentations.SIZE);
+		}
+		return result;
+	}
 	
 	public static Path getCoverageFile() {
 		try {		
