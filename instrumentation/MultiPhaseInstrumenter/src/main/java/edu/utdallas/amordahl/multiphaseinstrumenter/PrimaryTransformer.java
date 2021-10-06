@@ -38,6 +38,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.instrument.ClassFileTransformer;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.ProtectionDomain;
 import java.util.HashSet;
 import java.util.Set;
@@ -103,6 +107,19 @@ public class PrimaryTransformer implements ClassFileTransformer {
 			classVisitor = new Phase1ClassVisitor(new CheckClassAdapter(classWriter, false), className);
 		}
 		classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
+		
+		try {
+			Path outputDirectory = Paths.get("/Users/austin/Desktop/class_outputs");
+			if (Files.exists(outputDirectory, new LinkOption[] {})) {
+				logger.debug("Output directory is " + outputDirectory.toString());
+				// Write to output so we can inspect outputs.
+				Path outputFile = outputDirectory.resolve(className.replace("/", "_") + ".class");
+				// System.out.println("Output file is" + outputFile.toString());
+				Files.write(outputFile, classWriter.toByteArray());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return classWriter.toByteArray();
 	}
 }

@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,41 +58,46 @@ public class LoggerHelper {
 				System.out.println(String.format("%s=%d", location, mapping));
 			}
 		}
-		System.out.println(String.format("%d:%d", mapping, linenumber));
-	}
+		System.out.println(String.format("%d:%d,1", mapping, linenumber));
+	} 
 
 	public static void logDataStructure(Object obj, String name, int lineNumber) {
-		logDataStructure(obj, name, lineNumber, "size");
+		logDataStructure(obj, name, lineNumber, 0, "size", "UNKNOWN");
 	}
 
-	private static void logDataStructureInfo(Object obj, String name, int lineNumber, 
+	private static void logDataStructureInfo(Object obj, String name, int lineNumber, int index, 
 			SupportedInstrumentations type, String content) {
-		System.out.println(String.format("Data structure at location %s:%d (%s) is %s",
-				name, lineNumber, type.toString(), content));
+		System.out.println(String.format("%s:%d-%d,%s",
+				name, lineNumber, index, content));
 	}
 	
-	public static void logDataStructure(Object obj, String name, int lineNumber, String type) {
+	public static void logDataStructure(Object obj, String name, int lineNumber, int index, 
+			String dataType, String instrumentationType) {
+		logger.debug("logDataStructure called from location {}:{}-{} with datatype {}", name, lineNumber, index, dataType);
 		if (obj == null) obj = new String[] {};
-		switch (SupportedInstrumentations.valueOf(type.toUpperCase())) {
+		switch (SupportedInstrumentations.valueOf(instrumentationType.toUpperCase())) {
 		case SIZE:
-			try {
-				logDataStructureInfo(obj, name, lineNumber, SupportedInstrumentations.SIZE,
+			if (obj instanceof Collection) {
+				logDataStructureInfo(obj, name, lineNumber, index, SupportedInstrumentations.SIZE,
 						Integer.toString(((Collection<?>)obj).size()));
-			} catch (ClassCastException cce) {
-				logger.error("Could not cast data structure at {}:{} to collection.",
-								name, lineNumber);
+			} else if (obj instanceof Map) {
+				logDataStructureInfo(obj, name, lineNumber, index, SupportedInstrumentations.SIZE,
+						Integer.toString(((Map<?, ?>)obj).size()));
+			} else {
+				logger.error("Could not cast data structure at {}:{} of type {} to collection or map.",
+								name, lineNumber, dataType);
 			}
 			break;
 		case CONTENT:
-			logDataStructureInfo(obj, name, lineNumber, 
+			logDataStructureInfo(obj, name, lineNumber, index,
 					SupportedInstrumentations.CONTENT, obj.toString());
 			break;
 		case NULL:
-			logDataStructureInfo(obj, name, lineNumber, 
+			logDataStructureInfo(obj, name, lineNumber, index,
 					SupportedInstrumentations.NULL, (obj == null) ? "1" : "0");
 			break;
 		default:
-			logger.error("Instrumentation type %s could not be parsed.", type);
+			logger.error("Instrumentation type %s could not be parsed.", instrumentationType);
 				
 		}
 	}
