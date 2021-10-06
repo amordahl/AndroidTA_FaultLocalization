@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,9 @@ public class SettingsManager {
 		}
 		else {
 			result.add(SupportedInstrumentations.SIZE);
+		}
+		if (result.size() > 1) {
+			throw new NotImplementedException("Have not implemented multiple types of instrumentation at once.");
 		}
 		return result;
 	}
