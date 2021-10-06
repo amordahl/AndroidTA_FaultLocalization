@@ -285,7 +285,7 @@ public class Application {
 
 			@Override
 			public void accept(String t, Pair<Integer, Integer> u) {
-				logger.debug("Statement: %s (successful %d/failed %d)", t, u.getRight(), u.getLeft());
+				logger.debug("Statement: {} (successful {}/failed {})", t, u.getRight(), u.getLeft());
 			}
 			
 		});
