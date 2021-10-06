@@ -132,7 +132,13 @@ public class CoverageRecord {
 					value = Integer.valueOf(topLevelTokens[1]);
 				}
 				String[] tokens = line.split(":");
-			    String actualName = mapping.get(Integer.valueOf(tokens[0]));
+				String actualName;
+				try {
+					actualName = mapping.get(Integer.valueOf(tokens[0]));
+				} catch (NumberFormatException nfe) {
+					logger.warn("Could not cast {} to int. Instead, using raw value as name.", tokens[0]);
+					actualName = tokens[0];
+				}
 			    fileContent.add(String.format("%s:%s,%d", actualName, tokens[1], value));
 			}
 		    }
