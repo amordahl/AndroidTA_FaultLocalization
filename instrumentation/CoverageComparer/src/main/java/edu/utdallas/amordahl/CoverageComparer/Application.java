@@ -83,6 +83,8 @@ public class Application {
 			+ "results to include.")
 	protected double preserve = 1.0;
 	
+	@Parameter(names = "--extension", description = "File extension of records.")
+	protected String extension = ".instlog";
 	/**
 	 * Just sets up the JCommander argument parser.
 	 * 
@@ -354,7 +356,7 @@ public class Application {
 		return new File(directory).listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
-				return pathname.toString().endsWith(".instlog");
+				return pathname.toString().endsWith(extension);
 			}
 		});
 	}
