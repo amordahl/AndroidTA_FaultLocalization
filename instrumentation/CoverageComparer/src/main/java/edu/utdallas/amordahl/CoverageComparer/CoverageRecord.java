@@ -30,7 +30,6 @@ public class CoverageRecord {
 
 		for (String k : fileContents) {
 			String[] tokens = k.split(",");
-			String line = tokens[0];
 			Integer value = Integer.valueOf(tokens[1]);
 			if (!frequencyMap.containsKey(k)) {
 				frequencyMap.put(k, Integer.valueOf(0));
