@@ -1,8 +1,10 @@
-package edu.utdallas.amordahl.CoverageComparer.util;
+package edu.utdallas.amordahl.CoverageComparer.coverageTasks;
 
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import edu.utdallas.amordahl.CoverageComparer.util.SupportedLocalization;
 
 /**
  * This class represents an input to the coverage computation program.
@@ -47,8 +49,8 @@ public class CoverageTask {
 	 * @param localization
 	 */
 	public CoverageTask(Set<Path> passed, Set<Path> failed, SupportedLocalization localization) {
-		this.failed = failed;
-		this.passed = passed;
+		this.setFailed(failed);
+		this.setPassed(passed);
 		this.localization = localization;
 	}
 	
@@ -59,5 +61,13 @@ public class CoverageTask {
 	 */
 	public CoverageTask(Set<Path> passed, Set<Path> failed) {
 		this(passed, failed, SupportedLocalization.TARANTULA);
+	}
+
+	public void setPassed(Set<Path> passed) {
+		this.passed = passed;
+	}
+
+	public void setFailed(Set<Path> failed) {
+		this.failed = failed;
 	}
 }

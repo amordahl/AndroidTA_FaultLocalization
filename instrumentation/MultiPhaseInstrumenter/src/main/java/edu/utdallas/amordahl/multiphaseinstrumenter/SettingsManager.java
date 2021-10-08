@@ -33,7 +33,7 @@ public class SettingsManager {
 			}
 		}
 		else {
-			result.add(SupportedInstrumentations.SIZE);
+			result.add(SupportedInstrumentations.CONTENT);
 		}
 		if (result.size() > 1) {
 			throw new NotImplementedException("Have not implemented multiple types of instrumentation at once.");

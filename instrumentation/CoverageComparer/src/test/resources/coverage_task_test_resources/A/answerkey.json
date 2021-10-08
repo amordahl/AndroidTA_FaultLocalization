@@ -1,8 +1,8 @@
 {
   "failed_size": 2,
   "passed_size": 2,
-  "localization": tarantula,
-  "suspiciousness": {
+  "localization": "tarantula",
+  "tarantula": {
     "A:1": 0.5,
     "A:2": 0,
     "A:3": 0.3333,

@@ -1,4 +1,4 @@
-package edu.utdallas.amordahl.CoverageComparer.util;
+package edu.utdallas.amordahl.CoverageComparer.coverageTasks;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -9,14 +9,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import edu.utdallas.amordahl.CoverageComparer.util.SupportedLocalization;
 
 /**
  * In charge of reading in Coverage tasks from JSON.
@@ -83,7 +83,7 @@ public class CoverageTaskReader {
 			logger.debug("Read in localization scheme {} from file {}", sl.toString(), path.toString());
 		}
 		
-		return new CoverageTask(new HashSet<Path>(pathify(failed)), new HashSet<Path>(pathify(passed)), sl);
+		return new CoverageTask(new HashSet<Path>(pathify(passed)), new HashSet<Path>(pathify(failed)), sl);
 	}
 	
 	/**
