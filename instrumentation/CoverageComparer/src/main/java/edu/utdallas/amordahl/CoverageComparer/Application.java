@@ -109,5 +109,6 @@ public class Application {
 		sorted.forEach(e -> sb.append(String.format("%s = %.3f", e.getKey().toString(), e.getValue())));
 		
 		sb.append("\n==================================\n");
+		System.out.println(sb);
 	}
 }
