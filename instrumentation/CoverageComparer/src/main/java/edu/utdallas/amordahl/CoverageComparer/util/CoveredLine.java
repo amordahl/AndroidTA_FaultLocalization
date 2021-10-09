@@ -43,5 +43,8 @@ public class CoveredLine {
 		return String.format("%s:%d", location, lineNumber);
 	}
 
+	public static CoveredLine fromString(String s) {
+		return new CoveredLine(s.split(":")[0], Integer.valueOf(s.split(":")[1]));
+	}
 	
 }

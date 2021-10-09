@@ -1,13 +1,18 @@
 package edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,6 +27,8 @@ public class BaselineInstlogProcessor implements ICoverageTaskProcessor<Path, Co
 
 	private static Logger logger = LoggerFactory.getLogger(BaselineInstlogProcessor.class);
 
+	private boolean readIntermediates;
+	
 	@Override
 	public PassedFailed<Path, CoveredLine> processCoverageTask(CoverageTask ct) {
 		logger.trace("Entered processCoverageTask.");
@@ -32,9 +39,33 @@ public class BaselineInstlogProcessor implements ICoverageTaskProcessor<Path, Co
 		pf.setFailed(failed);
 		return pf;
 	}
+	
+	public BaselineInstlogProcessor() {
+		this.readIntermediates = true;
+	}
+	
+	/**
+	 * 
+	 * @param readIntermediates Whether or not to read intermediate files.
+	 */
+	public BaselineInstlogProcessor(boolean readIntermediates) {
+		this.readIntermediates = readIntermediates;
+	}
 
+	private Path getIntermediateName(Path p) {
+		return p.resolveSibling("." + p.getFileName() + ".intermediate");
+	}
+		
 	private Collection<CoveredLine> readInstLogFile(Path p) {
 		logger.trace("In readInstLogFile");
+		// First, check for intermediate files.
+		Path intermediate = getIntermediateName(p);
+		if (intermediate != null && Files.exists(intermediate) && this.readIntermediates) {
+			Collection<CoveredLine> intermediateContent = readSetFromFile(intermediate); 
+			return intermediateContent;
+		}
+		
+		// If we get here, the previous line did not return and thus, we need to read from scratch.
 		ArrayList<CoveredLine> fileContent = new ArrayList<>();
 		HashMap<Integer, String> mapping = new HashMap<>();
 		try (Scanner sc = new Scanner(p.toFile())) {
@@ -60,6 +91,7 @@ public class BaselineInstlogProcessor implements ICoverageTaskProcessor<Path, Co
 		} catch (FileNotFoundException e) {
 			logger.error("Could not find path {}. Returning empty coverage set.", p.toString());
 		}
+		writeSetToFile(fileContent, intermediate);
 		return fileContent;
 	}
 
@@ -69,5 +101,35 @@ public class BaselineInstlogProcessor implements ICoverageTaskProcessor<Path, Co
 	}
 	
 	public String getName() { return "BASELINE INSTLOG PROCESSOR"; }
+	
+	@SuppressWarnings("unchecked")
+	private static Collection<CoveredLine> readSetFromFile(Path intermediate) {
+		Collection<CoveredLine> result = null;
+		try (FileInputStream f = new FileInputStream(intermediate.toFile());
+				ObjectInputStream o = new ObjectInputStream(f)) {
+			Collection<String> intermediateCollection = (ArrayList<String>) o.readObject();
+			result = intermediateCollection.stream().map(s -> CoveredLine.fromString(s)).collect(Collectors.toList());
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	private static void writeSetToFile(Collection<CoveredLine> content, Path intermediate) {
+		try (FileOutputStream f = new FileOutputStream(intermediate.toFile());
+				ObjectOutputStream o = new ObjectOutputStream(f)) {
+			o.writeObject(content);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }
