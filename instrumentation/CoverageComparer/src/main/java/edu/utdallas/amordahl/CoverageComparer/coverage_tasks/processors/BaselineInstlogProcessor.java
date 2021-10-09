@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,7 +58,7 @@ public class BaselineInstlogProcessor implements ICoverageTaskProcessor<Path, Co
 	}
 		
 	private Collection<CoveredLine> readInstLogFile(Path p) {
-		logger.trace("In readInstLogFile");
+		logger.trace("In readInstLogFile with argument {}", p);
 		// First, check for intermediate files.
 		Path intermediate = getIntermediateName(p);
 		if (intermediate != null && Files.exists(intermediate) && this.readIntermediates) {
@@ -96,7 +97,7 @@ public class BaselineInstlogProcessor implements ICoverageTaskProcessor<Path, Co
 	}
 
 	private Map<Path, Collection<CoveredLine>> mapPathToMap(Set<Path> ps) {
-		logger.trace("In mapPathToMap");
+		logger.trace("In mapPathToMap with argument {}", ps);
 		return ps.parallelStream().collect(Collectors.toMap(p -> p, p -> readInstLogFile(p)));
 	}
 	
