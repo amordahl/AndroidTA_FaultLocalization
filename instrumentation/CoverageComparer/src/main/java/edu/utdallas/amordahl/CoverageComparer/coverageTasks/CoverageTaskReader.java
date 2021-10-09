@@ -35,7 +35,7 @@ public class CoverageTaskReader {
 	 */
 	public static CoverageTask getCoverageTaskFromFile(Path path) {
 		logger.trace("In getCoverageTaskFromFile with argument {}", path);
-		if (!path.endsWith("json")) {
+		if (!path.toString().endsWith("json")) {
 			logger.warn("Path {} does not end in .json, yet JSON is the only CoverageTask scheme available. "
 					+ "Attempting to read in as JSON anyway.", path);
 		}
