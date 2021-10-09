@@ -16,6 +16,7 @@ import java.util.Set;
  */
 public class TarantulaLocalizer<T, S> implements ILocalizer<T, S> {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Map<S, Double> computeSuspiciousness(Map<T, Collection<S>> passed, Map<T, Collection<S>> failed) {
 		Map<S, Double> suspiciousnesses = new HashMap<S, Double>();
@@ -70,4 +71,5 @@ public class TarantulaLocalizer<T, S> implements ILocalizer<T, S> {
 		return count;
 	}
 
+	public String getName() { return "TARANTULA"; }
 }

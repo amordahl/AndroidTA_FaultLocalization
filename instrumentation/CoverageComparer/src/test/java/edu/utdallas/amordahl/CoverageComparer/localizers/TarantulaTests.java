@@ -1,20 +1,15 @@
 package edu.utdallas.amordahl.CoverageComparer.localizers;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.math3.util.Precision;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
@@ -22,11 +17,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.InstlogProcessor;
+import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.BaselineInstlogProcessor;
 import edu.utdallas.amordahl.CoverageComparer.util.CoverageTaskTests;
 import edu.utdallas.amordahl.CoverageComparer.util.CoveredLine;
 import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
-import edu.utdallas.amordahl.CoverageComparer.util.SupportedLocalization;
 
 @RunWith(Parameterized.class)
 public class TarantulaTests extends CoverageTaskTests {
@@ -56,16 +50,20 @@ public class TarantulaTests extends CoverageTaskTests {
 	}
 	@Test
 	public void testTarantulaValues() {
-		PassedFailed<Path, CoveredLine> pf = new InstlogProcessor().processCoverageTask(ct);
+		PassedFailed<Path, CoveredLine> pf = new BaselineInstlogProcessor().processCoverageTask(ct);
 		Map<CoveredLine, Double> suspiciousnesses = new TarantulaLocalizer<Path, CoveredLine>().computeSuspiciousness(pf.getPassed(), pf.getFailed());
 		Map<String, Double> suspiciousnessWithStrings = suspiciousnesses.entrySet().stream()
 				.collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue()));
 		Map<String, Double> suspiciousnessKey = this.getSuspiciousnessAnswers();
+
+		// Can't directly compare equality, because of double imprecision.
+		//  Thus, we create this data structure to compare in a more appropriate way for doubles. 
 		Set<Boolean> equals = new HashSet<Boolean>();
 		for (String key: suspiciousnessKey.keySet()) {
 			equals.add(Precision.compareTo(suspiciousnessKey.get(key), suspiciousnessWithStrings.get(key), 0.001d) == 0);
 		}
+		
 		assert(!equals.contains(false));
-		}
+	}	
 
 }

@@ -20,4 +20,6 @@ public interface ILocalizer<T, S> {
 	 * @return A map from items to their suspiciousness.
 	 */
 	public Map<S, Double> computeSuspiciousness(Map<T, Collection<S>> passed, Map<T, Collection<S>> failed);
+	
+	public String getName();
 }

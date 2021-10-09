@@ -6,4 +6,6 @@ import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
 public interface ICoverageTaskProcessor<T, S> {
 	
 	public PassedFailed<T, S> processCoverageTask(CoverageTask ct);
+	
+	public String getName();
 }

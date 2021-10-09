@@ -26,6 +26,16 @@ public class CoverageTask {
 	public SupportedLocalization getLocalization() {
 		return localization;
 	}
+	
+	public Path getOriginalPath() {
+		return originalPath;
+	}
+
+	public void setOriginalPath(Path originalPath) {
+		this.originalPath = originalPath;
+	}
+
+	private Path originalPath;
 
 	/**
 	 * Set of files that represent failed test cases.
@@ -48,7 +58,8 @@ public class CoverageTask {
 	 * @param failed
 	 * @param localization
 	 */
-	public CoverageTask(Set<Path> passed, Set<Path> failed, SupportedLocalization localization) {
+	public CoverageTask(Path p, Set<Path> passed, Set<Path> failed, SupportedLocalization localization) {
+		this.setOriginalPath(p);
 		this.setFailed(failed);
 		this.setPassed(passed);
 		this.localization = localization;
@@ -59,8 +70,8 @@ public class CoverageTask {
 	 * @param passed The set of passing records.
 	 * @param failed The set of failing records.
 	 */
-	public CoverageTask(Set<Path> passed, Set<Path> failed) {
-		this(passed, failed, SupportedLocalization.TARANTULA);
+	public CoverageTask(Path p, Set<Path> passed, Set<Path> failed) {
+		this(p, passed, failed, SupportedLocalization.TARANTULA);
 	}
 
 	public void setPassed(Set<Path> passed) {

@@ -83,7 +83,7 @@ public class CoverageTaskReader {
 			logger.debug("Read in localization scheme {} from file {}", sl.toString(), path.toString());
 		}
 		
-		return new CoverageTask(new HashSet<Path>(pathify(passed)), new HashSet<Path>(pathify(failed)), sl);
+		return new CoverageTask(path, new HashSet<Path>(pathify(passed)), new HashSet<Path>(pathify(failed)), sl);
 	}
 	
 	/**

@@ -18,9 +18,9 @@ import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
 import edu.utdallas.amordahl.CoverageComparer.util.CoveredLine;
 import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
 
-public class InstlogProcessor implements ICoverageTaskProcessor<Path, CoveredLine> {
+public class BaselineInstlogProcessor implements ICoverageTaskProcessor<Path, CoveredLine> {
 
-	private static Logger logger = LoggerFactory.getLogger(InstlogProcessor.class);
+	private static Logger logger = LoggerFactory.getLogger(BaselineInstlogProcessor.class);
 
 	@Override
 	public PassedFailed<Path, CoveredLine> processCoverageTask(CoverageTask ct) {
@@ -67,5 +67,7 @@ public class InstlogProcessor implements ICoverageTaskProcessor<Path, CoveredLin
 		logger.trace("In mapPathToMap");
 		return ps.parallelStream().collect(Collectors.toMap(p -> p, p -> readInstLogFile(p)));
 	}
+	
+	public String getName() { return "BASELINE INSTLOG PROCESSOR"; }
 
 }
