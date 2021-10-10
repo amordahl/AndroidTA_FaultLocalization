@@ -1,6 +1,5 @@
 package edu.utdallas.amordahl.CoverageComparer.util;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -8,7 +7,7 @@ import java.util.Objects;
  * @author Austin Mordahl
  *
  */
-public class CoveredLine implements Serializable {
+public class CoveredLine {
 	
 	/**
 	 * 

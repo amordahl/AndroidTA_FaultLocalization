@@ -126,7 +126,7 @@ public class BaselineInstlogProcessor implements ICoverageTaskProcessor<Path, Co
 	private static void writeSetToFile(Collection<CoveredLine> content, Path intermediate) {
 		try (FileOutputStream f = new FileOutputStream(intermediate.toFile());
 				ObjectOutputStream o = new ObjectOutputStream(f)) {
-			o.writeObject(content);
+			o.writeObject(content.stream().map(c -> c.toString()).collect(Collectors.toList()));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
