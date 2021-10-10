@@ -1,5 +1,6 @@
 package edu.utdallas.amordahl.CoverageComparer.util;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -7,8 +8,13 @@ import java.util.Objects;
  * @author Austin Mordahl
  *
  */
-public class CoveredLine {
+public class CoveredLine implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1981338624800671426L;
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(lineNumber, location);
