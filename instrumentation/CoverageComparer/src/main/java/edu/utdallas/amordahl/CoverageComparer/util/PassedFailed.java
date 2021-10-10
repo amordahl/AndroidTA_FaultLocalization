@@ -1,5 +1,6 @@
 package edu.utdallas.amordahl.CoverageComparer.util;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 
@@ -10,19 +11,19 @@ import java.util.Map;
  * @param <T>
  * @param <S>
  */
-public class PassedFailed<T, S> {
-	public Map<T, Collection<S>> getPassed() {
+public class PassedFailed<S> {
+	public Map<Path, Collection<S>> getPassed() {
 		return passed;
 	}
-	public Map<T, Collection<S>> getFailed() {
+	public Map<Path, Collection<S>> getFailed() {
 		return failed;
 	}
-	public void setPassed(Map<T, Collection<S>> passed) {
+	public void setPassed(Map<Path, Collection<S>> passed) {
 		this.passed = passed;
 	}
-	public void setFailed(Map<T, Collection<S>> failed) {
+	public void setFailed(Map<Path, Collection<S>> failed) {
 		this.failed = failed;
 	}
-	private Map<T, Collection<S>> passed;
-	private Map<T, Collection<S>> failed;
+	private Map<Path, Collection<S>> passed;
+	private Map<Path, Collection<S>> failed;
 }

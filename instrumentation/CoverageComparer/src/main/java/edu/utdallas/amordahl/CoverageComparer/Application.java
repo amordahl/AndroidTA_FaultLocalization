@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,8 @@ import com.beust.jcommander.Parameter;
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTaskReader;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.BaselineInstlogProcessor;
-import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.ICoverageTaskProcessor;
+import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureContentLogProcessor;
+import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.AbstractCoverageTaskProcessor;
 import edu.utdallas.amordahl.CoverageComparer.localizers.ILocalizer;
 import edu.utdallas.amordahl.CoverageComparer.localizers.TarantulaLocalizer;
 import edu.utdallas.amordahl.CoverageComparer.util.CoveredLine;
@@ -50,9 +52,15 @@ public class Application {
 	)
 	private Double preserve = 1.0;
 	
+	@Parameter(
+			names = {"--phase2"},
+			description = "If enabled, treat results as data structure logs.")
+	private boolean phase2 = false;
+	
 	// TODO: Make these into parameters.
-	private ILocalizer<Path, CoveredLine> localizer = new TarantulaLocalizer<Path, CoveredLine>();
-	private ICoverageTaskProcessor<Path, CoveredLine> processor = new BaselineInstlogProcessor();	
+	private ILocalizer<Object> localizer = new TarantulaLocalizer<Object>();
+	private AbstractCoverageTaskProcessor<?> processor = 
+			phase2 ? new DataStructureContentLogProcessor() : new BaselineInstlogProcessor();	
 	/**
 	 * Just sets up the JCommander argument parser.
 	 * 
@@ -74,8 +82,8 @@ public class Application {
 	private void run() {
 		for (String s: this.coverageTasks) {
 			CoverageTask ct = CoverageTaskReader.getCoverageTaskFromFile(Paths.get(s));
-			PassedFailed<Path, CoveredLine> pf = processor.processCoverageTask(ct);
-			Map<CoveredLine, Double> suspiciousness = localizer.computeSuspiciousness(pf.getPassed(), pf.getFailed());
+			PassedFailed<Object> pf = (PassedFailed<Object>) processor.processCoverageTask(ct);
+			Map<Object, Double> suspiciousness = localizer.computeSuspiciousness(pf);
 			output(ct, suspiciousness);
 		}
 		
@@ -85,7 +93,7 @@ public class Application {
 	 * Specifies the way to output suspiciousness rankings on the command line.
 	 * @param suspiciousness
 	 */
-	private void output(CoverageTask ct, Map<CoveredLine, Double> suspiciousness) {
+	private void output(CoverageTask ct, Map<?, Double> suspiciousness) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("==================================");
 		sb.append(String.format("Localizer: %s", this.localizer.getName()));
@@ -96,7 +104,7 @@ public class Application {
 		sb.append(String.format("Preserved: %f", (Double)this.preserve));
 		sb.append("");
 		
-		List<Entry<CoveredLine, Double>> sorted = new ArrayList<Entry<CoveredLine, Double>>(suspiciousness.entrySet());
+		List<Entry<?, Double>> sorted = new ArrayList<Entry<?, Double>>(suspiciousness.entrySet());
 		Collections.sort(sorted, ((e1, e2) -> e2.getValue().compareTo(e1.getValue()))); // sort in descending order.
 		if (this.preserve != 1.0) {
 			if (this.preserve > 1.0) {

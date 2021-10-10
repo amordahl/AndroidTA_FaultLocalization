@@ -50,8 +50,8 @@ public class TarantulaTests extends CoverageTaskTests {
 	}
 	@Test
 	public void testTarantulaValues() {
-		PassedFailed<Path, CoveredLine> pf = new BaselineInstlogProcessor().processCoverageTask(ct);
-		Map<CoveredLine, Double> suspiciousnesses = new TarantulaLocalizer<Path, CoveredLine>().computeSuspiciousness(pf.getPassed(), pf.getFailed());
+		PassedFailed<CoveredLine> pf = new BaselineInstlogProcessor().processCoverageTask(ct);
+		Map<CoveredLine, Double> suspiciousnesses = new TarantulaLocalizer<CoveredLine>().computeSuspiciousness(pf);
 		Map<String, Double> suspiciousnessWithStrings = suspiciousnesses.entrySet().stream()
 				.collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue()));
 		Map<String, Double> suspiciousnessKey = this.getSuspiciousnessAnswers();

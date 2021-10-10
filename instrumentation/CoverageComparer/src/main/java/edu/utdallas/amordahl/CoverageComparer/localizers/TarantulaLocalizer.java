@@ -1,5 +1,6 @@
 package edu.utdallas.amordahl.CoverageComparer.localizers;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,33 +9,35 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
+
 /**
  * A localizer that computes the Tarantula localization rankings.
  * @author Austin Mordahl
  *
  * @param <T> 
  */
-public class TarantulaLocalizer<T, S> implements ILocalizer<T, S> {
+public class TarantulaLocalizer<S> implements ILocalizer<S> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<S, Double> computeSuspiciousness(Map<T, Collection<S>> passed, Map<T, Collection<S>> failed) {
+	public Map<S, Double> computeSuspiciousness(PassedFailed<S> pf) {
 		Map<S, Double> suspiciousnesses = new HashMap<S, Double>();
 		Set<S> universe = new HashSet<S>();
 		
 		// Add all S'es into the universe set.
-		for (Map<T, Collection<S>> m : new Map[] {passed, failed} ) {
-			for (Entry<T, Collection<S>> e: m.entrySet()) {
-				e.getValue().forEach(s -> universe.add(s));
+		for (Map<Path, Collection<?>> m : new Map[] {pf.getPassed(), pf.getFailed()} ) {
+			for (Entry<Path, Collection<?>> e: m.entrySet()) {
+				e.getValue().forEach(s -> universe.add((S) s));
 			}
 		}
 		
 		// For each s, compute the suspiciousness
 		for (S u: universe) {
-			int numPassed = countOccurrences(u, passed);
-			int numFailed = countOccurrences(u, failed);
-			int totFailed = failed.keySet().size();
-			int totPassed = passed.keySet().size();
+			int numPassed = countOccurrences(u, pf.getPassed());
+			int numFailed = countOccurrences(u, pf.getFailed());
+			int totFailed = pf.getFailed().keySet().size();
+			int totPassed = pf.getPassed().keySet().size();
 			suspiciousnesses.put(u, computeSuspiciousnessValue(numPassed, numFailed, totFailed, totPassed));
 		}
 		
@@ -61,7 +64,7 @@ public class TarantulaLocalizer<T, S> implements ILocalizer<T, S> {
 	 * @param map A map of items to collections.
 	 * @return The number of values in the map that contained element.
 	 */
-	private Integer countOccurrences(S element, Map<T, Collection<S>> map) {
+	private Integer countOccurrences(S element, Map<Path, Collection<S>> map) {
 		int count = 0;
 		for (Collection<S> s: map.values()) {
 			if (s.contains(element)) {
