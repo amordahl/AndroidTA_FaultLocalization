@@ -101,7 +101,7 @@ public class BaselineInstlogProcessor implements ICoverageTaskProcessor<Path, Co
 
 	private Map<Path, Collection<CoveredLine>> mapPathToMap(Set<Path> ps) {
 		logger.trace("In mapPathToMap with argument {}", ps);
-		return ps.stream().collect(Collectors.toMap(p -> p, p -> readInstLogFile(p)));
+		return ps.parallelStream().collect(Collectors.toMap(p -> p, p -> readInstLogFile(p)));
 	}
 	
 	public String getName() { return "BASELINE INSTLOG PROCESSOR"; }
