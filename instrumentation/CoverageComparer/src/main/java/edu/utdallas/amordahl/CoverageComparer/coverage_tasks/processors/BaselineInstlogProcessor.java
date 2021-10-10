@@ -111,8 +111,7 @@ public class BaselineInstlogProcessor implements ICoverageTaskProcessor<Path, Co
 		Collection<CoveredLine> result = null;
 		try (FileInputStream f = new FileInputStream(intermediate.toFile());
 				ObjectInputStream o = new ObjectInputStream(f)) {
-			Collection<String> intermediateCollection = (List<String>) o.readObject();
-			result = intermediateCollection.stream().map(s -> CoveredLine.fromString(s)).collect(Collectors.toList());
+			Collection<CoveredLine> intermediateCollection = (Collection<CoveredLine>) o.readObject();
 			logger.debug("Successfully read in object of size {} from intermediate file {}", result.size(), intermediate.toString());
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -131,7 +130,7 @@ public class BaselineInstlogProcessor implements ICoverageTaskProcessor<Path, Co
 		logger.trace("In writeSetToFile");
 		try (FileOutputStream f = new FileOutputStream(intermediate.toFile());
 				ObjectOutputStream o = new ObjectOutputStream(f)) {
-			o.writeObject(content.stream().map(c -> c.toString()).collect(Collectors.toList()));
+			o.writeObject(content);
 			logger.debug("Successfully wrote intermediate file {}", intermediate.toString());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
