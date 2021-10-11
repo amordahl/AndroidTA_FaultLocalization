@@ -14,18 +14,25 @@ public class LineObj {
     String violation_or_not;
     String avgRotation;
     String totalRotation;
-    String avgAQL;
-    String totalAQL;
-    String avgCompile;
-    String totalCompile;
-    String percentAQL;
-    String percentCompile;
+    String avgGoodAQL;
+    String totalGoodAQL;
+    String avgGoodCompile;
+    String totalGoodCompile;
+    String avgBadAQL;
+    String totalBadAQL;
+    String avgBadCompile;
+    String totalBadCompile;
+    String percentBinary;
+    String percentGoodAQL;
+    String percentGoodCompile;
+    String percentBadAQL;
+    String percentBadCompile;
     String numCandidate;
     String startLines;
     String endLines;
     String percentLines;
 
-    public LineObj(String apk, String config1, String config2, String runtime, String violationType, String violation_or_not, String avgRotation, String totalRotation, String avgAQL, String totalAQL, String avgCompile, String totalCompile, String percentAQL, String percentCompile, String numCandidate, String startLines, String endLines, String percentLines) {
+    public LineObj(String apk, String config1, String config2, String runtime, String violationType, String violation_or_not, String avgRotation, String totalRotation, String avgGoodAQL, String totalGoodAQL, String avgGoodCompile, String totalGoodCompile, String avgBadAQL, String totalBadAQL, String avgBadCompile, String totalBadCompile, String percentBinary, String percentGoodAQL, String percentGoodCompile, String percentBadAQL, String percentBadCompile, String numCandidate, String startLines, String endLines, String percentLines) {
         this.apk = apk;
         this.config1 = config1;
         this.config2 = config2;
@@ -34,12 +41,19 @@ public class LineObj {
         this.violation_or_not = violation_or_not;
         this.avgRotation = avgRotation;
         this.totalRotation = totalRotation;
-        this.avgAQL = avgAQL;
-        this.totalAQL = totalAQL;
-        this.avgCompile = avgCompile;
-        this.totalCompile = totalCompile;
-        this.percentAQL = percentAQL;
-        this.percentCompile = percentCompile;
+        this.avgGoodAQL = avgGoodAQL;
+        this.totalGoodAQL = totalGoodAQL;
+        this.avgGoodCompile = avgGoodCompile;
+        this.totalGoodCompile = totalGoodCompile;
+        this.avgBadAQL = avgBadAQL;
+        this.totalBadAQL = totalBadAQL;
+        this.avgBadCompile = avgBadCompile;
+        this.totalBadCompile = totalBadCompile;
+        this.percentBinary = percentBinary;
+        this.percentGoodAQL = percentGoodAQL;
+        this.percentGoodCompile = percentGoodCompile;
+        this.percentBadAQL = percentBadAQL;
+        this.percentBadCompile = percentBadCompile;
         this.numCandidate = numCandidate;
         this.startLines = startLines;
         this.endLines = endLines;
@@ -57,12 +71,19 @@ public class LineObj {
                 ", violation_or_not='" + violation_or_not + '\'' +
                 ", avgRotation='" + avgRotation + '\'' +
                 ", totalRotation='" + totalRotation + '\'' +
-                ", avgAQL='" + avgAQL + '\'' +
-                ", totalAQL='" + totalAQL + '\'' +
-                ", avgCompile='" + avgCompile + '\'' +
-                ", totalCompile='" + totalCompile + '\'' +
-                ", percentAQL='" + percentAQL + '\'' +
-                ", percentCompile='" + percentCompile + '\'' +
+                ", avgGoodAQL='" + avgGoodAQL + '\'' +
+                ", totalGoodAQL='" + totalGoodAQL + '\'' +
+                ", avgGoodCompile='" + avgGoodCompile + '\'' +
+                ", totalGoodCompile='" + totalGoodCompile + '\'' +
+                ", avgBadAQL='" + avgBadAQL + '\'' +
+                ", totalBadAQL='" + totalBadAQL + '\'' +
+                ", avgBadCompile='" + avgBadCompile + '\'' +
+                ", totalBadCompile='" + totalBadCompile + '\'' +
+                ", percentBinary='" + percentBinary + '\'' +
+                ", percentGoodAQL='" + percentGoodAQL + '\'' +
+                ", percentGoodCompile='" + percentGoodCompile + '\'' +
+                ", percentBadAQL='" + percentBadAQL + '\'' +
+                ", percentBadCompile='" + percentBadCompile + '\'' +
                 ", numCandidate='" + numCandidate + '\'' +
                 ", startLines='" + startLines + '\'' +
                 ", endLines='" + endLines + '\'' +

@@ -43,7 +43,23 @@ public class Runner {
 
         String output="";
         String lineData="";
-        String header="apk,config1,config2,program_runtime,violation_type,violation_or_not,Avg_Of_Rotations,Total_Rotations,Avg_Of_AQL,Total_AQL,Avg_Of_Compile,Total_Compile,%OfProgramRuntimeAQL,%OfProgramRuntimeCompile,Total_Proposed,Start_lines,End_lines,%OfLinesRemoved,bestRot,bestRotLines,bestRotLines%,worstRot,worstRotLines,worstRotLines%\n";
+        String header="" +
+                "apk," +
+                "config1," +
+                "config2," +
+                "program_runtime," +
+                "violation_type," +
+                "violation_or_not," +
+                "Avg_Of_Rotations," +
+                "Total_Rotations," +
+                "Avg_Of_Good_AQL,Total_Good_AQL,Avg_Of_Good_Compile,Total_Good_Compile," +
+                "Avg_Of_Bad_AQL,Total_Bad_AQL,Avg_Of_Bad_Compile,Total_Bad_Compile," +
+                "%OfProgramRuntimeBinary," +
+                "%OfProgramRuntimeGoodAQL," +
+                "%OfProgramRuntimeGoodCompile," +
+                "%OfProgramRuntimeBadAQL," +
+                "%OfProgramRuntimeBadCompile," +
+                "Total_Proposed,Start_lines,End_lines,%OfLinesRemoved,bestRot,bestRotLines,bestRotLines%,worstRot,worstRotLines,worstRotLines%\n";
         output+=header;
         for(File x: everyrunFile){
             if(!x.getName().contains(runprefix)){
@@ -72,7 +88,7 @@ public class Runner {
                     apkName,config1,config2,inArr[1],
             inArr[3],inArr[5],inArr[7],inArr[9],
                     inArr[11],inArr[13],inArr[15],
-                    inArr[17],inArr[19],inArr[21],inArr[23],inArr[25],inArr[27],inArr[29]);
+                    inArr[17],inArr[19],inArr[21],inArr[23],inArr[25],inArr[27],inArr[29],inArr[31],inArr[33],inArr[35],inArr[37],inArr[39],inArr[41],inArr[43]);
             System.out.println(j);
             int indexStart=0;
             for(String f: inArr){
@@ -103,7 +119,31 @@ public class Runner {
             //bestRotation is the one that removed the most lines,
 
 
-            String line=j.apk+","+j.config1+","+j.config2+","+j.runtime+","+j.violationType+","+j.violation_or_not+","+j.avgRotation+","+j.totalRotation+","+j.avgAQL+","+j.totalAQL+","+j.avgCompile+","+j.totalCompile+","+j.percentAQL+","+j.percentCompile+","+j.numCandidate+","+j.startLines+","+j.endLines+","+j.percentLines+",";
+            String line=j.apk+","
+                    +j.config1+","
+                    +j.config2+","
+                    +j.runtime+","
+                    +j.violationType +","
+                    +j.violation_or_not+","
+                    +j.avgRotation+","
+                    +j.totalRotation+","
+                    +j.avgGoodAQL+","
+                    +j.totalGoodAQL+","
+                    +j.avgGoodCompile+","
+                    +j.totalGoodCompile+","
+                    +j.avgBadAQL+","
+                    +j.totalBadAQL+","
+                    +j.avgBadCompile+","
+                    +j.totalBadCompile+","
+                    +j.percentBinary+","
+                    +j.percentGoodAQL+","
+                    +j.percentGoodCompile+","
+                    +j.percentBadAQL+","
+                    +j.percentBadCompile+","
+                    +j.numCandidate+","
+                    +j.startLines+","
+                    +j.endLines+","
+                    +j.percentLines+",";
 
             String bestRotation = getBestRotation(codeChangeList,j, true);
             line+=bestRotation+",";
@@ -176,7 +216,7 @@ public class Runner {
             return "";
         }
         if(codeChangeList.size()==1){
-            return (1)+","+(codeChangeList.get(0).linesRemoved)+","+((codeChangeList.get(0).linesRemoved)/Double.parseDouble(j.percentAQL));
+            return (1)+","+(codeChangeList.get(0).linesRemoved)+","+((codeChangeList.get(0).linesRemoved)/Double.parseDouble(j.percentGoodAQL+j.percentBadAQL));
         }
         String returnString="";
 
@@ -210,9 +250,9 @@ public class Runner {
             "Rotation: "+(worst+1)+" removed "+rotList.get(worst)+" lines, which was "+(100*(rotList.get(worst))/Double.parseDouble(j.percentAQL)) +"% of the program.\n";*/
 
         if(isMax){
-            returnString=(max+1)+","+rotList.get(max)+","+(100*(rotList.get(max))/Double.parseDouble(j.percentAQL));
+            returnString=(max+1)+","+rotList.get(max)+","+(100*(rotList.get(max))/Double.parseDouble(j.percentGoodAQL+j.percentBadAQL));
         }else{
-            returnString=(worst+1)+","+rotList.get(worst)+","+(100*(rotList.get(worst))/Double.parseDouble(j.percentAQL));
+            returnString=(worst+1)+","+rotList.get(worst)+","+(100*(rotList.get(worst))/Double.parseDouble(j.percentGoodAQL+j.percentBadAQL));
         }
 
         return returnString;
