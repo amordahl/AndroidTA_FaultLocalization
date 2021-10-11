@@ -18,12 +18,13 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.BaselineInstlogProcessor;
-import edu.utdallas.amordahl.CoverageComparer.util.CoverageTaskTests;
+import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
+import edu.utdallas.amordahl.CoverageComparer.util.InstlogCoverageTaskTests;
 import edu.utdallas.amordahl.CoverageComparer.util.CoveredLine;
 import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
 
 @RunWith(Parameterized.class)
-public class TarantulaTests extends CoverageTaskTests {
+public class TarantulaTests extends InstlogCoverageTaskTests {
 
 	public TarantulaTests(Path coverageTask, Path answerKey) throws FileNotFoundException, IOException, ParseException {
 		super(coverageTask, answerKey);
@@ -48,10 +49,11 @@ public class TarantulaTests extends CoverageTaskTests {
 		return results;
 		
 	}
+	
 	@Test
 	public void testTarantulaValues() {
-		PassedFailed<CoveredLine> pf = new BaselineInstlogProcessor().processCoverageTask(ct);
-		Map<CoveredLine, Double> suspiciousnesses = new TarantulaLocalizer<CoveredLine>().computeSuspiciousness(pf);
+		PassedFailed<CoverageRecord<String, Boolean>> pf = new BaselineInstlogProcessor().processCoverageTask(ct);
+		Map<CoverageRecord<String, Boolean>, Double> suspiciousnesses = new TarantulaLocalizer<CoverageRecord<String, Boolean>>().computeSuspiciousness(pf);
 		Map<String, Double> suspiciousnessWithStrings = suspiciousnesses.entrySet().stream()
 				.collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue()));
 		Map<String, Double> suspiciousnessKey = this.getSuspiciousnessAnswers();

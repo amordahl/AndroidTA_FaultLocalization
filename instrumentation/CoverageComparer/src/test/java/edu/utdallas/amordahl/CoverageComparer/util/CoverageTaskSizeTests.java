@@ -14,7 +14,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class CoverageTaskSizeTests extends CoverageTaskTests {
+public class CoverageTaskSizeTests extends InstlogCoverageTaskTests {
 
 	public CoverageTaskSizeTests(Path coverageTask, Path answerKey)
 			throws FileNotFoundException, IOException, ParseException {

@@ -2,9 +2,7 @@ package edu.utdallas.amordahl.CoverageComparer;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +19,6 @@ import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStru
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.AbstractCoverageTaskProcessor;
 import edu.utdallas.amordahl.CoverageComparer.localizers.ILocalizer;
 import edu.utdallas.amordahl.CoverageComparer.localizers.TarantulaLocalizer;
-import edu.utdallas.amordahl.CoverageComparer.util.CoveredLine;
 import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
 
 public class Application {

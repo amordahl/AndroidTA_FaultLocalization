@@ -1,0 +1,19 @@
+{
+  "failed_size": 2,
+  "passed_size": 1,
+  "localization": "tarantula",
+  "tarantula": {
+    "C/Class1:2": 1.0,
+    "C/Class1:3": 0.5,
+    "C/Class1:4": 0.5,
+    "C/Class1:5": 0.5,
+    "C/Class1:6": 0.333333,
+    "C/Class1:7": 0,
+    "C/Class2:1": 0.5,
+    "C/Class2:2": 0.5,
+    "C/Class2:3": 0.333333,
+    "C/Class2:4": 0.333333,
+    "C/Class3:1": 0.33333,
+    "C/Class3:2": 0.0
+  }
+}

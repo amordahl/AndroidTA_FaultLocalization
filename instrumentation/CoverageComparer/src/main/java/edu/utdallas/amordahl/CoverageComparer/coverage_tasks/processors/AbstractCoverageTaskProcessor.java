@@ -21,10 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
+import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
 import edu.utdallas.amordahl.CoverageComparer.util.CoveredLine;
 import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
 
-public abstract class AbstractCoverageTaskProcessor<S extends Serializable> {
+public abstract class AbstractCoverageTaskProcessor<S extends CoverageRecord<?, ?>> {
 	
 	private static Logger logger = LoggerFactory.getLogger(AbstractCoverageTaskProcessor.class);
 	private boolean readIntermediates;
@@ -81,14 +82,6 @@ public abstract class AbstractCoverageTaskProcessor<S extends Serializable> {
 		pf.setFailed(failed);
 		return pf;
 	}
-
-	/**
-	 * Given a path, reads in its contents. Client must override.
-	 * @param p A path to an instrumentation file.
-	 * @return A list of its contents.
-	 */
-	protected abstract Collection<S> readInstFile(Path p);
-	
 
 	/**
 	 * Given a path, will check if there is an intermediate file available (if {@link #readIntermediates} is true). If it exists, it will read it via {@link #readSetFromFile(Path)}. Otherwise, it will read in via {@link #readInstFile(Path)} and write the intermediate file via {@link #writeSetToFile(Collection, Path)}.
@@ -153,4 +146,33 @@ public abstract class AbstractCoverageTaskProcessor<S extends Serializable> {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Given a path, reads in its contents. Client must override.
+	 * @param p A path to an instrumentation file.
+	 * @return A list of its contents.
+	 */
+	protected Collection<S> readInstFile(Path p) {
+		logger.trace("In readInstLogFile with argument {}", p);
+		ArrayList<S> fileContent = new ArrayList<>();
+		try (Scanner sc = new Scanner(p.toFile())) {
+			while (sc.hasNext()) {
+				// Replace non-printable characters
+				String line = sc.next().replaceAll("\\P{Print}", "");
+				Collection<S> cr = processLine(line);
+				fileContent.addAll(cr);
+			}
+		} catch (FileNotFoundException e) {
+			logger.error("Could not find path {}. Returning empty coverage set.", p.toString());
+		}
+		return fileContent;
+	}
+
+	/**
+	 * How to process an individual line in the coverage record. Clients must override.
+	 * A line may produce anywhere from 0 to many records.
+	 * @param line The line from the instrumentation file.
+	 * @return A collection of <S>, indicating the result of processing that line.
+	 */
+	public abstract Collection<S> processLine(String line);
 }

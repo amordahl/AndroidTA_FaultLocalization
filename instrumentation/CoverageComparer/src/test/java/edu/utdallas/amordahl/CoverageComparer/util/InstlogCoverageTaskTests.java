@@ -16,13 +16,13 @@ import org.json.simple.parser.ParseException;
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTaskReader;
 
-public class CoverageTaskTests {
+public class InstlogCoverageTaskTests {
 	
-	private static Path TEST_LOCATIONS = Paths.get(CoverageTaskTests.class.getResource("/coverage_task_test_resources/index.json").getFile());
+	private static Path TEST_LOCATIONS = Paths.get(InstlogCoverageTaskTests.class.getResource("/instlog_tests/coverage_task_test_resources/index.json").getFile());
 	protected static List<Path[]> testsAndAnswerKeys = new ArrayList<Path[]>();
 	
 	private static String getPathFromResource(String path) {
-		return CoverageTaskTests.class.getResource(path).getFile();
+		return InstlogCoverageTaskTests.class.getResource(path).getFile();
 	}
 	/**
 	 * Reads in test pairs from the {@link #TEST_LOCATIONS} file.
@@ -53,7 +53,7 @@ public class CoverageTaskTests {
 	protected JSONObject answerKey;
 	protected CoverageTask ct;
 	
-	public CoverageTaskTests(Path coverageTask, Path answerKey) throws FileNotFoundException, IOException, ParseException {
+	public InstlogCoverageTaskTests(Path coverageTask, Path answerKey) throws FileNotFoundException, IOException, ParseException {
 		this.coverageTask = coverageTask;
 		this.ct = CoverageTaskReader.getCoverageTaskFromFile(this.coverageTask);
 		this.ct.setPassed(fixPaths(ct.getPassed()));
@@ -62,7 +62,7 @@ public class CoverageTaskTests {
 	}
 
 	private Set<Path> fixPaths(Set<Path> sp) {
-		return sp.stream().map(p -> Paths.get(CoverageTaskTests.getPathFromResource(p.toString()))).collect(Collectors.toSet());
+		return sp.stream().map(p -> Paths.get(InstlogCoverageTaskTests.getPathFromResource(p.toString()))).collect(Collectors.toSet());
 	}
 	
 }

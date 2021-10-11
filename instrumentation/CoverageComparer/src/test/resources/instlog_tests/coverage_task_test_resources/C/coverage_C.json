@@ -1,0 +1,10 @@
+{
+  "failed": [
+    "/instlog_tests/coverage_logs/C/coverage_log_C_1.instlog",
+    "/instlog_tests/coverage_logs/C/coverage_log_C_2.instlog"
+  ],
+  "passed": [
+    "/instlog_tests/coverage_logs/C/coverage_log_C_3.instlog"
+  ],
+  "localization": "TARANTULA"
+}
