@@ -216,7 +216,7 @@ public class Runner {
             return "";
         }
         if(codeChangeList.size()==1){
-            return (1)+","+(codeChangeList.get(0).linesRemoved)+","+((codeChangeList.get(0).linesRemoved)/Double.parseDouble(j.percentGoodAQL+j.percentBadAQL));
+            return (1)+","+(codeChangeList.get(0).linesRemoved)+","+((codeChangeList.get(0).linesRemoved)/(Double.parseDouble(j.percentGoodAQL)+Double.parseDouble(j.percentBadAQL)));
         }
         String returnString="";
 
@@ -250,9 +250,9 @@ public class Runner {
             "Rotation: "+(worst+1)+" removed "+rotList.get(worst)+" lines, which was "+(100*(rotList.get(worst))/Double.parseDouble(j.percentAQL)) +"% of the program.\n";*/
 
         if(isMax){
-            returnString=(max+1)+","+rotList.get(max)+","+(100*(rotList.get(max))/Double.parseDouble(j.percentGoodAQL+j.percentBadAQL));
+            returnString=(max+1)+","+rotList.get(max)+","+(100*(rotList.get(max))/(Double.parseDouble(j.percentGoodAQL)+Double.parseDouble(j.percentBadAQL)));
         }else{
-            returnString=(worst+1)+","+rotList.get(worst)+","+(100*(rotList.get(worst))/Double.parseDouble(j.percentGoodAQL+j.percentBadAQL));
+            returnString=(worst+1)+","+rotList.get(worst)+","+(100*(rotList.get(worst))/(Double.parseDouble(j.percentGoodAQL)+Double.parseDouble(j.percentBadAQL)));
         }
 
         return returnString;
