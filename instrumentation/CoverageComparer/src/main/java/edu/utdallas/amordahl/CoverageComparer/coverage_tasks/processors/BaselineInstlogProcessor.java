@@ -1,17 +1,13 @@
 package edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors;
 
-import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
-import edu.utdallas.amordahl.CoverageComparer.util.CoveredLine;
 
 public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<CoverageRecord<String, Boolean>> {
 
@@ -21,6 +17,10 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Cove
 		return p.resolveSibling("." + p.getFileName() + ".intermediate");
 	}
 		
+	public BaselineInstlogProcessor() { super(); }
+	public BaselineInstlogProcessor(boolean readIntermediates) {
+		super(readIntermediates);
+	}
 	
 	private HashMap<Integer, String> mapping = new HashMap<>();
 

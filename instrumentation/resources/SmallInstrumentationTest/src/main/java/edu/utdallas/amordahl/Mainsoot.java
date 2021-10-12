@@ -1,7 +1,5 @@
 package edu.utdallas.amordahl;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -10,26 +8,20 @@ public class Mainsoot {
 
 	private static Random r = new Random();
 	
-    private static int addRandom(int a) {
-        return a + r.nextInt();
-    }
-
     public static void main(String[] args) {
-        int a = 9;
         foo();
-        try {
-        	FileReader fr = new FileReader(Integer.toString(a));
-        } catch (FileNotFoundException fn) {
-        	System.out.println("Oops");
+        if (Mainsoot.li.contains(4)) {
+        	throw new RuntimeException("Failure!");
         }
-        int b = addRandom(a);
+        System.out.println("Success!");
+        
     }
     
     private static List<Integer> li = new ArrayList<Integer>();
     
     public static void foo() {
-    	for (int i = 0; i <= 1000; i++) {
-    		li.add(r.nextInt());
+    	for (int i = 0; i <= 3; i++) {
+    		li.add(r.nextInt(5));
     	}
     }
 }

@@ -4,6 +4,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
 
 /**
@@ -14,12 +17,18 @@ import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
 public class DataStructureElementwiseLogProcessor extends AbstractCoverageTaskProcessor<CoverageRecord<String, String>> {
 
 
+	private static Logger logger = LoggerFactory.getLogger(DataStructureElementwiseLogProcessor.class);
 	@Override
 	protected Path getIntermediateName(Path p) {
 		return p.resolveSibling("." + p.getFileName() + ".datastructureelementlog" + ".intermediate");
 	}
 
 
+	public DataStructureElementwiseLogProcessor() { super(); }
+	public DataStructureElementwiseLogProcessor(boolean readIntermediates) {
+		super(readIntermediates);
+	}
+	
 	@Override
 	public String getName() {
 		return "DataStructureElementwiseLogProcessor";
@@ -36,6 +45,8 @@ public class DataStructureElementwiseLogProcessor extends AbstractCoverageTaskPr
 		Collection<CoverageRecord<String, ArrayList<String>>> contentLog = new DataStructureContentLogProcessor().processLine(line);
 		for (CoverageRecord<String, ArrayList<String>> cr : contentLog) {
 			for (String s: cr.getDataStructureContent()) {
+				logger.debug("Creating a new coverage record with location {} and content {}.",
+						cr.getLocation(), s);
 				result.add(new CoverageRecord<String, String>(cr.getLocation(), s));
 			}
 		}

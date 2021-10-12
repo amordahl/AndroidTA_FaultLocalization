@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A single coverage record emitted by the instrumentation.
@@ -15,6 +17,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
  */
 public class CoverageRecord<S extends Serializable, T extends Serializable> implements Serializable {
 
+	private static Logger logger = LoggerFactory.getLogger(CoverageRecord.class);
 	@Override
 	public int hashCode() {
 		return Objects.hash(content, location);
@@ -36,6 +39,8 @@ public class CoverageRecord<S extends Serializable, T extends Serializable> impl
 	@Override
 	public String toString() {
 		if (this.content instanceof Boolean) {
+			logger.debug("Omitting boolean value of CoverageRecord.");
+			
 			return String.format("%s", this.getLocation());
 		}
 		return String.format("%s:%s", this.getLocation(), this.getDataStructureContent());

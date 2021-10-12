@@ -1,8 +1,9 @@
 package edu.utdallas.amordahl.CoverageComparer.coverageTasks;
 
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Set;
-import java.util.regex.Pattern;
+import org.apache.commons.lang3.tuple.Pair;
 
 import edu.utdallas.amordahl.CoverageComparer.util.SupportedLocalization;
 
@@ -52,6 +53,7 @@ public class CoverageTask {
 	 */
 	private SupportedLocalization localization;
 	
+	private Collection<Pair<Path, Path>> pairs;
 	/**
 	 * Constructs a {@link CoverageTask}.
 	 * @param passed

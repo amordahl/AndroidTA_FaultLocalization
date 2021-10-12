@@ -6,12 +6,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -22,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
 import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
-import edu.utdallas.amordahl.CoverageComparer.util.CoveredLine;
 import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
 
 public abstract class AbstractCoverageTaskProcessor<S extends CoverageRecord<?, ?>> {
@@ -156,9 +153,9 @@ public abstract class AbstractCoverageTaskProcessor<S extends CoverageRecord<?, 
 		logger.trace("In readInstLogFile with argument {}", p);
 		ArrayList<S> fileContent = new ArrayList<>();
 		try (Scanner sc = new Scanner(p.toFile())) {
-			while (sc.hasNext()) {
+			while (sc.hasNextLine()) {
 				// Replace non-printable characters
-				String line = sc.next().replaceAll("\\P{Print}", "");
+				String line = sc.nextLine().replaceAll("\\P{Print}", "");
 				Collection<S> cr = processLine(line);
 				fileContent.addAll(cr);
 			}

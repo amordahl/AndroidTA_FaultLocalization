@@ -1,6 +1,0 @@
-{
-  "tests": {
-    "/coverage_task_test_resources/A/coverage_A.json": "/coverage_task_test_resources/A/answerkey.json"
-  }
-
-}
