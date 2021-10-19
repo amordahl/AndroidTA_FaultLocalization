@@ -40,6 +40,22 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+    <groupId>org.antlr</groupId>
+    <artifactId>antlr4-maven-plugin</artifactId>
+    <version>4.7.1</version>
+    <executions>
+        <execution>
+         <configuration>
+   <outputDirectory>src/main/java
+   </outputDirectory>
+    </configuration>
+            <goals>
+                <goal>antlr4</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -81,5 +97,10 @@
 			<artifactId>commons-math3</artifactId>
 			<version>3.6.1</version>
 		</dependency>
+		<dependency>
+    <groupId>org.antlr</groupId>
+    <artifactId>antlr4-runtime</artifactId>
+    <version>4.7.1</version>
+</dependency>
 	</dependencies>
 </project>

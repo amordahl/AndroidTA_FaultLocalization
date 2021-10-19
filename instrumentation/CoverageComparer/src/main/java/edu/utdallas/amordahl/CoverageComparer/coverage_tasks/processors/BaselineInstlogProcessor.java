@@ -42,7 +42,7 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Cove
 				actualName = tokens[0];
 			}
 			records.add(new CoverageRecord<String, Boolean>(
-					String.format("%s:%d", actualName, Integer.valueOf(tokens[1])), true));
+					String.format("%s:%d", actualName, Integer.valueOf(tokens[1])), Boolean.class, true));
 			logger.debug("Records equals {}", records.toString());
 		}
 		return records;

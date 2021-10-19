@@ -2,6 +2,7 @@ package edu.utdallas.amordahl.CoverageComparer.coverageTasks;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -53,7 +54,7 @@ public class CoverageTask {
 	 */
 	private SupportedLocalization localization;
 	
-	private Collection<Pair<Path, Path>> pairs;
+	private Map<Path, Path> pairs;
 	/**
 	 * Constructs a {@link CoverageTask}.
 	 * @param passed
@@ -82,5 +83,13 @@ public class CoverageTask {
 
 	public void setFailed(Set<Path> failed) {
 		this.failed = failed;
+	}
+
+	public Map<Path, Path> getPairs() {
+		return pairs;
+	}
+
+	public void setPairs(Map<Path, Path> pairs) {
+		this.pairs = pairs;
 	}
 }

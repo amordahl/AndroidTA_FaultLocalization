@@ -3,7 +3,6 @@ package edu.utdallas.amordahl.CoverageComparer.localizers.datastructurelog.taran
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 import org.json.simple.parser.ParseException;
@@ -29,7 +28,7 @@ public class Tests extends AnswerKeyBasedTester<CoverageRecord<String, String>> 
 
 	@Override
 	public AbstractCoverageTaskProcessor<CoverageRecord<String, String>> getActp() {
-		return new DataStructureElementwiseLogProcessor(false);
+		return new DataStructureElementwiseLogProcessor();
 	}
 
 	@Override

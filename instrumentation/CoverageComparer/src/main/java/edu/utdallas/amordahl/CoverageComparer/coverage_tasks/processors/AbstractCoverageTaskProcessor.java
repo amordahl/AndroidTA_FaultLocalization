@@ -31,7 +31,7 @@ public abstract class AbstractCoverageTaskProcessor<S extends CoverageRecord<?, 
 	 * Constructs an AbstractCoverageTaskProcessor that reads in intermediate files.
 	 */
 	public AbstractCoverageTaskProcessor() {
-		this.readIntermediates = true;
+		this.readIntermediates = false;
 	}
 	
 	/**
@@ -128,7 +128,7 @@ public abstract class AbstractCoverageTaskProcessor<S extends CoverageRecord<?, 
 	}
 	
 	/**
-	 * Writes a colletion to a file.
+	 * Writes a collection to a file.
 	 * @param content The collection to write.
 	 * @param intermediate The path to the intermediate file.
 	 */

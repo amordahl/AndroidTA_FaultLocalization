@@ -42,15 +42,13 @@ public class DataStructureElementwiseLogProcessor extends AbstractCoverageTaskPr
 	@Override
 	public Collection<CoverageRecord<String, String>> processLine(String line) {
 		Collection<CoverageRecord<String, String>> result = new ArrayList<CoverageRecord<String, String>>();
-		Collection<CoverageRecord<String, ArrayList<String>>> contentLog = new DataStructureContentLogProcessor().processLine(line);
-		for (CoverageRecord<String, ArrayList<String>> cr : contentLog) {
-			for (String s: cr.getDataStructureContent()) {
-				logger.debug("Creating a new coverage record with location {} and content {}.",
-						cr.getLocation(), s);
-				result.add(new CoverageRecord<String, String>(cr.getLocation(), s));
-			}
+		Collection<CoverageRecord<String, Object>> contentLog = new DataStructureContentLogProcessor().processLine(line);
+		for (CoverageRecord<String, Object> cr : contentLog) {
+			if (cr.getClass().isInstance(Collection.class)) {
+		
 		}
 		return result;
 	}
-
+		return result;
+	}
 }

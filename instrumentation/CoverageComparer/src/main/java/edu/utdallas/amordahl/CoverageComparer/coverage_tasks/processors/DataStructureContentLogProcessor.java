@@ -1,22 +1,31 @@
 package edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors;
 
-import java.io.FileNotFoundException;
-import java.io.Serializable;
 import java.nio.file.Path;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
+import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.utdallas.amordahl.CoverageComparer.parsers.GeneralArrayLexer;
+import edu.utdallas.amordahl.CoverageComparer.parsers.GeneralArrayParser;
+import edu.utdallas.amordahl.CoverageComparer.parsers.implemented_listeners.GeneralArrayListener;
 import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
 
-public class DataStructureContentLogProcessor extends AbstractCoverageTaskProcessor<CoverageRecord<String, ArrayList<String>>> {
+/**
+ * This processor reads in the content of each data structure as a String.
+ * @author austin
+ *
+ */
+public class DataStructureContentLogProcessor extends AbstractCoverageTaskProcessor<CoverageRecord<String, Object>> {
 
 	private static Logger logger = LoggerFactory.getLogger(DataStructureContentLogProcessor.class);
 	@Override
@@ -29,26 +38,58 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 	protected Path getIntermediateName(Path p) {
 		return p.resolveSibling("." + p.getFileName() + ".datastructurecontentlog" + ".intermediate");
 	}
+	
+	// TODO Implement this so that it works recursively.
+	protected AbstractCollection<?> parseCollection(String content) {
+		AbstractCollection<Object> ac = new ArrayList<Object>();
+		
+		GeneralArrayLexer l = new GeneralArrayLexer(CharStreams.fromString(content));
+		GeneralArrayParser p = new GeneralArrayParser(new CommonTokenStream(l));
+		p.addErrorListener(new BaseErrorListener() {
+			@Override
+			public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
+					int charPositionInLine, String msg, RecognitionException e) {
+				throw new IllegalStateException("failed to parse at line " + line + " due to " + msg, e);
+			}
+		});
 
-	@Override
-	public Collection<CoverageRecord<String, ArrayList<String>>> processLine(String line) {
-		Collection<CoverageRecord<String, ArrayList<String>>> result = new ArrayList<>();
-		String location = line.split(",")[0];
-		String content = line.substring(line.indexOf(",")+1);
-		if (!content.startsWith("[") || !content.endsWith("]")) {
-			logger.warn("Could not parse {} from line {} into an array -- treating as one object.", content, line);
-			result.add(new CoverageRecord<String, ArrayList<String>>(location, 
-					new ArrayList<String>(Collections.singletonList(content))));
-		} else if (content.replace(" ", "").equals("[]")) {
-			logger.warn("Skipping line {} because content is empty.", line);
-		} else {
-		List<String> contentAsList = 
-				Arrays.asList(content.substring(1, content.length() - 1).split(","))
-				.stream().map(s -> s.trim()).collect(Collectors.toList());
-		logger.debug("Content on line {} is {}", line, contentAsList);
-		ArrayList<String> contentAsArrayList = new ArrayList<String>(contentAsList);
-		result.add(new CoverageRecord<String, ArrayList<String>>(location, contentAsArrayList));
+		final ArrayList<ArrayList<String>> arrays = new ArrayList<>();
+		final AtomicReference<String> token = new AtomicReference<String>();
+
+		GeneralArrayListener gla = new GeneralArrayListener();
+		p.addParseListener(gla);
+		p.array().enterRule(gla);
+		return gla.getMaster();
+	}
+	
+	private Function<String, Object> getParserForType(Class<?> type) {
+		if (AbstractCollection.class.isAssignableFrom(type)) {
+			return s -> parseCollection(s);
+		} else { // we can return other handlers here for different types
+			return s -> s;
 		}
+	}
+	/**
+	 * Processes a line produced by the coverage instrumenter.
+	 */
+	@Override
+	public Collection<CoverageRecord<String, Object>> processLine(String line) {
+		// Format of line: SampleClass:0-1,java.lang.String,sampleString
+		Collection<CoverageRecord<String, Object>> result = new ArrayList<>();
+		String location = line.split(",")[0];
+		String clazz = line.split(",")[1];
+		
+		// The rest of the string, location + clazz + 2 (for the commas)
+		String content = line.substring(location.length() + clazz.length() + 2);
+		Class<?> type;
+		try {
+			type = Class.forName(clazz);
+		} catch (ClassNotFoundException cnfe) {
+			logger.warn("Could not convert string {} to a class. Constructing its record with java.lang.Object",
+					clazz);
+			type = Object.class;
+		}
+		result.add(new CoverageRecord<String, Object>(location, type, getParserForType(type).apply(content)));
 		return result;
 	}
 

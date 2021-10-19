@@ -10,17 +10,20 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A single coverage record emitted by the instrumentation.
- * @author austin
+ * @author Austin Mordahl
  *
  * @param <S> The type of the key (e.g., a string location)
  * @param <T> The type of the value encoded (e.g., a data structure content, or simply a coverage record).
  */
-public class CoverageRecord<S extends Serializable, T extends Serializable> implements Serializable {
+public class CoverageRecord<S, T> {
 
 	private static Logger logger = LoggerFactory.getLogger(CoverageRecord.class);
+	private Class<?> type;
+	
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(content, location);
+		return Objects.hash(content, location, type);
 	}
 
 	@Override
@@ -32,8 +35,8 @@ public class CoverageRecord<S extends Serializable, T extends Serializable> impl
 		if (getClass() != obj.getClass())
 			return false;
 		CoverageRecord<S, T> other = (CoverageRecord<S, T>) obj;
-		return Objects.equals(content, other.content)
-				&& Objects.equals(location, other.location);
+		return Objects.equals(content, other.content) && Objects.equals(location, other.location)
+				&& Objects.equals(type, other.type);
 	}
 
 	@Override
@@ -48,15 +51,17 @@ public class CoverageRecord<S extends Serializable, T extends Serializable> impl
 	
 	/**
 	 * 
-	 * @param content
-	 * @param location
+	 * @param content The content of the data structure.
+	 * @param type The type of this data structure.
+	 * @param location The location in which the data structure 
 	 */
-	public CoverageRecord(S location, T content) {
+	public CoverageRecord(S location, Class<?> type, T content) {
 		super();
 		this.content = content;
 		this.location = location;
-				}
-	private static final long serialVersionUID = -3515116290649641320L;
+		this.type = type;
+	}
+	
 
 	public T getDataStructureContent() {
 		return content;

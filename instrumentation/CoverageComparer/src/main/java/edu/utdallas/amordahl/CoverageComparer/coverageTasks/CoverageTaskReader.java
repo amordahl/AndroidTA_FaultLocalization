@@ -7,8 +7,14 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -83,7 +89,17 @@ public class CoverageTaskReader {
 			logger.debug("Read in localization scheme {} from file {}", sl.toString(), path.toString());
 		}
 		
-		return new CoverageTask(path, new HashSet<Path>(pathify(passed)), new HashSet<Path>(pathify(failed)), sl);
+		// Check if the file specifies pairs.
+		JSONObject jsonPairs = (JSONObject)jsonObj.get("pairs");
+		Map<Path, Path> pairs = null;
+		if (jsonPairs != null) {
+			pairs = (Map<Path, Path>) jsonPairs.entrySet().stream()
+					.collect(Collectors.toMap(k -> Paths.get((String)k), v -> Paths.get((String)v)));
+		}
+		
+		CoverageTask ct = new CoverageTask(path, new HashSet<Path>(pathify(passed)), new HashSet<Path>(pathify(failed)), sl);
+		ct.setPairs(pairs);
+		return ct;
 	}
 	
 	/**

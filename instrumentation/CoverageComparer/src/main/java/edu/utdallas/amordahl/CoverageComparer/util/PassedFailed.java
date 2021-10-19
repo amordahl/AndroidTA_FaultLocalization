@@ -2,6 +2,7 @@ package edu.utdallas.amordahl.CoverageComparer.util;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,6 +24,11 @@ public class PassedFailed<S> {
 	}
 	public void setFailed(Map<Path, Collection<S>> failed) {
 		this.failed = failed;
+	}
+	
+	public PassedFailed() {
+		passed = new HashMap<Path, Collection<S>>();
+		failed = new HashMap<Path, Collection<S>>();
 	}
 	private Map<Path, Collection<S>> passed;
 	private Map<Path, Collection<S>> failed;

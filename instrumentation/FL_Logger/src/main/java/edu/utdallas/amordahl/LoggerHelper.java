@@ -1,6 +1,5 @@
 package edu.utdallas.amordahl;
 
-import java.awt.RenderingHints.Key;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -67,8 +66,8 @@ public class LoggerHelper {
 
 	private static void logDataStructureInfo(Object obj, String name, int lineNumber, int index, 
 			SupportedInstrumentations type, String content) {
-		System.out.println(String.format("%s:%d-%d,%s",
-				name, lineNumber, index, content));
+		System.out.println(String.format("%s:%d-%d,%s,%s",
+				name, lineNumber, index, obj.getClass().toString(), content));
 	}
 	
 	public static void logDataStructure(Object obj, String name, int lineNumber, int index, 
