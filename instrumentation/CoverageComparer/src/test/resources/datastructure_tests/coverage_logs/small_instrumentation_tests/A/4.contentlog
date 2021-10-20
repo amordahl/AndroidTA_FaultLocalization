@@ -1,9 +1,9 @@
-edu/utdallas/amordahl/Mainsoot:24-0,[]
-edu/utdallas/amordahl/Mainsoot:24-1,java.util.Random@61e717c2
-edu/utdallas/amordahl/Mainsoot:24-0,[2]
-edu/utdallas/amordahl/Mainsoot:24-1,java.util.Random@61e717c2
-edu/utdallas/amordahl/Mainsoot:24-0,[2, 3]
-edu/utdallas/amordahl/Mainsoot:24-1,java.util.Random@61e717c2
-edu/utdallas/amordahl/Mainsoot:24-0,[2, 3, 0]
-edu/utdallas/amordahl/Mainsoot:24-1,java.util.Random@61e717c2
-edu/utdallas/amordahl/Mainsoot:24-0,[2, 3, 0, 4]
+edu/utdallas/amordahl/Mainsoot:24-0,class java.util.ArrayList,[]
+edu/utdallas/amordahl/Mainsoot:24-1,class java.util.Random,java.util.Random@61e717c2
+edu/utdallas/amordahl/Mainsoot:24-0,class java.util.ArrayList,[2]
+edu/utdallas/amordahl/Mainsoot:24-1,class java.util.Random,java.util.Random@61e717c2
+edu/utdallas/amordahl/Mainsoot:24-0,class java.util.ArrayList,[2, 3]
+edu/utdallas/amordahl/Mainsoot:24-1,class java.util.Random,java.util.Random@61e717c2
+edu/utdallas/amordahl/Mainsoot:24-0,class java.util.ArrayList,[2, 3, 0]
+edu/utdallas/amordahl/Mainsoot:24-1,class java.util.Random,java.util.Random@61e717c2
+edu/utdallas/amordahl/Mainsoot:24-0,class java.util.ArrayList,[2, 3, 0, 4]

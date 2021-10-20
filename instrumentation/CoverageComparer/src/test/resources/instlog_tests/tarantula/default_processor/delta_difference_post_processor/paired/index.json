@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "/instlog_tests/coverage_logs/paired/A/coverage_paired_A.json": "/instlog_tests/tarantula/default_processor/delta_difference_post_processor/paired/A/answerkey.json"
+  }
+
+}

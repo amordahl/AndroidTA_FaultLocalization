@@ -19,7 +19,7 @@ public abstract class AbstractPostProcessor<S> {
 		PassedFailed<S> modifiedPf = new PassedFailed<S>();
 		modifiedPf.setFailed(transformMap(pf.getFailed(), pf));
 		modifiedPf.setPassed(transformMap(pf.getPassed(), pf));
-		return pf;
+		return modifiedPf;
 	}
 	
 	/**

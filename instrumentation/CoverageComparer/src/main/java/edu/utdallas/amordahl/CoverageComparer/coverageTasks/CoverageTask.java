@@ -2,6 +2,7 @@ package edu.utdallas.amordahl.CoverageComparer.coverageTasks;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
@@ -49,12 +50,15 @@ public class CoverageTask {
 	 */
 	private Set<Path> passed;
 	
+	private Set<Path> other;
+	
 	/**
 	 * The localization that is requested.
 	 */
 	private SupportedLocalization localization;
 	
 	private Map<Path, Path> pairs;
+	
 	/**
 	 * Constructs a {@link CoverageTask}.
 	 * @param passed
@@ -62,12 +66,22 @@ public class CoverageTask {
 	 * @param localization
 	 */
 	public CoverageTask(Path p, Set<Path> passed, Set<Path> failed, SupportedLocalization localization) {
+		this(p, failed, passed, new HashSet<Path>(), localization);
+	}
+	
+	/**
+	 * Constructs a {@link CoverageTask}.
+	 * @param passed
+	 * @param failed
+	 * @param localization
+	 */
+	public CoverageTask(Path p, Set<Path> passed, Set<Path> failed, Set<Path> other, SupportedLocalization localization) {
 		this.setOriginalPath(p);
 		this.setFailed(failed);
 		this.setPassed(passed);
+		this.setOther(other);
 		this.localization = localization;
 	}
-	
 	/**
 	 * Constructs a {@link CoverageTask}, with Tarantula localization.
 	 * @param passed The set of passing records.
@@ -91,5 +105,13 @@ public class CoverageTask {
 
 	public void setPairs(Map<Path, Path> pairs) {
 		this.pairs = pairs;
+	}
+
+	public Set<Path> getOther() {
+		return other;
+	}
+
+	public void setOther(Set<Path> other) {
+		this.other = other;
 	}
 }

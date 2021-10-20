@@ -11,16 +11,16 @@ import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
  * @author Austin Mordahl
  *
  */
-public class IdentityPostProcessor extends AbstractPostProcessor<Object> {
+public class IdentityPostProcessor<S> extends AbstractPostProcessor<S> {
 
 	@Override
-	public PassedFailed<Object> postProcess(PassedFailed<Object> pf) {
+	public PassedFailed<S> postProcess(PassedFailed<S> pf) {
 		return pf;
 	}
 
 	@Override
-	protected Entry<Path, Collection<Object>> transform(Entry<Path, Collection<Object>> entry,
-			PassedFailed<Object> pf) {
+	protected Entry<Path, Collection<S>> transform(Entry<Path, Collection<S>> entry,
+			PassedFailed<S> pf) {
 		// TODO Auto-generated method stub
 		return null;
 	}

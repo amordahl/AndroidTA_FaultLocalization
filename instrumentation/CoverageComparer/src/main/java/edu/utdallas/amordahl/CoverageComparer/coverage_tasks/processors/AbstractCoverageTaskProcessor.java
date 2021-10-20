@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -75,8 +76,15 @@ public abstract class AbstractCoverageTaskProcessor<S extends CoverageRecord<?, 
 		Map<Path, Collection<S>> passed = mapPathToMap(ct.getPassed());
 		Map<Path, Collection<S>> failed = mapPathToMap(ct.getFailed());
 		PassedFailed<S> pf = new PassedFailed<S>();
+
+		Map<Path, Collection<S>> other;
+		if (ct.getOther() != null) {
+			other = mapPathToMap(ct.getOther());
+			pf.setOther(other);
+		}
 		pf.setPassed(passed);
 		pf.setFailed(failed);
+		pf.setOriginatingTask(ct);
 		return pf;
 	}
 

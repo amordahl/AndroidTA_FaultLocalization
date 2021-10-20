@@ -1,9 +1,19 @@
 package edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +21,40 @@ import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
 
 public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<CoverageRecord<String, Boolean>> {
 
+	private Pair<Integer, String> processMappingLines(String line) {
+		String[] tokens = line.split("=");
+		return new ImmutablePair<Integer, String>(Integer.valueOf(tokens[1]), tokens[0]);
+	}
+	 
+	private CoverageRecord<String, Boolean> processNonMappingLine(Map<Integer, String> mappings, String line) {
+		String[] tokens = line.split(":");
+		String actualName;
+		try {
+			actualName = mapping.get(Integer.valueOf(tokens[0]));
+		} catch (NumberFormatException nfe) {
+			logger.warn("Could not cast {} to int. Instead, using raw value as name.", tokens[0]);
+			actualName = tokens[0];
+		}
+		return new CoverageRecord<String, Boolean>(
+				String.format("%s:%d", actualName, Integer.valueOf(tokens[1])), Boolean.class, true);
+	}
+	@Override
+	protected Collection<CoverageRecord<String, Boolean>> readInstFile(Path p) {
+		try {
+			logger.trace("In readInstLogFile with argument {}", p);
+			Map<Integer, String> locationMapping = 
+					Files.lines(p).parallel().filter(s -> s.contains("=")).map(s -> processMappingLines(s)).collect(Collectors.toMap(k -> k.getKey(), k -> k.getValue()));
+			List<CoverageRecord<String, Boolean>> fileContent = Files.lines(p).parallel().filter(s -> !s.contains("=")).map(s -> processNonMappingLine(locationMapping, s)).collect(Collectors.toList());
+			return fileContent;
+		
+		} catch (FileNotFoundException e) {
+			logger.error("Could not find path {}. Returning empty coverage set.", p.toString());
+		} catch (IOException e) {
+			logger.error("Error reading in path {}. Returning empty coverage set.", p.toString());
+		}
+		return null;
+	}
+	
 	private static Logger logger = LoggerFactory.getLogger(BaselineInstlogProcessor.class);
 
 	protected Path getIntermediateName(Path p) {

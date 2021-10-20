@@ -10,6 +10,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.AbstractPostProcessor;
+import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.IdentityPostProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.AbstractCoverageTaskProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureElementwiseLogProcessor;
 import edu.utdallas.amordahl.CoverageComparer.localizers.ILocalizer;
@@ -46,6 +48,11 @@ public class Tests extends AnswerKeyBasedTester<CoverageRecord<String, String>> 
 	@Parameters
 	public static Collection<Path[]> getParams() {
 		return TestUtils.getTestsAndAnswerKeys(INDEX_FILE);
+	}
+
+	@Override
+	public AbstractPostProcessor<CoverageRecord<String, String>> getPostProcessor() {
+		return new IdentityPostProcessor<CoverageRecord<String, String>>();
 	}
 
 }

@@ -16,6 +16,7 @@ import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTaskReader;
+import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.AbstractPostProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.AbstractCoverageTaskProcessor;
 import edu.utdallas.amordahl.CoverageComparer.localizers.ILocalizer;
 
@@ -48,6 +49,7 @@ public abstract class AnswerKeyBasedTester<S extends CoverageRecord<?, ?>> {
 	private JSONObject answerKey;
 	public abstract AbstractCoverageTaskProcessor<S> getActp();
 	public abstract ILocalizer<S> getIl();
+	public abstract AbstractPostProcessor<S> getPostProcessor();
 
 	public void setCoverageTask(CoverageTask coverageTask) {
 		this.coverageTask = coverageTask;
@@ -72,6 +74,7 @@ public abstract class AnswerKeyBasedTester<S extends CoverageRecord<?, ?>> {
 		this.setCoverageTask(CoverageTaskReader.getCoverageTaskFromFile(coverageTaskPath));
 		this.coverageTask.setPassed(TestUtils.fixPaths(coverageTask.getPassed()));
 		this.coverageTask.setFailed(TestUtils.fixPaths(coverageTask.getFailed()));
+		this.coverageTask.setOther(TestUtils.fixPaths(coverageTask.getOther()));
 		this.setAnswerKey((JSONObject) new JSONParser().parse(new FileReader(answerKeyPath.toFile())));
 	}
 
@@ -80,16 +83,20 @@ public abstract class AnswerKeyBasedTester<S extends CoverageRecord<?, ?>> {
 	@Test
 	public void testValues() {		
 		AbstractCoverageTaskProcessor<S> actp = this.getActp();
+		AbstractPostProcessor<S> postProcessor = this.getPostProcessor();
 		ILocalizer<S> il = this.getIl();
 
 		PassedFailed<S> pf = actp.processCoverageTask(this.getCoverageTask());
+		pf = postProcessor.postProcess(pf);
 		Map<S, Double> suspiciousnesses = il.computeSuspiciousness(pf);
 		Map<String, Double> suspiciousnessWithStrings = suspiciousnesses.entrySet().stream()
 				.collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue()));
 		Map<String, Double> suspiciousnessKey = this.getSuspiciousnessAnswers();
 		Set<Boolean> equals = new HashSet<Boolean>();
 		for (String key: suspiciousnessKey.keySet()) {
-			equals.add(Precision.compareTo(suspiciousnessKey.get(key), suspiciousnessWithStrings.get(key), 0.001d) == 0);
+			if (suspiciousnessWithStrings.containsKey(key)) {
+				equals.add(Precision.compareTo(suspiciousnessKey.get(key), suspiciousnessWithStrings.get(key), 0.001d) == 0);
+			}
 		}
 		
 		assert(!equals.contains(false));

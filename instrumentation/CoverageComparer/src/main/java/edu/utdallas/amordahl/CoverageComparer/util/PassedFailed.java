@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
+
 /**
  * A simple class that contains passed and failed data for a localization computation.
  * @author Austin Mordahl
@@ -13,6 +15,8 @@ import java.util.Map;
  * @param <S>
  */
 public class PassedFailed<S> {
+	private Map<Path, Collection<S>> other;
+
 	public Map<Path, Collection<S>> getPassed() {
 		return passed;
 	}
@@ -27,9 +31,44 @@ public class PassedFailed<S> {
 	}
 	
 	public PassedFailed() {
-		passed = new HashMap<Path, Collection<S>>();
-		failed = new HashMap<Path, Collection<S>>();
+		setPassed(new HashMap<Path, Collection<S>>());
+		setFailed(new HashMap<Path, Collection<S>>());
+		setOther(new HashMap<Path, Collection<S>>());
+	}
+	public CoverageTask getOriginatingTask() {
+		return originatingTask;
+	}
+	public void setOriginatingTask(CoverageTask originatingTask) {
+		this.originatingTask = originatingTask;
 	}
 	private Map<Path, Collection<S>> passed;
 	private Map<Path, Collection<S>> failed;
+	private CoverageTask originatingTask;
+
+	// Utility functions
+	
+	/**
+	 * Searches both the passed and failed set of a pf object to find the given key.
+	 * @param pf The passedfailed set to search.
+	 * @param key The path to search as the key.
+	 * @return The value that is associated with the key.
+	 */
+	public static Collection<?> findValueForKey(PassedFailed<?> pf, Path key) {
+		for (Object o : new Object[] {pf.getPassed(), pf.getFailed(), pf.getOther()} ) {
+			if (((Map<Path, Collection<?>>)o).containsKey(key)) {
+				return ((Map<Path, Collection<?>>)o).get(key);
+			}
+		}
+		return null;
+	}
+	public void setOther(Map<Path, Collection<S>> other) {
+		this.other = other;
+		
+	}
+	public Map<Path, Collection<S>> getOther() {
+		return other;
+	}
+	public void setOther(HashMap<Path, Collection<S>> other) {
+		this.other = other;
+	}
 }

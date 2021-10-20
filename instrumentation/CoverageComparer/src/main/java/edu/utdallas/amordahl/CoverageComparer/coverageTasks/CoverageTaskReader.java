@@ -12,8 +12,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -82,6 +84,10 @@ public class CoverageTaskReader {
 		logger.debug("Read in {} objects from the failed field in {}.", failed.size(), path.toString());
 		logger.debug("Read in {} objects from the passed field in {}.", passed.size(), path.toString());
 		
+		JSONArray other = null;
+		if (jsonObj.containsKey("other")) {
+			other = (JSONArray)jsonObj.get("other");
+		}
 		// Check if the file specifies a localization scheme.
 		SupportedLocalization sl = CoverageTaskReader.DEFAULT_LOCALIZATION;
 		if (jsonObj.containsKey("localization")) {
@@ -91,13 +97,24 @@ public class CoverageTaskReader {
 		
 		// Check if the file specifies pairs.
 		JSONObject jsonPairs = (JSONObject)jsonObj.get("pairs");
-		Map<Path, Path> pairs = null;
+		Map<Path, Path> pairs = new DualHashBidiMap<Path, Path>();
 		if (jsonPairs != null) {
-			pairs = (Map<Path, Path>) jsonPairs.entrySet().stream()
-					.collect(Collectors.toMap(k -> Paths.get((String)k), v -> Paths.get((String)v)));
+			// Construct a BiDirectional map so that we can get values for either side of the pair.
+			pairs = new DualHashBidiMap<Path, Path>(
+						(Map<Path, Path>)(
+								jsonPairs.entrySet().stream()
+								.collect(Collectors.toMap(
+										k -> Paths.get((String)((Entry)k).getKey()),
+										k -> Paths.get((String)((Entry)k).getValue())))
+						)
+					);
 		}
 		
-		CoverageTask ct = new CoverageTask(path, new HashSet<Path>(pathify(passed)), new HashSet<Path>(pathify(failed)), sl);
+		CoverageTask ct = new CoverageTask(path, 
+				new HashSet<Path>(pathify(passed)), 
+				new HashSet<Path>(pathify(failed)),
+				other == null ? new HashSet<Path>() : new HashSet<Path>(pathify(other)),
+				sl);
 		ct.setPairs(pairs);
 		return ct;
 	}
