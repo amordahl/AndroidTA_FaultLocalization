@@ -112,7 +112,7 @@ public class PerfTimer {
         return ((double)totalOfBadAQLRuns)/totalBadAQLRuns;
     }
 
-    public   long getTotalCompileRuns() {
+    public long getTotalCompileRuns() {
         return totalGoodCompileRuns;
     }
     public long getTotalBadCompileRuns(){
@@ -122,12 +122,12 @@ public class PerfTimer {
         return totalBadAQLRuns;
     }
 
-    public   double getAverageOfGoodCompileRuns() {
+    public double getAverageOfGoodCompileRuns() {
         if(totalGoodCompileRuns==0)
             return 0;
         return ((double)totalOfGoodCompileRuns)/totalGoodCompileRuns;
     }
-    public   double getAverageOfBadCompileRuns() {
+    public double getAverageOfBadCompileRuns() {
         if(totalBadCompileRuns==0)
             return 0;
         return ((double)totalOfBadCompileRuns)/totalBadCompileRuns;
@@ -155,51 +155,41 @@ public class PerfTimer {
     }
 
     public void startOneAQLRun(){
-        if(firstAQLRun){
-            firstAQLRun=false;
-            goodAQLTimer.start();
-        }else {
-            goodAQLTimer.resume();
-        }
-        goodAQLTimer.split();
+        goodAQLTimer.start();
+
     }
     public void endOneAQLRun(boolean success){
 
-        goodAQLTimer.suspend();
+        goodAQLTimer.stop();
+
         if(success) {
-            totalOfGoodAQLRuns+=goodAQLTimer.getSplitTime();
+            totalOfGoodAQLRuns+=goodAQLTimer.getTime();
             totalGoodAQLRuns++;
 
         }else{
-            totalOfBadAQLRuns+=goodAQLTimer.getSplitTime();
+            totalOfBadAQLRuns+=goodAQLTimer.getTime();
             totalBadAQLRuns++;
         }
-        goodAQLTimer.unsplit();
+        goodAQLTimer.reset();
+
 
     }
     public   void startOneCompileRun(){
-        if(firstCompileRun) {
-            firstCompileRun=false;
-            goodCompileTimer.start();
-
-        }else{
-            goodCompileTimer.resume();
-        }
-        goodCompileTimer.split();
+        goodCompileTimer.start();
     }
     public   void endOneCompileRun(){
-        goodCompileTimer.suspend();
-        totalOfGoodCompileRuns+=goodCompileTimer.getSplitTime();
+        goodCompileTimer.stop();
+        totalOfGoodCompileRuns+=goodCompileTimer.getTime();
         totalGoodCompileRuns++;
-        goodCompileTimer.unsplit();
+        goodCompileTimer.reset();
 
     }
     public   void endOneFailedCompileRun(){
 
-        goodCompileTimer.suspend();
-        totalOfBadCompileRuns += goodCompileTimer.getSplitTime();
+        goodCompileTimer.stop();
+        totalOfBadCompileRuns += goodCompileTimer.getTime();
         totalBadCompileRuns++;
-        goodCompileTimer.unsplit();
+        goodCompileTimer.reset();
     }
     public void startProgramRunTime(){
         programTimer.start();
