@@ -18,7 +18,8 @@ public class ProcessThread extends Thread{
     private long startTime;
     private long timeOutLong;
     private boolean doWriteProcess=false;
-    public ProcessThread(Process aqlProcess, ThreadHandler t, ThreadHandler.ProcessType type, long timeOutLong){
+    int caller;
+    public ProcessThread(Process aqlProcess, ThreadHandler t, ThreadHandler.ProcessType type, long timeOutLong, int caller){
         thisProc=aqlProcess;
         handler=t;
         finalString="";
@@ -26,8 +27,11 @@ public class ProcessThread extends Thread{
         lockObj= new Object();
         doneCount=0;
         this.timeOutLong=timeOutLong;
+        this.caller=caller;
 
     }
+
+
 
     public void run(){
         startTime=System.currentTimeMillis();
@@ -86,7 +90,7 @@ public class ProcessThread extends Thread{
                     }
                 }
 
-                handler.handleThread(type,finalString,null);
+                handler.handleThread(this,type,finalString,null);
                 threadDone=true;
             }
         } catch (InterruptedException e) {

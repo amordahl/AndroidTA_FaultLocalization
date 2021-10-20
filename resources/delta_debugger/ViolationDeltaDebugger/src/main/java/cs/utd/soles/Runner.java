@@ -46,11 +46,9 @@ public class Runner {
 
         doBinaryReduction();
 
-
         doMethodReduction();
 
         //before we start debugging, sort the pairs based on whos the most dependant
-
         Comparator<Pair<File,CompilationUnit>> cuListComp = new Comparator<Pair<File, CompilationUnit>>() {
             @Override
             public int compare(Pair<File, CompilationUnit> o1, Pair<File, CompilationUnit> o2) {
@@ -73,8 +71,8 @@ public class Runner {
         };
 
         /**/
-
         Collections.sort(bestCUList,cuListComp);
+
         SYSTEM_TIMEOUT_TIME=System.currentTimeMillis()+(TIMEOUT_TIME_MINUTES*M_TO_MILLIS);
 
         //start the delta debugging process
@@ -83,7 +81,6 @@ public class Runner {
             //this is set here because if a change is made to ANY ast we want to say we haven't minimized yet
             minimized=true;
             int i=0;
-
             for (Pair<File,CompilationUnit> compilationUnit : bestCUList) {
                 //if we are under the time limit, traverse the tree
                 if(System.currentTimeMillis()<SYSTEM_TIMEOUT_TIME)
@@ -167,7 +164,7 @@ public class Runner {
         try {
             //create the apk so we actually have something to work with.
             synchronized(lockObject) {
-                testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList);
+                testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList,0);
                 lockObject.wait();
                 if(!testerForThis.threadResult){
                     System.out.println("BUILD FAILED, we didnt change anything so faulty project");
@@ -213,7 +210,7 @@ public class Runner {
             try {
                 //create newest version of apk
                 synchronized (lockObject) {
-                    testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList);
+                    testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList,2);
                     lockObject.wait();
                     if (!testerForThis.threadResult) {
                         System.out.println("BUILD FAILED, we didnt change anything so faulty project");
@@ -270,20 +267,32 @@ public class Runner {
             fw.write("setup_time: "+performanceLog.getSetupTime()/1000+"\n");
             fw.write("binary_time:"+performanceLog.getBinaryTime()/1000+"\n"+"\n");
 
+            fw.write("average_of_good_runtime_aql: " + performanceLog.getAverageOfGoodAQLRuns(0)/1000+"\n");
+            fw.write("total_good_aql_runs: "+performanceLog.getTotalAQLRuns(0)+"\n"+"\n");
+            fw.write("average_of_good_runtime_compile: " +performanceLog.getAverageOfGoodCompileRuns(0)/1000+"\n");
+            fw.write("total_good_compile_runs: "+ performanceLog.getTotalCompileRuns(0)+"\n"+"\n");
+
+            fw.write("average_of_bad_runtime_aql: " + performanceLog.getAverageOfBadAQLRuns(0)/1000+"\n");
+            fw.write("total_bad_aql_runs: "+performanceLog.getTotalBadAqlRuns(0)+"\n"+"\n");
+            fw.write("average_of_bad_runtime_compile: " +performanceLog.getAverageOfBadCompileRuns(0)/1000+"\n");
+            fw.write("total_bad_compile_runs: "+ performanceLog.getTotalBadCompileRuns(0)+"\n"+"\n");
+            
+            fw.write("Percent_Of_Program_Time_Taken_By_BinaryReduction: "+((performanceLog.getBinaryTime()/(double)performanceLog.getProgramRunTime())*100)+"\n");
+            fw.write("\n"+performanceLog.getPercentagesBinary());
+
             fw.write("average_of_rotations: " + performanceLog.getAverageOfRotations()/1000+"\n");
             fw.write("total_rotations: "+ performanceLog.getTotalRotations()+"\n"+"\n");
 
-            fw.write("average_of_good_runtime_aql: " + performanceLog.getAverageOfGoodAQLRuns()/1000+"\n");
-            fw.write("total_good_aql_runs: "+performanceLog.getTotalAQLRuns()+"\n"+"\n");
-            fw.write("average_of_good_runtime_compile: " +performanceLog.getAverageOfGoodCompileRuns()/1000+"\n");
-            fw.write("total_good_compile_runs: "+ performanceLog.getTotalCompileRuns()+"\n"+"\n");
+            fw.write("average_of_good_runtime_aql: " + performanceLog.getAverageOfGoodAQLRuns(1)/1000+"\n");
+            fw.write("total_good_aql_runs: "+performanceLog.getTotalAQLRuns(1)+"\n"+"\n");
+            fw.write("average_of_good_runtime_compile: " +performanceLog.getAverageOfGoodCompileRuns(1)/1000+"\n");
+            fw.write("total_good_compile_runs: "+ performanceLog.getTotalCompileRuns(1)+"\n"+"\n");
 
-            fw.write("average_of_bad_runtime_aql: " + performanceLog.getAverageOfBadAQLRuns()/1000+"\n");
-            fw.write("total_bad_aql_runs: "+performanceLog.getTotalBadAqlRuns()+"\n"+"\n");
-            fw.write("average_of_bad_runtime_compile: " +performanceLog.getAverageOfBadCompileRuns()/1000+"\n");
-            fw.write("total_bad_compile_runs: "+ performanceLog.getTotalBadCompileRuns()+"\n"+"\n");
-            fw.write("Percent_Of_Program_Time_Taken_By_BinaryReduction: "+((performanceLog.getBinaryTime()/(double)performanceLog.getProgramRunTime())*100)+"\n");
-            fw.write("\n"+performanceLog.getPercentages());
+            fw.write("average_of_bad_runtime_aql: " + performanceLog.getAverageOfBadAQLRuns(1)/1000+"\n");
+            fw.write("total_bad_aql_runs: "+performanceLog.getTotalBadAqlRuns(1)+"\n"+"\n");
+            fw.write("average_of_bad_runtime_compile: " +performanceLog.getAverageOfBadCompileRuns(1)/1000+"\n");
+            fw.write("total_bad_compile_runs: "+ performanceLog.getTotalBadCompileRuns(1)+"\n"+"\n");
+            fw.write("\n"+performanceLog.getPercentagesHDD());
             fw.write("\nnum_candidate_ast: " + testerForThis.candidateCountJava);
             fw.write("\nStart_line_count: "+performanceLog.startLineCount);
             fw.write("\nEnd_line_count: "+performanceLog.endLineCount);
@@ -435,7 +444,7 @@ public class Runner {
             //enter synchronized
             synchronized(lockObject) {
                 //create the apk using the new list of compilation units
-                testerForThis.startApkCreation(projectGradlewPath, projectRootPath, proposal);
+                testerForThis.startApkCreation(projectGradlewPath, projectRootPath, proposal,0);
                     /*if (testerForThis.createApk(projectGradlewPath, projectRootPath, bestCUList, javaFiles, compPosition, copiedu)) {
 
                         if (testerForThis.runAQL(projectAPKPath, config1, config2, thisRunName)) {
@@ -459,7 +468,7 @@ public class Runner {
                     return false;
                 }
                 //start aql process
-                testerForThis.startAQLProcess(projectAPKPath, config1, config2, thisRunName);
+                testerForThis.startAQLProcess(projectAPKPath, config1, config2, thisRunName, 0);
                 //testerUtil.startAQLProcess
                 //wait for aqlprocess to be done
                 lockObject.wait();
@@ -583,6 +592,7 @@ public class Runner {
     //we process parents before children
     public static void traverseTree(int currentCU, Node currentNode){
 
+
         if(!currentNode.getParentNode().isPresent()&&!(currentNode instanceof CompilationUnit)||currentNode==null){
             return;
         }
@@ -602,17 +612,17 @@ public class Runner {
     public static void handleNodeList(int compPosition, Node currentNode, List<Node> childList){
 
         //make a copy of the tree
-
         CompilationUnit copiedUnit = bestCUList.get(compPosition).getValue1().clone();
         Node copiedNode = findCurrentNode(currentNode, compPosition, copiedUnit);
         ArrayList<Node> alterableList = new ArrayList<Node>(childList);
         ArrayList<Node> copiedList = getCurrentNodeList(copiedNode, alterableList);
 
+
+
         //change the copy
         for(int i=copiedList.size();i>0;i/=2){
             for(int j=0;j<copiedList.size();j+=i){
                 List<Node> subList = new ArrayList<>(copiedList.subList(j,Math.min((j+i),copiedList.size())));
-
                 List<Node> removedNodes = new ArrayList<>();
                 List<Node> alterableRemoves = new ArrayList<>();
                 int index=j;
@@ -634,7 +644,6 @@ public class Runner {
 
                     copiedList.removeAll(removedNodes);
                     alterableList.removeAll(alterableRemoves);
-
 
                     //make another copy and try to run the loop again
                     copiedUnit = bestCUList.get(compPosition).getValue1().clone();
@@ -672,7 +681,6 @@ public class Runner {
             handleNodeList(currentCUPos,currentNode, childList);
 
         }
-
         if(currentNode instanceof BlockStmt) {
 
             BlockStmt node = ((BlockStmt) currentNode);
@@ -744,7 +752,7 @@ public class Runner {
             //enter synchronized
             synchronized(lockObject) {
                     //create the apk
-                    testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList, compPosition, copiedu);
+                    testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList, compPosition, copiedu, 1);
                     /*if (testerForThis.createApk(projectGradlewPath, projectRootPath, bestCUList, javaFiles, compPosition, copiedu)) {
 
                         if (testerForThis.runAQL(projectAPKPath, config1, config2, thisRunName)) {
@@ -768,7 +776,7 @@ public class Runner {
                         return false;
                     }
                     //start aql process
-                    testerForThis.startAQLProcess(projectAPKPath, config1, config2, thisRunName);
+                    testerForThis.startAQLProcess(projectAPKPath, config1, config2, thisRunName, 1);
                     //testerUtil.startAQLProcess
                     //wait for aqlprocess to be done
                     lockObject.wait();

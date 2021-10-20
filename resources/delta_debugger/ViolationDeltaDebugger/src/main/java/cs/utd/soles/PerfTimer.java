@@ -7,8 +7,6 @@ import java.util.ArrayList;
 public class PerfTimer {
 
 
-    boolean firstAQLRun=true;
-    boolean firstCompileRun=true;
     boolean firstRotationRun=true;
 
     public PerfTimer(){
@@ -28,10 +26,29 @@ public class PerfTimer {
 
     ArrayList<CodeChange> codeChanges = new ArrayList<>();
     public long lastCurrentLines=0;
-    public double totalOfBadCompileRuns=0;
-    public int totalBadCompileRuns = 0;
-    public double totalOfBadAQLRuns = 0;
-    public int totalBadAQLRuns = 0;
+
+
+    public double totalOfBadCompileRunsBinary=0;
+    public int totalBadCompileRunsBinary = 0;
+    public double totalOfBadAQLRunsBinary = 0;
+    public int totalBadAQLRunsBinary = 0;
+
+
+    public double totalOfBadCompileRunsHDD=0;
+    public int totalBadCompileRunsHDD = 0;
+    public double totalOfBadAQLRunsHDD = 0;
+    public int totalBadAQLRunsHDD = 0;
+
+    public double totalOfGoodCompileRunsBinary=0;
+    public int totalGoodCompileRunsBinary = 0;
+    public double totalOfGoodAQLRunsBinary = 0;
+    public int totalGoodAQLRunsBinary = 0;
+
+
+    public double totalOfGoodCompileRunsHDD=0;
+    public int totalGoodCompileRunsHDD = 0;
+    public double totalOfGoodAQLRunsHDD = 0;
+    public int totalGoodAQLRunsHDD = 0;
 
     public void addCodeChange(long currentLines){
         double timeMade=System.currentTimeMillis()-programTimer.getStartTime();
@@ -97,40 +114,81 @@ public class PerfTimer {
         return rotationTimer.getTime()/((double)totalRotations);
     }
 
-    public   long getTotalAQLRuns() {
-        return totalGoodAQLRuns;
+    public   long getTotalAQLRuns(int caller) {
+        if(caller==0)
+            return totalGoodAQLRunsBinary;
+        else {
+            return totalGoodAQLRunsHDD;
+        }
     }
 
-    public   double getAverageOfGoodAQLRuns() {
-        if(totalGoodAQLRuns==0)
-            return 0;
-        return ((double)totalOfGoodAQLRuns)/totalGoodAQLRuns;
+    public   double getAverageOfGoodAQLRuns(int caller) {
+        if(caller==0) {
+            if (totalGoodAQLRunsBinary == 0)
+                return 0;
+            return ((double) totalOfGoodAQLRunsBinary) / totalGoodAQLRunsBinary;
+        }else {
+            if (totalGoodAQLRunsHDD == 0)
+                return 0;
+            return ((double) totalOfGoodAQLRunsHDD) / totalGoodAQLRunsHDD;
+        }
     }
-    public   double getAverageOfBadAQLRuns() {
-        if(totalBadAQLRuns==0)
-            return 0;
-        return ((double)totalOfBadAQLRuns)/totalBadAQLRuns;
+    public   double getAverageOfBadAQLRuns(int caller) {
+        if(caller==0) {
+            if (totalBadAQLRunsBinary == 0)
+                return 0;
+            return ((double) totalOfBadAQLRunsBinary) / totalBadAQLRunsBinary;
+        }else{
+            if (totalBadAQLRunsHDD == 0)
+                return 0;
+            return ((double) totalOfBadAQLRunsHDD) / totalBadAQLRunsHDD;
+        }
     }
 
-    public long getTotalCompileRuns() {
-        return totalGoodCompileRuns;
+    public long getTotalCompileRuns(int caller) {
+        if(caller==0) {
+            return totalGoodCompileRunsBinary;
+        }else{
+            return totalGoodCompileRunsHDD;
+        }
     }
-    public long getTotalBadCompileRuns(){
-        return totalBadCompileRuns;
+    public long getTotalBadCompileRuns(int caller){
+        if(caller==0) {
+            return totalBadCompileRunsBinary;
+        }else{
+            return totalBadCompileRunsHDD;
+        }
     }
-    public long getTotalBadAqlRuns(){
-        return totalBadAQLRuns;
+    public long getTotalBadAqlRuns(int caller){
+        if(caller==0) {
+            return totalBadAQLRunsBinary;
+        }
+        else{
+            return totalBadAQLRunsHDD;
+        }
     }
 
-    public double getAverageOfGoodCompileRuns() {
-        if(totalGoodCompileRuns==0)
-            return 0;
-        return ((double)totalOfGoodCompileRuns)/totalGoodCompileRuns;
+    public double getAverageOfGoodCompileRuns(int caller) {
+        if(caller==0) {
+            if (totalGoodCompileRunsBinary == 0)
+                return 0;
+            return ((double) totalOfGoodCompileRunsBinary) / totalGoodCompileRunsBinary;
+        }else{
+            if (totalGoodCompileRunsHDD == 0)
+                return 0;
+            return ((double) totalOfGoodCompileRunsHDD) / totalGoodCompileRunsHDD;
+        }
     }
-    public double getAverageOfBadCompileRuns() {
-        if(totalBadCompileRuns==0)
-            return 0;
-        return ((double)totalOfBadCompileRuns)/totalBadCompileRuns;
+    public double getAverageOfBadCompileRuns(int caller) {
+        if(caller==0) {
+            if (totalBadCompileRunsBinary == 0)
+                return 0;
+            return ((double) totalOfBadCompileRunsBinary) / totalBadCompileRunsBinary;
+        }else{
+            if (totalBadCompileRunsHDD == 0)
+                return 0;
+            return ((double) totalOfBadCompileRunsHDD) / totalBadCompileRunsHDD;
+        }
     }
 
     public void startOneRotation(){
@@ -158,17 +216,29 @@ public class PerfTimer {
         goodAQLTimer.start();
 
     }
-    public void endOneAQLRun(boolean success){
+    public void endOneAQLRun(boolean success, int caller){
 
         goodAQLTimer.stop();
 
-        if(success) {
-            totalOfGoodAQLRuns+=goodAQLTimer.getTime();
-            totalGoodAQLRuns++;
+        if(caller==0) {
+            if (success) {
+                totalOfGoodAQLRunsBinary += goodAQLTimer.getTime();
+                totalGoodAQLRunsBinary++;
 
-        }else{
-            totalOfBadAQLRuns+=goodAQLTimer.getTime();
-            totalBadAQLRuns++;
+            } else {
+                totalOfBadAQLRunsBinary += goodAQLTimer.getTime();
+                totalBadAQLRunsBinary++;
+            }
+        }
+        else{
+            if (success) {
+                totalOfGoodAQLRunsHDD += goodAQLTimer.getTime();
+                totalGoodAQLRunsHDD++;
+
+            } else {
+                totalOfBadAQLRunsHDD += goodAQLTimer.getTime();
+                totalBadAQLRunsHDD++;
+            }
         }
         goodAQLTimer.reset();
 
@@ -177,18 +247,29 @@ public class PerfTimer {
     public   void startOneCompileRun(){
         goodCompileTimer.start();
     }
-    public   void endOneCompileRun(){
+    public   void endOneCompileRun(int caller){
         goodCompileTimer.stop();
-        totalOfGoodCompileRuns+=goodCompileTimer.getTime();
-        totalGoodCompileRuns++;
+        if(caller==0) {
+            totalOfGoodCompileRunsBinary += goodCompileTimer.getTime();
+            totalGoodCompileRunsBinary++;
+
+        }else{
+            totalOfGoodCompileRunsHDD += goodCompileTimer.getTime();
+            totalGoodCompileRunsHDD++;
+        }
         goodCompileTimer.reset();
-
     }
-    public   void endOneFailedCompileRun(){
+    public   void endOneFailedCompileRun(int caller){
 
         goodCompileTimer.stop();
-        totalOfBadCompileRuns += goodCompileTimer.getTime();
-        totalBadCompileRuns++;
+        if(caller==0) {
+            totalOfBadCompileRunsBinary += goodCompileTimer.getTime();
+            totalBadCompileRunsBinary++;
+
+        }else{
+            totalOfBadCompileRunsHDD += goodCompileTimer.getTime();
+            totalBadCompileRunsHDD++;
+        }
         goodCompileTimer.reset();
     }
     public void startProgramRunTime(){
@@ -233,22 +314,29 @@ public class PerfTimer {
     private long programStartTime=0;
     private long thisCompileRun=0;
     private long totalRotations=0;
-    public  long totalProgramTime=0;
-    private long totalOfGoodAQLRuns=0;
-    private long totalGoodAQLRuns=0;
-    private long totalOfGoodCompileRuns=0;
-    private long totalGoodCompileRuns=0;
 
 
-    public   String getPercentages(){
 
-        double totalRunTime = totalProgramTime;
+    public   String getPercentagesBinary(){
+
+
 
         String returnString ="";
-        returnString+="Percent_Of_Program_Time_Taken_By_Good_AQL_Runs: "+((totalOfGoodAQLRuns/getProgramRunTime())*100)+"\n";
-        returnString+="Percent_Of_Program_Time_Taken_By_Good_Compile_Runs: "+((totalOfGoodCompileRuns/getProgramRunTime())*100)+"\n";
-        returnString+="Percent_Of_Program_Time_Taken_By_Bad_AQL_Runs: "+((totalOfBadAQLRuns/getProgramRunTime())*100)+"\n";
-        returnString+="Percent_Of_Program_Time_Taken_By_Bad_Compile_Runs: "+((totalOfBadCompileRuns/getProgramRunTime())*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Good_AQL_Runs_Binary: "+((totalOfGoodAQLRunsBinary/getProgramRunTime())*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Good_Compile_Runs_Binary: "+((totalOfGoodCompileRunsBinary/getProgramRunTime())*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Bad_AQL_Runs_Binary: "+((totalOfBadAQLRunsBinary/getProgramRunTime())*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Bad_Compile_Runs_Binary: "+((totalOfBadCompileRunsBinary/getProgramRunTime())*100)+"\n";
+        return returnString;
+    }
+    public   String getPercentagesHDD(){
+
+
+
+        String returnString ="";
+        returnString+="Percent_Of_Program_Time_Taken_By_Good_AQL_Runs_HDD: "+((totalOfGoodAQLRunsHDD/getProgramRunTime())*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Good_Compile_Runs_HDD: "+((totalOfGoodCompileRunsHDD/getProgramRunTime())*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Bad_AQL_Runs_HDD: "+((totalOfBadAQLRunsHDD/getProgramRunTime())*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Bad_Compile_Runs_HDD: "+((totalOfBadCompileRunsHDD/getProgramRunTime())*100)+"\n";
         return returnString;
     }
 

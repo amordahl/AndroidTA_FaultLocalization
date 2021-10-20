@@ -9,5 +9,5 @@ public interface ThreadHandler {
         AQL_RUN,
         CALLGRAPH
     }
-    void handleThread(ProcessType type, String finalString, String finalString2);
+    void handleThread(Thread thread, ProcessType type, String finalString, String finalString2);
 }

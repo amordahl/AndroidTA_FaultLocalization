@@ -7,8 +7,6 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
-import com.github.javaparser.ast.type.Type;
-import com.github.javaparser.symbolsolver.javaparsermodel.contexts.AnonymousClassDeclarationContext;
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Flow;
 import org.javatuples.Pair;
@@ -19,7 +17,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -117,11 +114,11 @@ public class TesterUtil implements ThreadHandler{
     }
 
     //create apk from list
-    public void startApkCreation(String projectGradlewPath, String projectRootPath, ArrayList<Pair<File, CompilationUnit>> bestCUList) {
+    public void startApkCreation(String projectGradlewPath, String projectRootPath, ArrayList<Pair<File, CompilationUnit>> bestCUList, int caller) {
 
         //this method is for removing entire files, so we got to actually remove them
         cleanseFiles();
-        createApk(projectGradlewPath,projectRootPath,bestCUList,bestCUList.size()+1,null);
+        createApk(projectGradlewPath,projectRootPath,bestCUList,bestCUList.size()+1,null, caller);
     }
 
     public void cleanseFiles(){
@@ -137,7 +134,7 @@ public class TesterUtil implements ThreadHandler{
 
     //this just calls gradlew assembleDebug in the right directory
     //this needs the gradlew file path and the root directory of the project
-    public void createApk(String gradlewFilePath, String rootDir, ArrayList<Pair<File,CompilationUnit>> list, int positionChanged, CompilationUnit changedUnit){
+    public void createApk(String gradlewFilePath, String rootDir, ArrayList<Pair<File, CompilationUnit>> list, int positionChanged, CompilationUnit changedUnit, int caller){
 
         String[] command = {gradlewFilePath, "clean", "assembleDebug", "-p", rootDir};
         try {
@@ -145,7 +142,7 @@ public class TesterUtil implements ThreadHandler{
 
             Runner.performanceLog.startOneCompileRun();
             Process p = Runtime.getRuntime().exec(command);
-            ProcessThread pThread = new ProcessThread(p,this,ProcessType.CREATE_APK_PROCESS, 300000);
+            ProcessThread pThread = new ProcessThread(p,this,ProcessType.CREATE_APK_PROCESS, 300000, caller);
             pThread.start();
             /*if(!out.contains("BUILD SUCCESSFUL") || oute.contains("BUILD: FAILURE")){
                 //assembling project failed we don't care why
@@ -160,7 +157,7 @@ public class TesterUtil implements ThreadHandler{
         }
     }
 
-    public void runAQL(String apk, String generatingConfig1, String generatingConfig2, String programConfigString) throws IOException {
+    public void runAQL(String apk, String generatingConfig1, String generatingConfig2, String programConfigString, int caller) throws IOException {
 
 
         //this bit runs and captures the output of the aql script
@@ -192,7 +189,7 @@ public class TesterUtil implements ThreadHandler{
             command2Run= Runtime.getRuntime().exec(command2);
         }
 
-        AQLThread aqlThread = new AQLThread(command1Run, command2Run,this);
+        AQLThread aqlThread = new AQLThread(command1Run, command2Run,this, caller);
         aqlThread.start();
         //File output1 = handleOutput("1",Long.toHexString(System.currentTimeMillis()), command1Out,programConfigString);
         //File output2 = handleOutput("2",Long.toHexString(System.currentTimeMillis()), command2Out,programConfigString);
@@ -345,13 +342,13 @@ public class TesterUtil implements ThreadHandler{
         return output;
     }*/
 
-    public void startApkCreation(String projectGradlewPath, String projectRootPath, ArrayList<Pair<File, CompilationUnit>> bestCUList, int compPosition, CompilationUnit copiedu) {
-        createApk(projectGradlewPath,projectRootPath,bestCUList,compPosition,copiedu);
+    public void startApkCreation(String projectGradlewPath, String projectRootPath, ArrayList<Pair<File, CompilationUnit>> bestCUList, int compPosition, CompilationUnit copiedu, int caller) {
+        createApk(projectGradlewPath,projectRootPath,bestCUList,compPosition,copiedu, caller);
     }
 
-    public void startAQLProcess(String projectAPKPath, String config1, String config2, String thisRunName) {
+    public void startAQLProcess(String projectAPKPath, String config1, String config2, String thisRunName, int caller) {
         try {
-            runAQL(projectAPKPath,config1,config2,thisRunName);
+            runAQL(projectAPKPath,config1,config2,thisRunName, caller);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -363,7 +360,7 @@ public class TesterUtil implements ThreadHandler{
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(command);
-            ProcessThread pThread = new ProcessThread(p,this,ProcessType.CALLGRAPH, 30000);
+            ProcessThread pThread = new ProcessThread(p,this,ProcessType.CALLGRAPH, 30000,-1);
             pThread.start();
 
         } catch (IOException e) {
@@ -377,7 +374,7 @@ public class TesterUtil implements ThreadHandler{
 
     boolean threadResult=false;
     @Override
-    public void handleThread(ProcessType t, String finalString, String finalString2) {
+    public void handleThread(Thread thred, ProcessType t, String finalString, String finalString2) {
 
         //This new framework for handling threads should allow us to read Process output more elegantly
 
@@ -391,12 +388,12 @@ public class TesterUtil implements ThreadHandler{
                         //assembling project failed we don't care why
                         if (Runner.LOG_MESSAGES)
                             System.out.println(finalString);
-                        Runner.performanceLog.endOneFailedCompileRun();
+                        Runner.performanceLog.endOneFailedCompileRun(((ProcessThread)thred).caller);
                         threadResult=false;
                         lockObj.notify();
                         return;
                     }
-                    Runner.performanceLog.endOneCompileRun();
+                    Runner.performanceLog.endOneCompileRun(((ProcessThread)thred).caller);
                     //build worked
                     threadResult=true;
                     lockObj.notify();
@@ -414,11 +411,12 @@ public class TesterUtil implements ThreadHandler{
                         File o1 = handleOutput("1",Long.toHexString(System.currentTimeMillis()), finalString,Runner.thisRunName);
                         File o2 = handleOutput("2",Long.toHexString(System.currentTimeMillis()), finalString2,Runner.thisRunName);
                         threadResult=handleAQL(o1,o2);
-                        Runner.performanceLog.endOneAQLRun(threadResult);
-                    } catch (IOException e) {
 
+                    } catch (IOException e) {
                         e.printStackTrace();
                         lockObj.notify();
+                    }finally{
+                        Runner.performanceLog.endOneAQLRun(threadResult, (((AQLThread)thred).caller));
                     }
 
                     lockObj.notify();
