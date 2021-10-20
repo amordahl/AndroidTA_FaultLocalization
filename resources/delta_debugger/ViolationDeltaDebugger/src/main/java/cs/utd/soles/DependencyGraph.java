@@ -80,7 +80,7 @@ public class DependencyGraph {
 
 
 
-        returnSet.addAll(returnList);
+        //returnSet.addAll(returnList);
         returnList = new ArrayList<HashSet<ClassNode>>(returnSet);
         long end = System.nanoTime()-start;
         System.out.println(end);

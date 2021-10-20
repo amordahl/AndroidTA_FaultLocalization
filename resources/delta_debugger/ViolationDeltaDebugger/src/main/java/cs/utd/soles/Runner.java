@@ -11,6 +11,7 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Flowset;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.javatuples.Pair;
 import java.io.*;
 import java.nio.file.Paths;
@@ -27,6 +28,7 @@ public class Runner {
     public static String THIS_RUN_PREFIX="";
     public static DependencyGraph dg = null;
     private static long TIMEOUT_TIME_MINUTES=120;
+
     //1 minute is this long in millis
     private static final long M_TO_MILLIS=60000;
     private static long SYSTEM_TIMEOUT_TIME=0;
@@ -35,137 +37,17 @@ public class Runner {
     public static void main(String[] args){
         performanceLog.startProgramRunTime();
 
+        //TODO:: setup a timer for setup stuff, maybe see where our time goes
         //generate schema file
         //maybe have the program wait until it finds the Schema??
-        try {
-            SchemaGenerator.generateSchema();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
 
-        //handle the arguments
-        handleArgs(args);
-
-        //after we handl the args we gotta do a couple of things
-        /*
-        * 1. build the project file to minimize
-        * 2. make the tester
-        * 3. setup intermediate trash
-        * 4. try to minimize
-        *
-        * */
-
-        //build the project file
-        createTargetProject();
+        doSetup(args);
 
 
-
-        //HANDLE THE SOURCE DIRECTORY (THIS SHOULD JUST BE JAVA DIR IN PROJECT)
-        try{
-            handleSrcDirectory(projectSrcPath);
-            if(LOG_MESSAGES) {
-                String filePathName = "debugger/java_files/" + thisRunName + "/intermediate_java/";
-                File f = new File(filePathName);
-                f.mkdirs();
-                intermediateJavaDir=f;
-            }
-            //get the lines count before any changes
-            testerForThis.saveCompilationUnits(bestCUList);
-            performanceLog.startLineCount=LineCounter.countLinesDir(projectSrcPath);
-            performanceLog.lastCurrentLines=performanceLog.startLineCount;
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-        //handle the projects that dont need to be minimized
-        if(!projectNeedsToBeMinimized){
-            //this should just run the gradlew assembleDebug and check if we reproduced the thing - since checklist should be 0 then yes we always get a apk
-            checkChanges(bestCUList.size()+1,null);
-            System.out.println("Saving APK, no flows given so no minimization to be done. Exiting program...");
-            System.exit(0);
-        }
+        doBinaryReduction();
 
 
-
-        long startTimeBinary = System.currentTimeMillis();
-        //associate classes to files
-        fillNamesToPaths();
-
-        //generate dot file
-        //dependency graph
-        try {
-            //create the apk so we actually have something to work with.
-            synchronized(lockObject) {
-                testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList);
-                lockObject.wait();
-                if(!testerForThis.threadResult){
-                    System.out.println("BUILD FAILED, we didnt change anything so faulty project");
-                    System.exit(-1);
-                }
-                saveBestAPK();
-
-                //then make the nodes
-                dg = makeDependencyNodes();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-
-        //Before we start delta debugging lets, work on finding the best files to deal with
-        if(DO_CLASS_REDUCTION) {
-            ArrayList<HashSet<ClassNode>> closures = dg.getTransitiveClosuresDifferent();
-            System.out.println("CLOSURES: " + closures);
-            try {
-
-                reduceFromClosures(closures);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        long endTimeBinaryReduction = System.currentTimeMillis()-startTimeBinary;
-        /*
-        * Method based reduction goes here, right after class based reduction. First, run our modified Flowdroid its in
-        * /home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar
-        * //TODO:: make this thing an argument, but hard coded works fine. Anyway,
-        * */
-        if(DO_METHOD_REDUCTION) {
-            try {
-                //create newest version of apk
-                synchronized (lockObject) {
-                    testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList);
-                    lockObject.wait();
-                    if (!testerForThis.threadResult) {
-                        System.out.println("BUILD FAILED, we didnt change anything so faulty project");
-                        System.exit(-1);
-                    }
-                    saveBestAPK();
-
-                    testerForThis.startCCGProcess(projectAPKPath, thisRunName);
-                    lockObject.wait();
-                    //our callgraph has now been created so I guess we just should call makeClosures,
-                    //and then pass them to a method based reducer
-
-
-                }
-
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-
-
-
-
+        doMethodReduction();
 
         //before we start debugging, sort the pairs based on whos the most dependant
 
@@ -212,7 +94,150 @@ public class Runner {
             System.out.println("Done with 1 rotation");
             performanceLog.endOneRotation();
         }
+        performanceLog.endRotationTimer();
+        performanceLog.endOneProgramTime();
 
+
+        doPrintLog();
+    }
+
+
+
+
+    private static void doSetup(String[] args){
+        performanceLog.startSetupTime();
+        try {
+            SchemaGenerator.generateSchema();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        //handle the arguments
+        handleArgs(args);
+
+        //after we handl the args we gotta do a couple of things
+        /*
+         * 1. build the project file to minimize
+         * 2. make the tester
+         * 3. setup intermediate trash
+         * 4. try to minimize
+         *
+         * */
+
+        //build the project file
+        createTargetProject();
+
+        //HANDLE THE SOURCE DIRECTORY (THIS SHOULD JUST BE JAVA DIR IN PROJECT)
+        try{
+
+            handleSrcDirectory(projectSrcPath);
+            if(LOG_MESSAGES) {
+                String filePathName = "debugger/java_files/" + thisRunName + "/intermediate_java/";
+                File f = new File(filePathName);
+                f.mkdirs();
+                intermediateJavaDir=f;
+            }
+
+            //get the lines count before any changes
+            testerForThis.saveCompilationUnits(bestCUList);
+            performanceLog.startLineCount=LineCounter.countLinesDir(projectSrcPath);
+            performanceLog.lastCurrentLines=performanceLog.startLineCount;
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+        //handle the projects that dont need to be minimized
+        if(!projectNeedsToBeMinimized){
+            //this should just run the gradlew assembleDebug and check if we reproduced the thing - since checklist should be 0 then yes we always get a apk
+            checkChanges(bestCUList.size()+1,null);
+            System.out.println("Saving APK, no flows given so no minimization to be done. Exiting program...");
+            System.exit(0);
+        }
+        performanceLog.endOneSetupTime();
+    }
+
+    private static void doBinaryReduction(){
+        //TODO:: method based reduction requires some of this binary stuff to run, keep in mind
+        performanceLog.startBinaryTime();
+        //associate classes to files
+        fillNamesToPaths();
+        //generate dot file
+        //dependency graph
+        try {
+            //create the apk so we actually have something to work with.
+            synchronized(lockObject) {
+                testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList);
+                lockObject.wait();
+                if(!testerForThis.threadResult){
+                    System.out.println("BUILD FAILED, we didnt change anything so faulty project");
+                    System.exit(-1);
+                }
+                saveBestAPK();
+
+                //then make the nodes
+                dg = makeDependencyNodes();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+
+        //Before we start delta debugging lets, work on finding the best files to deal with
+        if(DO_CLASS_REDUCTION) {
+            ArrayList<HashSet<ClassNode>> closures = dg.getTransitiveClosuresDifferent();
+            System.out.println("CLOSURES: " + closures);
+            try {
+
+                reduceFromClosures(closures);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        performanceLog.endBinaryTime();
+    }
+
+    private static void doMethodReduction(){
+        performanceLog.startMethodRedTime();
+        /*
+         * Method based reduction goes here, right after class based reduction. First, run our modified Flowdroid its in
+         * /home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar
+         * //TODO:: make this thing an argument, but hard coded works fine. Anyway,
+         * */
+        if(DO_METHOD_REDUCTION) {
+            try {
+                //create newest version of apk
+                synchronized (lockObject) {
+                    testerForThis.startApkCreation(projectGradlewPath, projectRootPath, bestCUList);
+                    lockObject.wait();
+                    if (!testerForThis.threadResult) {
+                        System.out.println("BUILD FAILED, we didnt change anything so faulty project");
+                        System.exit(-1);
+                    }
+                    saveBestAPK();
+
+                    testerForThis.startCCGProcess(projectAPKPath, thisRunName);
+                    lockObject.wait();
+                    //our callgraph has now been created so I guess we just should call makeClosures,
+                    //and then pass them to a method based reducer
+
+
+                }
+
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        performanceLog.endMethodRedTime();
+    }
+
+    private static void doPrintLog(){
         //log a bunch of information
         try {
             String filePathName = "debugger/java_files/" +thisRunName+"/";
@@ -254,7 +279,7 @@ public class Runner {
             fw.write("total_bad_aql_runs: "+performanceLog.getTotalBadAqlRuns()+"\n"+"\n");
             fw.write("average_of_bad_runtime_compile: " +performanceLog.getAverageOfBadCompileRuns()/1000+"\n");
             fw.write("total_bad_compile_runs: "+ performanceLog.getTotalBadCompileRuns()+"\n"+"\n");
-            fw.write("Percent_Of_Program_Time_Taken_By_BinaryReduction: "+((endTimeBinaryReduction/(double)performanceLog.totalProgramTime)*100)+"\n");
+            fw.write("Percent_Of_Program_Time_Taken_By_BinaryReduction: "+((performanceLog.getBinaryTime()/(double)performanceLog.totalProgramTime)*100)+"\n");
             fw.write("\n"+performanceLog.getPercentages());
             fw.write("\nnum_candidate_ast: " + testerForThis.candidateCountJava);
             fw.write("\nStart_line_count: "+performanceLog.startLineCount);
@@ -271,7 +296,6 @@ public class Runner {
         }catch(IOException e){
             e.printStackTrace();
         }
-
     }
 
     private static DependencyGraph makeDependencyNodes() throws IOException, InterruptedException {
@@ -581,7 +605,6 @@ public class Runner {
         ArrayList<Node> alterableList = new ArrayList<Node>(childList);
         ArrayList<Node> copiedList = getCurrentNodeList(copiedNode, alterableList);
 
-
         //change the copy
         for(int i=copiedList.size();i>0;i/=2){
             for(int j=0;j<copiedList.size();j+=i){
@@ -600,7 +623,7 @@ public class Runner {
                 }
 
                 if(checkChanges(compPosition, copiedUnit)){
-                    //if changed remove the nodes we removed from the original ast
+                    //if changed, remove the nodes we removed from the original ast
                     for(Node x:alterableRemoves){
                         currentNode.remove(x);
                     }

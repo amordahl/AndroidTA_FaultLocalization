@@ -1,18 +1,33 @@
 package cs.utd.soles;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import java.util.ArrayList;
 
 public class PerfTimer {
 
 
-      long startLineCount=0;
-      long endLineCount=0;
-      int changeNum=0;
-      int currentRotation=0;
+    boolean firstAQLRun=true;
+    boolean firstCompileRun=true;
+    boolean firstRotationRun=true;
 
-      ArrayList<CodeChange> codeChanges = new ArrayList<>();
+    public PerfTimer(){
+        goodCompileTimer = new StopWatch();
+        goodAQLTimer = new StopWatch();
+        rotationTimer = new StopWatch();
+        setupTimer = new StopWatch();
+        programTimer = new StopWatch();
+        binaryTimer = new StopWatch();
+        methodRedTimer = new StopWatch();
+    }
 
-      public long lastCurrentLines=0;
+    long startLineCount=0;
+    long endLineCount=0;
+    int changeNum=0;
+    int currentRotation=0;
+
+    ArrayList<CodeChange> codeChanges = new ArrayList<>();
+    public long lastCurrentLines=0;
     public long totalOfBadCompileRuns=0;
     public int totalBadCompileRuns = 0;
     public double totalOfBadAQLRuns = 0;
@@ -27,7 +42,16 @@ public class PerfTimer {
         codeChanges.add(new CodeChange(timeMade, linesRemoved, currentRotation, changeNum));
     }
 
+    private StopWatch goodCompileTimer;
+    //private StopWatch badCompileTimer;
+    private StopWatch goodAQLTimer;
+    //private StopWatch badAQLTimer;
+    private StopWatch rotationTimer;
 
+    private StopWatch setupTimer;
+    private StopWatch programTimer;
+    private StopWatch binaryTimer;
+    private StopWatch methodRedTimer;
 
     private class CodeChange{
 
@@ -61,7 +85,7 @@ public class PerfTimer {
         return returnLine;
     }
 
-    public   long getTotalRotations() {
+    public long getTotalRotations() {
         return totalRotations;
     }
 
@@ -69,10 +93,8 @@ public class PerfTimer {
         changeNum++;
     }
 
-    public   double getAverageOfRotations() {
-        if(totalRotations==0)
-            return 0;
-        return ((double)totalOfRotations)/totalRotations;
+    public double getAverageOfRotations() {
+        return rotationTimer.getTime()/((double)totalRotations);
     }
 
     public   long getTotalAQLRuns() {
@@ -111,62 +133,119 @@ public class PerfTimer {
         return ((double)totalOfBadCompileRuns)/totalBadCompileRuns;
     }
 
-    public   void startOneRotation(){
-        thisRotation=System.currentTimeMillis();
+    public void startOneRotation(){
+        if(firstRotationRun){
+            firstRotationRun=false;
+            rotationTimer.start();
+        }
+        else {
+            rotationTimer.resume();
+
+        }
         currentRotation++;
     }
 
-    public   void endOneRotation(){
-        totalOfRotations += System.currentTimeMillis() - thisRotation;
+    public void endOneRotation(){
+        rotationTimer.suspend();
         totalRotations++;
     }
-    public   void startOneAQLRun(){
-        thisAQLRun=System.currentTimeMillis();
+
+    public void endRotationTimer(){
+        rotationTimer.stop();
     }
-    public   void endOneAQLRun(boolean success){
+
+    public void startOneAQLRun(){
+        if(firstAQLRun){
+            firstAQLRun=false;
+            goodAQLTimer.start();
+        }else {
+            goodAQLTimer.resume();
+        }
+        goodAQLTimer.split();
+    }
+    public void endOneAQLRun(boolean success){
+        goodAQLTimer.unsplit();
+        goodAQLTimer.suspend();
         if(success) {
-            totalOfGoodAQLRuns += System.currentTimeMillis() - thisAQLRun;
+            totalOfGoodAQLRuns+=goodAQLTimer.getSplitTime();
             totalGoodAQLRuns++;
 
         }else{
-            totalOfBadAQLRuns += System.currentTimeMillis() - thisAQLRun;
+            totalOfBadAQLRuns+=goodAQLTimer.getSplitTime();
             totalBadAQLRuns++;
         }
+
     }
     public   void startOneCompileRun(){
-        thisCompileRun=System.currentTimeMillis();
+        if(firstCompileRun) {
+            firstCompileRun=false;
+            goodCompileTimer.start();
+
+        }else{
+            goodCompileTimer.resume();
+        }
+        goodCompileTimer.split();
     }
     public   void endOneCompileRun(){
-
-            totalOfGoodCompileRuns += System.currentTimeMillis() - thisCompileRun;
-            totalGoodCompileRuns++;
+        goodCompileTimer.unsplit();
+        goodCompileTimer.suspend();
+        totalOfGoodCompileRuns+=goodCompileTimer.getSplitTime();
+        totalGoodCompileRuns++;
 
     }
     public   void endOneFailedCompileRun(){
+        goodCompileTimer.unsplit();
+        goodCompileTimer.suspend();
         totalOfBadCompileRuns = System.currentTimeMillis() -thisCompileRun;
         totalBadCompileRuns++;
     }
-    public   void startProgramRunTime(){
-        thisProgramRuntime=System.currentTimeMillis();
-        programStartTime=thisProgramRuntime;
+    public void startProgramRunTime(){
+        programTimer.start();
     }
-    public   long getProgramRunTime(){
-        totalProgramTime=System.currentTimeMillis()-thisProgramRuntime;
-        return totalProgramTime;
+    public void endOneProgramTime(){
+        programTimer.stop();
+    }
+    public long getProgramRunTime(){
+        return programTimer.getTime();
+    }
+    public void startSetupTime(){
+        setupTimer.start();
+    }
+    public void endOneSetupTime(){
+        setupTimer.stop();
+    }
+    public long getSetupTime(){
+        return setupTimer.getTime();
+    }
+    public void startBinaryTime(){
+        binaryTimer.start();
+    }
+    public void endBinaryTime(){
+        binaryTimer.stop();
+    }
+    public long getBinaryTime(){
+        return binaryTimer.getTime();
+    }
+    public void startMethodRedTime(){
+        methodRedTimer.start();
+    }
+    public void endMethodRedTime(){
+        methodRedTimer.stop();
+    }
+    public long getMethodRedTime(){
+        return methodRedTimer.getTime();
     }
 
+
+
     private long programStartTime=0;
-    private   long thisProgramRuntime=0;
-    private   long thisRotation=0;
-    private   long thisAQLRun=0;
-    private   long thisCompileRun=0;
-    private   long totalOfRotations=0;
-    private   long totalRotations=0;
-    public   long totalProgramTime=0;
-    private   long totalOfGoodAQLRuns=0;
-    private   long totalGoodAQLRuns=0;
-    private   long totalOfGoodCompileRuns=0;
-    private   long totalGoodCompileRuns=0;
+    private long thisCompileRun=0;
+    private long totalRotations=0;
+    public  long totalProgramTime=0;
+    private long totalOfGoodAQLRuns=0;
+    private long totalGoodAQLRuns=0;
+    private long totalOfGoodCompileRuns=0;
+    private long totalGoodCompileRuns=0;
 
 
     public   String getPercentages(){

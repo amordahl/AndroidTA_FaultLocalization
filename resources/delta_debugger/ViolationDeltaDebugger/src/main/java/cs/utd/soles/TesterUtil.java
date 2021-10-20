@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * This is used to test the AST against the target, it also parses the target file so it can be compared
  * */
 
-
+//TODO:: APACHE STOPWATCH implement
 
 public class TesterUtil implements ThreadHandler{
 
@@ -34,7 +34,6 @@ public class TesterUtil implements ThreadHandler{
     String targetFile=null;
     String xmlSchemaFile=null;
     int candidateCountJava=0;
-    int compilationFailedCount=0;
     final Object lockObj;
     boolean isViolation=false;
 
@@ -139,12 +138,13 @@ public class TesterUtil implements ThreadHandler{
     //this just calls gradlew assembleDebug in the right directory
     //this needs the gradlew file path and the root directory of the project
     public void createApk(String gradlewFilePath, String rootDir, ArrayList<Pair<File,CompilationUnit>> list, int positionChanged, CompilationUnit changedUnit){
-        Runner.performanceLog.startOneCompileRun();
+
         String[] command = {gradlewFilePath, "clean", "assembleDebug", "-p", rootDir};
         try {
             saveCompilationUnits(list,positionChanged, changedUnit);
-            Process p = Runtime.getRuntime().exec(command);
 
+            Runner.performanceLog.startOneCompileRun();
+            Process p = Runtime.getRuntime().exec(command);
             ProcessThread pThread = new ProcessThread(p,this,ProcessType.CREATE_APK_PROCESS, 300000);
             pThread.start();
             /*if(!out.contains("BUILD SUCCESSFUL") || oute.contains("BUILD: FAILURE")){
@@ -161,7 +161,7 @@ public class TesterUtil implements ThreadHandler{
     }
 
     public void runAQL(String apk, String generatingConfig1, String generatingConfig2, String programConfigString) throws IOException {
-        Runner.performanceLog.startOneAQLRun();
+
 
         //this bit runs and captures the output of the aql script
         String command1 = "python runaql.py "+generatingConfig1+" "+apk+" -f";
@@ -184,6 +184,7 @@ public class TesterUtil implements ThreadHandler{
         //start these commands and then handle them somewhere else
         Process command1Run = null;
         Process command2Run = null;
+        Runner.performanceLog.startOneAQLRun();
         if(runaql1){
             command1Run=Runtime.getRuntime().exec(command1);
         }
@@ -390,7 +391,6 @@ public class TesterUtil implements ThreadHandler{
                         //assembling project failed we don't care why
                         if (Runner.LOG_MESSAGES)
                             System.out.println(finalString);
-                        compilationFailedCount++;
                         Runner.performanceLog.endOneFailedCompileRun();
                         threadResult=false;
                         lockObj.notify();
