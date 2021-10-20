@@ -164,7 +164,7 @@ public class PerfTimer {
         goodAQLTimer.split();
     }
     public void endOneAQLRun(boolean success){
-        goodAQLTimer.unsplit();
+
         goodAQLTimer.suspend();
         if(success) {
             totalOfGoodAQLRuns+=goodAQLTimer.getSplitTime();
@@ -174,6 +174,7 @@ public class PerfTimer {
             totalOfBadAQLRuns+=goodAQLTimer.getSplitTime();
             totalBadAQLRuns++;
         }
+        goodAQLTimer.unsplit();
 
     }
     public   void startOneCompileRun(){
@@ -187,17 +188,18 @@ public class PerfTimer {
         goodCompileTimer.split();
     }
     public   void endOneCompileRun(){
-        goodCompileTimer.unsplit();
         goodCompileTimer.suspend();
         totalOfGoodCompileRuns+=goodCompileTimer.getSplitTime();
         totalGoodCompileRuns++;
+        goodCompileTimer.unsplit();
 
     }
     public   void endOneFailedCompileRun(){
-        goodCompileTimer.unsplit();
+
         goodCompileTimer.suspend();
         totalOfBadCompileRuns = System.currentTimeMillis() -thisCompileRun;
         totalBadCompileRuns++;
+        goodCompileTimer.unsplit();
     }
     public void startProgramRunTime(){
         programTimer.start();
