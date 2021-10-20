@@ -28,9 +28,9 @@ public class PerfTimer {
 
     ArrayList<CodeChange> codeChanges = new ArrayList<>();
     public long lastCurrentLines=0;
-    public long totalOfBadCompileRuns=0;
+    public double totalOfBadCompileRuns=0;
     public int totalBadCompileRuns = 0;
-    public long totalOfBadAQLRuns = 0;
+    public double totalOfBadAQLRuns = 0;
     public int totalBadAQLRuns = 0;
 
     public void addCodeChange(long currentLines){
@@ -197,7 +197,7 @@ public class PerfTimer {
     public   void endOneFailedCompileRun(){
 
         goodCompileTimer.suspend();
-        totalOfBadCompileRuns = System.currentTimeMillis() -thisCompileRun;
+        totalOfBadCompileRuns += goodCompileTimer.getSplitTime();
         totalBadCompileRuns++;
         goodCompileTimer.unsplit();
     }

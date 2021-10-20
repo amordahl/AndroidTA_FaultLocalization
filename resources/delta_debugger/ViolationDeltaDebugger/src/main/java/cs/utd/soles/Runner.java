@@ -153,6 +153,7 @@ public class Runner {
             System.out.println("Saving APK, no flows given so no minimization to be done. Exiting program...");
             System.exit(0);
         }
+        System.out.println("Setup took " + performanceLog.getSetupTime()/1000);
         performanceLog.endOneSetupTime();
     }
 
@@ -266,8 +267,8 @@ public class Runner {
             fw.write("program_runtime: "+finalRunTimeVar+"\n"+"\n");
             fw.write("violation_type: "+targetType+"\n");
             fw.write("violation_or_not: "+violationOrNot+"\n");
-            fw.write("setup_time: "+performanceLog.getSetupTime());
-            fw.write("binary_time:"+performanceLog.getBinaryTime());
+            fw.write("setup_time: "+performanceLog.getSetupTime()/1000+"\n");
+            fw.write("binary_time:"+performanceLog.getBinaryTime()/1000+"\n"+"\n");
 
             fw.write("average_of_rotations: " + performanceLog.getAverageOfRotations()/1000+"\n");
             fw.write("total_rotations: "+ performanceLog.getTotalRotations()+"\n"+"\n");
