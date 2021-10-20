@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -40,11 +41,16 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Cove
 	}
 	@Override
 	protected Collection<CoverageRecord<String, Boolean>> readInstFile(Path p) {
+		System.out.println(String.format("Trying to read in file %s.", p.toString()));
+		StopWatch readingTime = new StopWatch();
+		readingTime.start();
 		try {
 			logger.trace("In readInstLogFile with argument {}", p);
 			Map<Integer, String> locationMapping = 
 					Files.lines(p).parallel().filter(s -> s.contains("=")).map(s -> processMappingLines(s)).collect(Collectors.toMap(k -> k.getKey(), k -> k.getValue()));
 			List<CoverageRecord<String, Boolean>> fileContent = Files.lines(p).parallel().filter(s -> !s.contains("=")).map(s -> processNonMappingLine(locationMapping, s)).collect(Collectors.toList());
+			readingTime.stop();
+			System.out.println(String.format("Finished reading in file %s. Took %d seconds.", p.toString(), readingTime.getTime()/1000));
 			return fileContent;
 		
 		} catch (FileNotFoundException e) {
