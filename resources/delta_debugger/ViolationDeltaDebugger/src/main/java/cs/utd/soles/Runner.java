@@ -267,31 +267,32 @@ public class Runner {
             fw.write("setup_time: "+performanceLog.getSetupTime()/1000+"\n");
             fw.write("binary_time:"+performanceLog.getBinaryTime()/1000+"\n"+"\n");
 
-            fw.write("average_of_good_runtime_aql: " + performanceLog.getAverageOfGoodAQLRuns(0)/1000+"\n");
-            fw.write("total_good_aql_runs: "+performanceLog.getTotalAQLRuns(0)+"\n"+"\n");
-            fw.write("average_of_good_runtime_compile: " +performanceLog.getAverageOfGoodCompileRuns(0)/1000+"\n");
-            fw.write("total_good_compile_runs: "+ performanceLog.getTotalCompileRuns(0)+"\n"+"\n");
+            fw.write("dependency_graph_time: "+performanceLog.getDependencyGraphTime()/1000+"\n");
+            fw.write("average_of_good_runtime_aql_binary: " + performanceLog.getAverageOfGoodAQLRuns(0)/1000+"\n");
+            fw.write("total_good_aql_runs_binary: "+performanceLog.getTotalAQLRuns(0)+"\n"+"\n");
+            fw.write("average_of_good_runtime_compile_binary: " +performanceLog.getAverageOfGoodCompileRuns(0)/1000+"\n");
+            fw.write("total_good_compile_runs_binary: "+ performanceLog.getTotalCompileRuns(0)+"\n"+"\n");
 
-            fw.write("average_of_bad_runtime_aql: " + performanceLog.getAverageOfBadAQLRuns(0)/1000+"\n");
-            fw.write("total_bad_aql_runs: "+performanceLog.getTotalBadAqlRuns(0)+"\n"+"\n");
-            fw.write("average_of_bad_runtime_compile: " +performanceLog.getAverageOfBadCompileRuns(0)/1000+"\n");
-            fw.write("total_bad_compile_runs: "+ performanceLog.getTotalBadCompileRuns(0)+"\n"+"\n");
-            
+            fw.write("average_of_bad_runtime_aql_binary: " + performanceLog.getAverageOfBadAQLRuns(0)/1000+"\n");
+            fw.write("total_bad_aql_runs_binary: "+performanceLog.getTotalBadAqlRuns(0)+"\n"+"\n");
+            fw.write("average_of_bad_runtime_compile_binary: " +performanceLog.getAverageOfBadCompileRuns(0)/1000+"\n");
+            fw.write("total_bad_compile_runs_binary: "+ performanceLog.getTotalBadCompileRuns(0)+"\n"+"\n");
+
             fw.write("Percent_Of_Program_Time_Taken_By_BinaryReduction: "+((performanceLog.getBinaryTime()/(double)performanceLog.getProgramRunTime())*100)+"\n");
-            fw.write("\n"+performanceLog.getPercentagesBinary());
+            fw.write("\n"+performanceLog.getPercentagesBinary()+"\n");
 
             fw.write("average_of_rotations: " + performanceLog.getAverageOfRotations()/1000+"\n");
             fw.write("total_rotations: "+ performanceLog.getTotalRotations()+"\n"+"\n");
 
-            fw.write("average_of_good_runtime_aql: " + performanceLog.getAverageOfGoodAQLRuns(1)/1000+"\n");
-            fw.write("total_good_aql_runs: "+performanceLog.getTotalAQLRuns(1)+"\n"+"\n");
-            fw.write("average_of_good_runtime_compile: " +performanceLog.getAverageOfGoodCompileRuns(1)/1000+"\n");
-            fw.write("total_good_compile_runs: "+ performanceLog.getTotalCompileRuns(1)+"\n"+"\n");
+            fw.write("average_of_good_runtime_aql_HDD: " + performanceLog.getAverageOfGoodAQLRuns(1)/1000+"\n");
+            fw.write("total_good_aql_runs_HDD: "+performanceLog.getTotalAQLRuns(1)+"\n"+"\n");
+            fw.write("average_of_good_runtime_compile_HDD: " +performanceLog.getAverageOfGoodCompileRuns(1)/1000+"\n");
+            fw.write("total_good_compile_runs_HDD: "+ performanceLog.getTotalCompileRuns(1)+"\n"+"\n");
 
-            fw.write("average_of_bad_runtime_aql: " + performanceLog.getAverageOfBadAQLRuns(1)/1000+"\n");
-            fw.write("total_bad_aql_runs: "+performanceLog.getTotalBadAqlRuns(1)+"\n"+"\n");
-            fw.write("average_of_bad_runtime_compile: " +performanceLog.getAverageOfBadCompileRuns(1)/1000+"\n");
-            fw.write("total_bad_compile_runs: "+ performanceLog.getTotalBadCompileRuns(1)+"\n"+"\n");
+            fw.write("average_of_bad_runtime_aql_HDD: " + performanceLog.getAverageOfBadAQLRuns(1)/1000+"\n");
+            fw.write("total_bad_aql_runs_HDD: "+performanceLog.getTotalBadAqlRuns(1)+"\n"+"\n");
+            fw.write("average_of_bad_runtime_compile_HDD: " +performanceLog.getAverageOfBadCompileRuns(1)/1000+"\n");
+            fw.write("total_bad_compile_runs_HDD: "+ performanceLog.getTotalBadCompileRuns(1)+"\n"+"\n");
             fw.write("\n"+performanceLog.getPercentagesHDD());
             fw.write("\nnum_candidate_ast: " + testerForThis.candidateCountJava);
             fw.write("\nStart_line_count: "+performanceLog.startLineCount);
@@ -311,6 +312,8 @@ public class Runner {
     }
 
     private static DependencyGraph makeDependencyNodes() throws IOException, InterruptedException {
+        //TODO:: timer
+        performanceLog.startDependencyGraphTime();
         //grab our class files
         String[] command = {"jdeps","-R","-verbose","-dotoutput",projectClassFiles+"/dotfiles",projectClassFiles};
 
@@ -329,6 +332,7 @@ public class Runner {
 
         DependencyGraph rg = new DependencyGraph();
         rg.parseGraphFromDot(dotFile);
+        performanceLog.endDependencyGraphTime();
         return rg;
     }
 

@@ -17,6 +17,7 @@ public class PerfTimer {
         programTimer = new StopWatch();
         binaryTimer = new StopWatch();
         methodRedTimer = new StopWatch();
+        dependencyGraphTimer = new StopWatch();
     }
 
     long startLineCount=0;
@@ -69,6 +70,7 @@ public class PerfTimer {
     private StopWatch programTimer;
     private StopWatch binaryTimer;
     private StopWatch methodRedTimer;
+    private StopWatch dependencyGraphTimer;
 
     private class CodeChange{
 
@@ -308,7 +310,15 @@ public class PerfTimer {
     public long getMethodRedTime(){
         return methodRedTimer.getTime();
     }
-
+    public void startDependencyGraphTime(){
+        dependencyGraphTimer.start();
+    }
+    public void endDependencyGraphTime(){
+        dependencyGraphTimer.stop();
+    }
+    public long getDependencyGraphTime(){
+        return dependencyGraphTimer.getTime();
+    }
 
 
     private long programStartTime=0;
