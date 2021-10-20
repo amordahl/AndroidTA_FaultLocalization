@@ -93,18 +93,23 @@ public class PrimaryTransformer implements ClassFileTransformer {
 			return null; // no transformation
 		}
 		logger.debug("Instrumenting the class " + className);
-		logger.debug("SettingsManager's coverage file is ");
+		//logger.debug("SettingsManager's coverage file is {}", SettingsManager.getCoverageFile() == null ? " " : SettingsManager.getCoverageFile());
 		final ClassReader classReader = new ClassReader(classfileBuffer);
 		final ClassWriter classWriter = new ClassWriterNoReflection(ClassWriter.COMPUTE_FRAMES);
 		ClassVisitor classVisitor = null;
+		logger.debug("Created all three visitors.");
 		// Create different class visitors depending on whether we have a coverage file or not.
-		if (SettingsManager.getCoverageFile() != null) {
+		try {
+			if (SettingsManager.getCoverageFile() != null) {
 			logger.debug("Creating a phase 2 instrumentation.");
 			classVisitor = new TraceClassVisitor(new Phase2ClassVisitor(new CheckClassAdapter(classWriter, false), 
 					className, PrimaryTransformer.getCovered()), null);
 		} else {
 			logger.debug("Creating a phase 1 instrumentation.");
-			classVisitor = new Phase1ClassVisitor(new CheckClassAdapter(classWriter, false), className);
+			classVisitor = new Phase1ClassVisitor(classWriter, className);
+		}
+		} catch (Throwable ex) {
+			logger.error("Something bad happened: {}", ex.fillInStackTrace());
 		}
 		classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
 		

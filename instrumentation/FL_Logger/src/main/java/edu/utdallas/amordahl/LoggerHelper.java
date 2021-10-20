@@ -7,7 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,7 @@ public class LoggerHelper {
 	private static long LAST_TIME = new Date().getTime();
 	private static FileWriter fw;
 	private static BufferedWriter bw;
-	private static HashMap<String, Integer> classToInt = new HashMap<String, Integer>();
+	private static Set<String> covered = new HashSet<String>();
 
 	/**
 	 * Threadsafe way to log coverage information. Will await a lock on the file
@@ -37,27 +39,16 @@ public class LoggerHelper {
 	 * @throws IOException
 	 */
 	public static void logCoverageInfo(int linenumber, String location) throws IOException {
-		Integer mapping;
-		synchronized (classToInt) {
-			if (classToInt.containsKey(location)) {
-				mapping = classToInt.get(location);
+		logger.debug("Logging coverage info.");
+		String fullLoc = String.format("%s:%d", location, linenumber);
+		synchronized (covered) {
+			if (covered.contains(fullLoc)) {
+				return;
 			} else {
-				// Find maximum key
-				if (classToInt.size() == 0) {
-					classToInt.put(location, Integer.valueOf(1));
-				} else {
-					Integer max = Integer.valueOf(-1);
-					for (String key : classToInt.keySet()) {
-						if (classToInt.get(key) > max)
-							max = classToInt.get(key);
-					}
-					classToInt.put(location, max + 1);
-				}
-				mapping = classToInt.get(location);
-				System.out.println(String.format("%s=%d", location, mapping));
+				covered.add(fullLoc);
+				System.out.println(fullLoc);
 			}
 		}
-		System.out.println(String.format("%d:%d,1", mapping, linenumber));
 	} 
 
 	public static void logDataStructure(Object obj, String name, int lineNumber) {
