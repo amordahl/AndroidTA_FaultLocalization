@@ -30,11 +30,11 @@ public class PerfTimer {
     public long lastCurrentLines=0;
     public long totalOfBadCompileRuns=0;
     public int totalBadCompileRuns = 0;
-    public double totalOfBadAQLRuns = 0;
+    public long totalOfBadAQLRuns = 0;
     public int totalBadAQLRuns = 0;
 
     public void addCodeChange(long currentLines){
-        double timeMade=(System.currentTimeMillis()-programStartTime)/1000.0;
+        double timeMade=System.currentTimeMillis()-programTimer.getStartTime();
         //check against the last size of the program
         long linesRemoved=lastCurrentLines-currentLines;
         //update current lines
@@ -255,10 +255,10 @@ public class PerfTimer {
         double totalRunTime = totalProgramTime;
 
         String returnString ="";
-        returnString+="Percent_Of_Program_Time_Taken_By_Good_AQL_Runs: "+((totalOfGoodAQLRuns/totalRunTime)*100)+"\n";
-        returnString+="Percent_Of_Program_Time_Taken_By_Good_Compile_Runs: "+((totalOfGoodCompileRuns/totalRunTime)*100)+"\n";
-        returnString+="Percent_Of_Program_Time_Taken_By_Bad_AQL_Runs: "+((totalOfBadAQLRuns/totalRunTime)*100)+"\n";
-        returnString+="Percent_Of_Program_Time_Taken_By_Bad_Compile_Runs: "+((totalOfBadCompileRuns/totalRunTime)*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Good_AQL_Runs: "+((totalOfGoodAQLRuns/getProgramRunTime())*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Good_Compile_Runs: "+((totalOfGoodCompileRuns/getProgramRunTime())*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Bad_AQL_Runs: "+((totalOfBadAQLRuns/getProgramRunTime())*100)+"\n";
+        returnString+="Percent_Of_Program_Time_Taken_By_Bad_Compile_Runs: "+((totalOfBadCompileRuns/getProgramRunTime())*100)+"\n";
         return returnString;
     }
 

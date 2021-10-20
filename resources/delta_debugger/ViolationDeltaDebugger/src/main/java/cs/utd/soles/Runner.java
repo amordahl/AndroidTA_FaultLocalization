@@ -79,7 +79,6 @@ public class Runner {
 
         //start the delta debugging process
         while(!minimized&&DO_HDD_REDUCTION&&System.currentTimeMillis()<SYSTEM_TIMEOUT_TIME){
-
             performanceLog.startOneRotation();
             //this is set here because if a change is made to ANY ast we want to say we haven't minimized yet
             minimized=true;
@@ -267,6 +266,9 @@ public class Runner {
             fw.write("program_runtime: "+finalRunTimeVar+"\n"+"\n");
             fw.write("violation_type: "+targetType+"\n");
             fw.write("violation_or_not: "+violationOrNot+"\n");
+            fw.write("setup_time: "+performanceLog.getSetupTime());
+            fw.write("binary_time:"+performanceLog.getBinaryTime());
+
             fw.write("average_of_rotations: " + performanceLog.getAverageOfRotations()/1000+"\n");
             fw.write("total_rotations: "+ performanceLog.getTotalRotations()+"\n"+"\n");
 
@@ -279,7 +281,7 @@ public class Runner {
             fw.write("total_bad_aql_runs: "+performanceLog.getTotalBadAqlRuns()+"\n"+"\n");
             fw.write("average_of_bad_runtime_compile: " +performanceLog.getAverageOfBadCompileRuns()/1000+"\n");
             fw.write("total_bad_compile_runs: "+ performanceLog.getTotalBadCompileRuns()+"\n"+"\n");
-            fw.write("Percent_Of_Program_Time_Taken_By_BinaryReduction: "+((performanceLog.getBinaryTime()/(double)performanceLog.totalProgramTime)*100)+"\n");
+            fw.write("Percent_Of_Program_Time_Taken_By_BinaryReduction: "+((performanceLog.getBinaryTime()/(double)performanceLog.getProgramRunTime())*100)+"\n");
             fw.write("\n"+performanceLog.getPercentages());
             fw.write("\nnum_candidate_ast: " + testerForThis.candidateCountJava);
             fw.write("\nStart_line_count: "+performanceLog.startLineCount);
