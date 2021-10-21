@@ -82,16 +82,20 @@ public class Application {
 	private void run() {
 		for (String s: this.coverageTasks) {
 			// Read in coverage file, which details the passed and failed test cases.
+			System.out.println(String.format("Reading in coverage file %s", Paths.get(s)));
 			CoverageTask ct = CoverageTaskReader.getCoverageTaskFromFile(Paths.get(s));
 			
 			// Process the coverage task -- actually read in the files and produce a PassedFailed object.
+			System.out.println(String.format("Now processing coverage task %s", Paths.get(s)));
 			@SuppressWarnings("unchecked")
 			PassedFailed<Object> pf = (PassedFailed<Object>) processor.processCoverageTask(ct);
 			
 			// Post process the PassedFailed object (e.g., only pass the delta to the localizer.
+			System.out.println(String.format("Now post-processing task %s", Paths.get(s)));
 			pf = app.postProcess(pf);
 			
 			// Localize the results.
+			System.out.println(String.format("Computing %s suspiciousness for task %s", localizer.getName(), Paths.get(s)));
 			Map<Object, Double> suspiciousness = localizer.computeSuspiciousness(pf);
 			
 			// Output the result.
@@ -106,7 +110,7 @@ public class Application {
 	 */
 	private void output(CoverageTask ct, Map<?, Double> suspiciousness) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("==================================");
+		sb.append("==================================\n");
 		sb.append(String.format("Localizer: %s\n", this.localizer.getName()));
 		sb.append(String.format("Processor: %s\n", this.processor.getName()));
 		sb.append(String.format("Coverage task: %s\n", ct.getOriginalPath()));

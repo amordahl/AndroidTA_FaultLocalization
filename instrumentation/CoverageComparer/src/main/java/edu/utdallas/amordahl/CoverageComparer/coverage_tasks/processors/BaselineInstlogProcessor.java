@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,8 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Simp
 		try {
 			logger.trace("In readInstLogFile with argument {}", p);
 			Map<Integer, String> locationMapping = new HashMap<Integer, String>();
-			Collection<SimpleLineCoverageRecord> fileContent = Files.lines(p).parallel().filter(s -> !s.contains("=") && s.contains(":")).map(s -> processNonMappingLine(locationMapping, s)).filter(s -> s != null).collect(Collectors.toList());
+			// Hashset to make lookup cheaper, localization was taking forever because of this.
+			HashSet<SimpleLineCoverageRecord> fileContent = (HashSet<SimpleLineCoverageRecord>) Files.lines(p).parallel().filter(s -> !s.contains("=") && s.contains(":")).map(s -> processNonMappingLine(locationMapping, s)).filter(s -> s != null).collect(Collectors.toSet());
 			readingTime.stop();
 			logger.info(String.format("Finished reading in file %s. Took %d seconds.", p.toString(), readingTime.getTime()/1000));
 			return fileContent;
