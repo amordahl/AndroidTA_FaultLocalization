@@ -33,11 +33,16 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Cove
 		try {
 			actualName = mapping.get(Integer.valueOf(tokens[0]));
 		} catch (NumberFormatException nfe) {
-			logger.warn("Could not cast {} to int. Instead, using raw value as name.", tokens[0]);
+			logger.info("Could not cast {} to int. Instead, using raw value as name.", tokens[0]);
 			actualName = tokens[0];
 		}
-		return new CoverageRecord<String, Boolean>(
+		try {
+		    return new CoverageRecord<String, Boolean>(
 				String.format("%s:%d", actualName, Integer.valueOf(tokens[1])), Boolean.class, true);
+		} catch (NumberFormatException nfe) {
+		    // TODO: Actually handle this. For now, leaving this as a dirty patch.
+		    return null;
+		}
 	}
 	@Override
 	protected Collection<CoverageRecord<String, Boolean>> readInstFile(Path p) {
@@ -46,9 +51,9 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Cove
 		readingTime.start();
 		try {
 			logger.trace("In readInstLogFile with argument {}", p);
-			Map<Integer, String> locationMapping = 
-					Files.lines(p).parallel().filter(s -> s.contains("=")).map(s -> processMappingLines(s)).collect(Collectors.toMap(k -> k.getKey(), k -> k.getValue()));
-			List<CoverageRecord<String, Boolean>> fileContent = Files.lines(p).parallel().filter(s -> !s.contains("=")).map(s -> processNonMappingLine(locationMapping, s)).collect(Collectors.toList());
+			Map<Integer, String> locationMapping = new HashMap<Integer, String>();
+			//					Files.lines(p).parallel().filter(s -> s.contains("=")).map(s -> processMappingLines(s)).collect(Collectors.toMap(k -> k.getKey(), k -> k.getValue()));
+			List<CoverageRecord<String, Boolean>> fileContent = Files.lines(p).parallel().filter(s -> !s.contains("=") && s.contains(":")).map(s -> processNonMappingLine(locationMapping, s)).filter(s -> s != null).collect(Collectors.toList());
 			readingTime.stop();
 			System.out.println(String.format("Finished reading in file %s. Took %d seconds.", p.toString(), readingTime.getTime()/1000));
 			return fileContent;

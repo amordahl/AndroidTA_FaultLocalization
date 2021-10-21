@@ -106,13 +106,13 @@ public class Application {
 	private void output(CoverageTask ct, Map<?, Double> suspiciousness) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("==================================");
-		sb.append(String.format("Localizer: %s", this.localizer.getName()));
-		sb.append(String.format("Processor: %s", this.processor.getName()));
-		sb.append(String.format("Coverage task: %s", ct.getOriginalPath()));
-		sb.append(String.format("Number of passed cases: %d", ct.getPassed().size()));
-		sb.append(String.format("Number of failed test cases: %d", ct.getFailed().size()));
-		sb.append(String.format("Preserved: %f", (Double)this.preserve));
-		sb.append("");
+		sb.append(String.format("Localizer: %s\n", this.localizer.getName()));
+		sb.append(String.format("Processor: %s\n", this.processor.getName()));
+		sb.append(String.format("Coverage task: %s\n", ct.getOriginalPath()));
+		sb.append(String.format("Number of passed cases: %d\n", ct.getPassed().size()));
+		sb.append(String.format("Number of failed test cases: %d\n", ct.getFailed().size()));
+		sb.append(String.format("Preserved: %f\n", (Double)this.preserve));
+		sb.append("\n");
 		
 		List<Entry<?, Double>> sorted = new ArrayList<Entry<?, Double>>(suspiciousness.entrySet());
 		Collections.sort(sorted, ((e1, e2) -> e2.getValue().compareTo(e1.getValue()))); // sort in descending order.
@@ -124,7 +124,7 @@ public class Application {
 				sorted = sorted.subList(0, (int)(sorted.size() * preserve));
 			}
 		}
-		sorted.forEach(e -> sb.append(String.format("%s = %.3f", e.getKey().toString(), e.getValue())));
+		sorted.forEach(e -> sb.append(String.format("%s = %.3f\n", e.getKey().toString(), e.getValue())));
 		
 		sb.append("\n==================================\n");
 		System.out.println(sb);

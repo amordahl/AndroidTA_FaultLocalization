@@ -18,7 +18,7 @@ args = p.parse_args()
 
 
 def main():
-    CMD = "java -javaagent:/home/asm140830/.m2/repository/edu/utdallas/amordahl/MultiPhaseInstrumenter/1.0.0/MultiPhaseInstrumenter-1.0.0.jar{phase2log} -classpath /home/asm140830/.m2/repository/edu/utdallas/amordahl/MultiPhaseInstrumenter/1.0.0/MultiPhaseInstrumenter-1.0.0.jar:/home/asm140830/.m2/repository/edu/utdallas/amordahl/FL_Logger/1.0/FL_Logger-1.0.jar -jar soot-infoflow-cmd-jar-with-dependencies.jar -a {apk} -p /home/asm140830/AndroidTA/Android/platforms -s /home/asm140830/AndroidTA/AndroidTAEnvironment/tools/FlowDroid/soot-infoflow-android/SourcesAndSinks.txt {config}"
+    CMD = "java -javaagent:/home/austin/.m2/repository/edu/utdallas/amordahl/MultiPhaseInstrumenter/1.0.0/MultiPhaseInstrumenter-1.0.0.jar{phase2log} -classpath /home/austin/.m2/repository/edu/utdallas/amordahl/MultiPhaseInstrumenter/1.0.0/MultiPhaseInstrumenter-1.0.0.jar:/home/austin/.m2/repository/edu/utdallas/amordahl/FL_Logger/1.0.0/FL_Logger-1.0.0.jar -jar soot-infoflow-cmd-jar-with-dependencies.jar -a {apk} -p /home/austin/Android/Sdk/platforms -s /home/austin/git/FlowDroid/soot-infoflow-android/SourcesAndSinks.txt {config}"
     
     # Replace strings in cmd.
     base_apk : str = os.path.basename(args.apk).replace('.apk', '').replace('_', '')
