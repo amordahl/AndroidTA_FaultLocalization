@@ -1,10 +1,7 @@
 package edu.utdallas.amordahl.CoverageComparer.util;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Objects;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +57,13 @@ public class CoverageRecord<S, T> {
 		this.content = content;
 		this.location = location;
 		this.type = type;
+	}
+	
+	/**
+	 * No-arg constructor which is necessary for subtypes to be serializable.
+	 */
+	public CoverageRecord() {
+		super();
 	}
 	
 

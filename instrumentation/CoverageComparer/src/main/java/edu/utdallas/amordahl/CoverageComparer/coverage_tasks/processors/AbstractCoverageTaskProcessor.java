@@ -32,7 +32,7 @@ public abstract class AbstractCoverageTaskProcessor<S extends CoverageRecord<?, 
 	 * Constructs an AbstractCoverageTaskProcessor that reads in intermediate files.
 	 */
 	public AbstractCoverageTaskProcessor() {
-		this.readIntermediates = false;
+		this.readIntermediates = true;
 	}
 	
 	/**

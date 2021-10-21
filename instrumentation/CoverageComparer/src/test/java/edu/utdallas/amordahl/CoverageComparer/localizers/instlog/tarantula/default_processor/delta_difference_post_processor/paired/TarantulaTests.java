@@ -20,10 +20,11 @@ import edu.utdallas.amordahl.CoverageComparer.localizers.ILocalizer;
 import edu.utdallas.amordahl.CoverageComparer.localizers.TarantulaLocalizer;
 import edu.utdallas.amordahl.CoverageComparer.util.AnswerKeyBasedTester;
 import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
+import edu.utdallas.amordahl.CoverageComparer.util.SimpleLineCoverageRecord;
 import edu.utdallas.amordahl.CoverageComparer.util.TestUtils;
 
 @RunWith(Parameterized.class)
-public class TarantulaTests extends AnswerKeyBasedTester<CoverageRecord<String, Boolean>> {
+public class TarantulaTests extends AnswerKeyBasedTester<SimpleLineCoverageRecord> {
 
 	public TarantulaTests(Path coverageTaskPath, Path answerKeyPath)
 			throws FileNotFoundException, IOException, ParseException {
@@ -39,13 +40,13 @@ public class TarantulaTests extends AnswerKeyBasedTester<CoverageRecord<String, 
 	}
 
 	@Override
-	public AbstractCoverageTaskProcessor<CoverageRecord<String, Boolean>> getActp() {
+	public AbstractCoverageTaskProcessor<SimpleLineCoverageRecord> getActp() {
 		return new BaselineInstlogProcessor();
 	}
 
 	@Override
-	public ILocalizer<CoverageRecord<String, Boolean>> getIl() {
-		return new TarantulaLocalizer<CoverageRecord<String, Boolean>>();
+	public ILocalizer<SimpleLineCoverageRecord> getIl() {
+		return new TarantulaLocalizer<SimpleLineCoverageRecord>();
 	}
 
 	@Override
@@ -54,8 +55,8 @@ public class TarantulaTests extends AnswerKeyBasedTester<CoverageRecord<String, 
 	}
 
 	@Override
-	public AbstractPostProcessor<CoverageRecord<String, Boolean>> getPostProcessor() {
-		return new DeltaDifferencePostProcessor<CoverageRecord<String, Boolean>>();
+	public AbstractPostProcessor<SimpleLineCoverageRecord> getPostProcessor() {
+		return new DeltaDifferencePostProcessor<SimpleLineCoverageRecord>();
 	}
 	
 }

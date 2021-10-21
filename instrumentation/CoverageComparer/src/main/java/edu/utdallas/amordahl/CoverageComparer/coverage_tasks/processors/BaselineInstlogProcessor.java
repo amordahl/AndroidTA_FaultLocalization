@@ -19,15 +19,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
+import edu.utdallas.amordahl.CoverageComparer.util.SimpleLineCoverageRecord;
 
-public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<CoverageRecord<String, Boolean>> {
+public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<SimpleLineCoverageRecord> {
 
 	private Pair<Integer, String> processMappingLines(String line) {
 		String[] tokens = line.split("=");
 		return new ImmutablePair<Integer, String>(Integer.valueOf(tokens[1]), tokens[0]);
 	}
 	 
-	private CoverageRecord<String, Boolean> processNonMappingLine(Map<Integer, String> mappings, String line) {
+	private SimpleLineCoverageRecord processNonMappingLine(Map<Integer, String> mappings, String line) {
 		String[] tokens = line.split(":");
 		String actualName;
 		try {
@@ -37,7 +38,7 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Cove
 			actualName = tokens[0];
 		}
 		try {
-		    return new CoverageRecord<String, Boolean>(
+		    return new SimpleLineCoverageRecord(
 				String.format("%s:%d", actualName, Integer.valueOf(tokens[1])), Boolean.class, true);
 		} catch (NumberFormatException nfe) {
 		    // TODO: Actually handle this. For now, leaving this as a dirty patch.
@@ -45,7 +46,7 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Cove
 		}
 	}
 	@Override
-	protected Collection<CoverageRecord<String, Boolean>> readInstFile(Path p) {
+	protected Collection<SimpleLineCoverageRecord> readInstFile(Path p) {
 		System.out.println(String.format("Trying to read in file %s.", p.toString()));
 		StopWatch readingTime = new StopWatch();
 		readingTime.start();
@@ -53,7 +54,7 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Cove
 			logger.trace("In readInstLogFile with argument {}", p);
 			Map<Integer, String> locationMapping = new HashMap<Integer, String>();
 			//					Files.lines(p).parallel().filter(s -> s.contains("=")).map(s -> processMappingLines(s)).collect(Collectors.toMap(k -> k.getKey(), k -> k.getValue()));
-			List<CoverageRecord<String, Boolean>> fileContent = Files.lines(p).parallel().filter(s -> !s.contains("=") && s.contains(":")).map(s -> processNonMappingLine(locationMapping, s)).filter(s -> s != null).collect(Collectors.toList());
+			Collection<SimpleLineCoverageRecord> fileContent = Files.lines(p).parallel().filter(s -> !s.contains("=") && s.contains(":")).map(s -> processNonMappingLine(locationMapping, s)).filter(s -> s != null).collect(Collectors.toList());
 			readingTime.stop();
 			System.out.println(String.format("Finished reading in file %s. Took %d seconds.", p.toString(), readingTime.getTime()/1000));
 			return fileContent;
@@ -80,9 +81,9 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Cove
 	private HashMap<Integer, String> mapping = new HashMap<>();
 
 	@Override
-	public Collection<CoverageRecord<String, Boolean>> processLine(String line) {
+	public Collection<SimpleLineCoverageRecord> processLine(String line) {
 		logger.trace("Called processLine with {}", line);
-		Collection<CoverageRecord<String, Boolean>> records = new ArrayList<CoverageRecord<String, Boolean>>();
+		Collection<SimpleLineCoverageRecord> records = new ArrayList<SimpleLineCoverageRecord>();
 		if (line.contains("=")) {
 			// Mapping line. Need to store map in hashmap.
 			String[] tokens = line.split("=");
@@ -96,7 +97,7 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Cove
 				logger.warn("Could not cast {} to int. Instead, using raw value as name.", tokens[0]);
 				actualName = tokens[0];
 			}
-			records.add(new CoverageRecord<String, Boolean>(
+			records.add(new SimpleLineCoverageRecord(
 					String.format("%s:%d", actualName, Integer.valueOf(tokens[1])), Boolean.class, true));
 			logger.debug("Records equals {}", records.toString());
 		}
