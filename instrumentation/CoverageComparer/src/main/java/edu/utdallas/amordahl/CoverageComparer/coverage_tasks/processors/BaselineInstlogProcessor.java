@@ -7,27 +7,17 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
 import edu.utdallas.amordahl.CoverageComparer.util.SimpleLineCoverageRecord;
 
 public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<SimpleLineCoverageRecord> {
 
-	private Pair<Integer, String> processMappingLines(String line) {
-		String[] tokens = line.split("=");
-		return new ImmutablePair<Integer, String>(Integer.valueOf(tokens[1]), tokens[0]);
-	}
-	 
 	private SimpleLineCoverageRecord processNonMappingLine(Map<Integer, String> mappings, String line) {
 		String[] tokens = line.split(":");
 		String actualName;
@@ -38,8 +28,7 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Simp
 			actualName = tokens[0];
 		}
 		try {
-		    return new SimpleLineCoverageRecord(
-				String.format("%s:%d", actualName, Integer.valueOf(tokens[1])), Boolean.class, true);
+		    return new SimpleLineCoverageRecord(String.format("%s:%d", actualName, Integer.valueOf(tokens[1])));
 		} catch (NumberFormatException nfe) {
 		    // TODO: Actually handle this. For now, leaving this as a dirty patch.
 		    return null;
@@ -47,16 +36,15 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Simp
 	}
 	@Override
 	protected Collection<SimpleLineCoverageRecord> readInstFile(Path p) {
-		System.out.println(String.format("Trying to read in file %s.", p.toString()));
+		logger.info(String.format("Trying to read in file %s.", p.toString()));
 		StopWatch readingTime = new StopWatch();
 		readingTime.start();
 		try {
 			logger.trace("In readInstLogFile with argument {}", p);
 			Map<Integer, String> locationMapping = new HashMap<Integer, String>();
-			//					Files.lines(p).parallel().filter(s -> s.contains("=")).map(s -> processMappingLines(s)).collect(Collectors.toMap(k -> k.getKey(), k -> k.getValue()));
 			Collection<SimpleLineCoverageRecord> fileContent = Files.lines(p).parallel().filter(s -> !s.contains("=") && s.contains(":")).map(s -> processNonMappingLine(locationMapping, s)).filter(s -> s != null).collect(Collectors.toList());
 			readingTime.stop();
-			System.out.println(String.format("Finished reading in file %s. Took %d seconds.", p.toString(), readingTime.getTime()/1000));
+			logger.info(String.format("Finished reading in file %s. Took %d seconds.", p.toString(), readingTime.getTime()/1000));
 			return fileContent;
 		
 		} catch (FileNotFoundException e) {
@@ -98,7 +86,7 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Simp
 				actualName = tokens[0];
 			}
 			records.add(new SimpleLineCoverageRecord(
-					String.format("%s:%d", actualName, Integer.valueOf(tokens[1])), Boolean.class, true));
+					String.format("%s:%d", actualName, Integer.valueOf(tokens[1]))));
 			logger.debug("Records equals {}", records.toString());
 		}
 		return records;

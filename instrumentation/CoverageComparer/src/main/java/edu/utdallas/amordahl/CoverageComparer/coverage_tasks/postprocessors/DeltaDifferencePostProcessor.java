@@ -2,11 +2,8 @@ package edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors;
 
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.AbstractMap.SimpleEntry;
 
@@ -51,6 +48,7 @@ public class DeltaDifferencePostProcessor<S> extends AbstractPostProcessor<S> {
 	 * @param pf The full PassedFailed set.
 	 * @return The partner.
 	 */
+	@SuppressWarnings("unchecked")
 	private Collection<S> getPartner(Path key, PassedFailed<S> pf) {
 		Map<Path, Path> pairs = pf.getOriginatingTask().getPairs();
 		if (pairs == null) {
@@ -59,14 +57,5 @@ public class DeltaDifferencePostProcessor<S> extends AbstractPostProcessor<S> {
 		} else {
 			return (Collection<S>) PassedFailed.findValueForKey(pf, pairs.get(key));
 		}
-	}
-
-	private Entry<Path, Collection<S>> transformHelper(Entry<Path, Collection<S>> transformee,
-			Entry<Path, Collection<S>> partner, PassedFailed<S> pf) {
-		Collection<S> difference = new LinkedList<S>(transformee.getValue());
-		// Compute delta
-		difference.removeAll(partner.getValue());
-		return new SimpleEntry<Path, Collection<S>>(transformee.getKey(), difference);
-		
 	}
 }

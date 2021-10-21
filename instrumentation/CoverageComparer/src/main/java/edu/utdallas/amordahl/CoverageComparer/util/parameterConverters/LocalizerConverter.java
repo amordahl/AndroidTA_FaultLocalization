@@ -1,6 +1,5 @@
 package edu.utdallas.amordahl.CoverageComparer.util.parameterConverters;
 
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

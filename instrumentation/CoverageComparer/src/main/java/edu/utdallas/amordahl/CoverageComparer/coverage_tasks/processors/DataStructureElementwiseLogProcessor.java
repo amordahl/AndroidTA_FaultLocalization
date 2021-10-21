@@ -7,17 +7,19 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
+import edu.utdallas.amordahl.CoverageComparer.util.DataStructureCoverageRecord;
 
 /**
  * This processor reads in data structure contents, and constructs elementwise pairings for localization. In other words, 
  * @author Austin
  *
  */
-public class DataStructureElementwiseLogProcessor extends AbstractCoverageTaskProcessor<CoverageRecord<String, String>> {
+public class DataStructureElementwiseLogProcessor extends AbstractCoverageTaskProcessor<DataStructureCoverageRecord> {
 
 
+	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(DataStructureElementwiseLogProcessor.class);
+	
 	@Override
 	protected Path getIntermediateName(Path p) {
 		return p.resolveSibling("." + p.getFileName() + ".datastructureelementlog" + ".intermediate");
@@ -40,10 +42,10 @@ public class DataStructureElementwiseLogProcessor extends AbstractCoverageTaskPr
 	 * coverage record for each element in the array.
 	 */
 	@Override
-	public Collection<CoverageRecord<String, String>> processLine(String line) {
-		Collection<CoverageRecord<String, String>> result = new ArrayList<CoverageRecord<String, String>>();
-		Collection<CoverageRecord<String, Object>> contentLog = new DataStructureContentLogProcessor().processLine(line);
-		for (CoverageRecord<String, Object> cr : contentLog) {
+	public Collection<DataStructureCoverageRecord> processLine(String line) {
+		Collection<DataStructureCoverageRecord> result = new ArrayList<DataStructureCoverageRecord>();
+		Collection<DataStructureCoverageRecord> contentLog = new DataStructureContentLogProcessor().processLine(line);
+		for (DataStructureCoverageRecord cr : contentLog) {
 			if (cr.getClass().isInstance(Collection.class)) {
 		
 		}

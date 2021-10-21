@@ -5,24 +5,16 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import edu.utdallas.amordahl.CoverageComparer.parsers.GeneralArrayLexer;
-import edu.utdallas.amordahl.CoverageComparer.parsers.GeneralArrayParser.ArrayContext;
-import edu.utdallas.amordahl.CoverageComparer.parsers.GeneralArrayParser.ElementContext;
-import edu.utdallas.amordahl.CoverageComparer.parsers.GeneralArrayParser.StringContext;
 import edu.utdallas.amordahl.CoverageComparer.parsers.implemented_listeners.GeneralArrayListener;
 
 @RunWith(Parameterized.class)
@@ -42,9 +34,6 @@ public class GeneralArrayTests {
 			}
 		});
 
-		final ArrayList<ArrayList<String>> arrays = new ArrayList<>();
-		final AtomicReference<String> token = new AtomicReference<String>();
-
 		GeneralArrayListener gla = new GeneralArrayListener();
 		p.addParseListener(gla);
 		p.array().enterRule(gla);
@@ -52,6 +41,7 @@ public class GeneralArrayTests {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	public GeneralArrayTests(Object arrayAsString, Object array) {
 		this.arrayAsString = (String) arrayAsString;
 		this.array = (ArrayList<Object>) array;

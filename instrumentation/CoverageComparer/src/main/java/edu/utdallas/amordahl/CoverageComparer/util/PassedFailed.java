@@ -53,6 +53,7 @@ public class PassedFailed<S> {
 	 * @param key The path to search as the key.
 	 * @return The value that is associated with the key.
 	 */
+	@SuppressWarnings("unchecked")
 	public static Collection<?> findValueForKey(PassedFailed<?> pf, Path key) {
 		for (Object o : new Object[] {pf.getPassed(), pf.getFailed(), pf.getOther()} ) {
 			if (((Map<Path, Collection<?>>)o).containsKey(key)) {

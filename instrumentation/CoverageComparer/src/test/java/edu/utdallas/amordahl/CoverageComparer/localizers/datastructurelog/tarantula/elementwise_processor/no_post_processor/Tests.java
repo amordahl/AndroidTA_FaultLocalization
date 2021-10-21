@@ -17,11 +17,11 @@ import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStru
 import edu.utdallas.amordahl.CoverageComparer.localizers.ILocalizer;
 import edu.utdallas.amordahl.CoverageComparer.localizers.TarantulaLocalizer;
 import edu.utdallas.amordahl.CoverageComparer.util.AnswerKeyBasedTester;
-import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
+import edu.utdallas.amordahl.CoverageComparer.util.DataStructureCoverageRecord;
 import edu.utdallas.amordahl.CoverageComparer.util.TestUtils;
 
 @RunWith(Parameterized.class)
-public class Tests extends AnswerKeyBasedTester<CoverageRecord<String, String>> {
+public class Tests extends AnswerKeyBasedTester<DataStructureCoverageRecord> {
 
 	public Tests(Path coverageTaskPath, Path answerKeyPath) throws FileNotFoundException, IOException, ParseException {
 		super(coverageTaskPath, answerKeyPath);
@@ -29,13 +29,13 @@ public class Tests extends AnswerKeyBasedTester<CoverageRecord<String, String>> 
 	}
 
 	@Override
-	public AbstractCoverageTaskProcessor<CoverageRecord<String, String>> getActp() {
+	public AbstractCoverageTaskProcessor<DataStructureCoverageRecord> getActp() {
 		return new DataStructureElementwiseLogProcessor();
 	}
 
 	@Override
-	public ILocalizer<CoverageRecord<String, String>> getIl() {
-		return new TarantulaLocalizer<CoverageRecord<String, String>>();
+	public ILocalizer<DataStructureCoverageRecord> getIl() {
+		return new TarantulaLocalizer<DataStructureCoverageRecord>();
 	}
 
 	@Override
@@ -51,8 +51,8 @@ public class Tests extends AnswerKeyBasedTester<CoverageRecord<String, String>> 
 	}
 
 	@Override
-	public AbstractPostProcessor<CoverageRecord<String, String>> getPostProcessor() {
-		return new IdentityPostProcessor<CoverageRecord<String, String>>();
+	public AbstractPostProcessor<DataStructureCoverageRecord> getPostProcessor() {
+		return new IdentityPostProcessor<DataStructureCoverageRecord>();
 	}
 
 }

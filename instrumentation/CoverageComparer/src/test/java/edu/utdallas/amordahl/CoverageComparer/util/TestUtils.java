@@ -14,9 +14,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
-import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTaskReader;
-
 public class TestUtils {
 
 	public static String getPathFromResource(String fileLocation) {

@@ -1,7 +1,6 @@
 package edu.utdallas.amordahl.CoverageComparer.localizers;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;

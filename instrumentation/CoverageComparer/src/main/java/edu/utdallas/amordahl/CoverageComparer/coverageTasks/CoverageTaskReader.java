@@ -7,8 +7,6 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +14,6 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.apache.commons.lang3.tuple.Pair;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -72,6 +69,7 @@ public class CoverageTaskReader {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
+	@SuppressWarnings("unchecked")
 	private static CoverageTask getCoverageTaskFromJson(Path path) throws FileNotFoundException, IOException, ParseException {
 		logger.trace("Inside getCoverageTaskFromJson.");
 		JSONParser jsonParser = new JSONParser();
@@ -104,8 +102,8 @@ public class CoverageTaskReader {
 						(Map<Path, Path>)(
 								jsonPairs.entrySet().stream()
 								.collect(Collectors.toMap(
-										k -> Paths.get((String)((Entry)k).getKey()),
-										k -> Paths.get((String)((Entry)k).getValue())))
+										k -> Paths.get(((Entry<String, String>)k).getKey()),
+										k -> Paths.get(((Entry<String, String>)k).getValue())))
 						)
 					);
 		}

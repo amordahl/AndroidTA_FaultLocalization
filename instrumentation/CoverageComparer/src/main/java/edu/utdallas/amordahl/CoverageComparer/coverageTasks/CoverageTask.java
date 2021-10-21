@@ -1,12 +1,9 @@
 package edu.utdallas.amordahl.CoverageComparer.coverageTasks;
 
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
-
 import edu.utdallas.amordahl.CoverageComparer.util.SupportedLocalization;
 
 /**

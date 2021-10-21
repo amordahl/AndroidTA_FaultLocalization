@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -18,14 +17,14 @@ import org.slf4j.LoggerFactory;
 import edu.utdallas.amordahl.CoverageComparer.parsers.GeneralArrayLexer;
 import edu.utdallas.amordahl.CoverageComparer.parsers.GeneralArrayParser;
 import edu.utdallas.amordahl.CoverageComparer.parsers.implemented_listeners.GeneralArrayListener;
-import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
+import edu.utdallas.amordahl.CoverageComparer.util.DataStructureCoverageRecord;
 
 /**
  * This processor reads in the content of each data structure as a String.
  * @author austin
  *
  */
-public class DataStructureContentLogProcessor extends AbstractCoverageTaskProcessor<CoverageRecord<String, Object>> {
+public class DataStructureContentLogProcessor extends AbstractCoverageTaskProcessor<DataStructureCoverageRecord> {
 
 	private static Logger logger = LoggerFactory.getLogger(DataStructureContentLogProcessor.class);
 	@Override
@@ -41,8 +40,6 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 	
 	// TODO Implement this so that it works recursively.
 	protected AbstractCollection<?> parseCollection(String content) {
-		AbstractCollection<Object> ac = new ArrayList<Object>();
-		
 		GeneralArrayLexer l = new GeneralArrayLexer(CharStreams.fromString(content));
 		GeneralArrayParser p = new GeneralArrayParser(new CommonTokenStream(l));
 		p.addErrorListener(new BaseErrorListener() {
@@ -52,9 +49,6 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 				throw new IllegalStateException("failed to parse at line " + line + " due to " + msg, e);
 			}
 		});
-
-		final ArrayList<ArrayList<String>> arrays = new ArrayList<>();
-		final AtomicReference<String> token = new AtomicReference<String>();
 
 		GeneralArrayListener gla = new GeneralArrayListener();
 		p.addParseListener(gla);
@@ -73,9 +67,9 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 	 * Processes a line produced by the coverage instrumenter.
 	 */
 	@Override
-	public Collection<CoverageRecord<String, Object>> processLine(String line) {
+	public Collection<DataStructureCoverageRecord> processLine(String line) {
 		// Format of line: SampleClass:0-1,java.lang.String,sampleString
-		Collection<CoverageRecord<String, Object>> result = new ArrayList<>();
+		Collection<DataStructureCoverageRecord> result = new ArrayList<>();
 		String location = line.split(",")[0];
 		String clazz = line.split(",")[1];
 		
@@ -89,7 +83,7 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 					clazz);
 			type = Object.class;
 		}
-		result.add(new CoverageRecord<String, Object>(location, type, getParserForType(type).apply(content)));
+		result.add(new DataStructureCoverageRecord(location, type, getParserForType(type).apply(content)));
 		return result;
 	}
 

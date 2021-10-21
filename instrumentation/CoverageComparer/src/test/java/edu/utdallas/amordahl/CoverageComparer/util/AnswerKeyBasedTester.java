@@ -35,7 +35,7 @@ import edu.utdallas.amordahl.CoverageComparer.localizers.ILocalizer;
  *
  * @param <S> The type of the CoverageRecord that is produced by the coverage task processor.
  */
-public abstract class AnswerKeyBasedTester<S extends CoverageRecord<?, ?>> {
+public abstract class AnswerKeyBasedTester<S extends ICoverageRecord<?, ?>> {
 
 	public CoverageTask getCoverageTask() {
 		return coverageTask;

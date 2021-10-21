@@ -3,11 +3,9 @@ package edu.utdallas.amordahl.CoverageComparer.localizers.instlog.tarantula.defa
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 import org.json.simple.parser.ParseException;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -19,7 +17,6 @@ import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.Baseline
 import edu.utdallas.amordahl.CoverageComparer.localizers.ILocalizer;
 import edu.utdallas.amordahl.CoverageComparer.localizers.TarantulaLocalizer;
 import edu.utdallas.amordahl.CoverageComparer.util.AnswerKeyBasedTester;
-import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
 import edu.utdallas.amordahl.CoverageComparer.util.SimpleLineCoverageRecord;
 import edu.utdallas.amordahl.CoverageComparer.util.TestUtils;
 

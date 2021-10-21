@@ -60,7 +60,7 @@ public class Application {
 	private ILocalizer<Object> localizer = new TarantulaLocalizer<Object>();
 	private AbstractCoverageTaskProcessor<?> processor = 
 			phase2 ? new DataStructureContentLogProcessor() : new BaselineInstlogProcessor();	
-	private AbstractPostProcessor<Object> app = new IdentityPostProcessor();
+	private AbstractPostProcessor<Object> app = new IdentityPostProcessor<Object>();
 	/**
 	 * Just sets up the JCommander argument parser.
 	 * 
@@ -85,6 +85,7 @@ public class Application {
 			CoverageTask ct = CoverageTaskReader.getCoverageTaskFromFile(Paths.get(s));
 			
 			// Process the coverage task -- actually read in the files and produce a PassedFailed object.
+			@SuppressWarnings("unchecked")
 			PassedFailed<Object> pf = (PassedFailed<Object>) processor.processCoverageTask(ct);
 			
 			// Post process the PassedFailed object (e.g., only pass the delta to the localizer.

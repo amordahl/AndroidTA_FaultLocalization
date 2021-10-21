@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -20,10 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
-import edu.utdallas.amordahl.CoverageComparer.util.CoverageRecord;
+import edu.utdallas.amordahl.CoverageComparer.util.ICoverageRecord;
 import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
 
-public abstract class AbstractCoverageTaskProcessor<S extends CoverageRecord<?, ?>> {
+public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?, ?>> {
 	
 	private static Logger logger = LoggerFactory.getLogger(AbstractCoverageTaskProcessor.class);
 	private boolean readIntermediates;
@@ -115,6 +114,7 @@ public abstract class AbstractCoverageTaskProcessor<S extends CoverageRecord<?, 
 	 * @param intermediate The path to the intermediate file.
 	 * @return The content of the intermediate file.
 	 */
+	@SuppressWarnings("unchecked")
 	protected Collection<S> readSetFromFile(Path intermediate) {
 		logger.trace("In readSetFromFile.");
 		Collection<S> result = null;
