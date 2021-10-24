@@ -57,7 +57,7 @@ public class LoggerHelper {
 
 	private static void logDataStructureInfo(Object obj, String name, int lineNumber, int index, 
 			SupportedInstrumentations type, String content) {
-		System.out.println(String.format("%s:%d-%d,%s,%s",
+		System.out.println(String.format("DATASTRUCTURE:%s:%d-%d,%s,%s",
 				name, lineNumber, index, obj.getClass().toString(), content));
 	}
 	
