@@ -84,7 +84,7 @@ public class Runner {
                 "startLineCount,"+
                 "endLineCount,"+
                 "%ReductionByLines,"+
-                "Total_Proposed,Start_lines,End_lines,%OfLinesRemoved,bestRot,bestRotLines,bestRotLines%,worstRot,worstRotLines,worstRotLines%\n";
+                "bestRot,bestRotLines,bestRotLines%,worstRot,worstRotLines,worstRotLines%\n";
         output+=header;
         for(File x: everyrunFile){
             if(!x.getName().contains(runprefix)){
