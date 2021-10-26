@@ -76,7 +76,6 @@ public class Runner {
                 "totalBadAqlHDD,"+
                 "avgBadCompileHDD,"+
                 "totalBadCompileHDD,"+
-                "%ofProgramTakenByHDD,"+
                 "%ofProgramTakenByGoodAQLHDD,"+
                 "%ofProgramTakenByGoodCompileHDD,"+
                 "%ofProgramTakenByBadAQLHDD,"+
