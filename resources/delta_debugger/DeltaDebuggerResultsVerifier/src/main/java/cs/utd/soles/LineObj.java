@@ -12,82 +12,85 @@ public class LineObj {
     String runtime;
     String violationType;
     String violation_or_not;
+    String setupTime;
+    String binaryTime;
+    String dependencyGraphTime;
+    String avgGoodAQLBinary;
+    String totalGoodAQLBinary;
+    String avgGoodCompileBinary;
+    String totalGoodCompileBinary;
+    String avgBadAQLBinary;
+    String totalBadAQLBinary;
+    String avgBadCompileBinary;
+    String totalBadCompileBinary;
+    String percentBinary;
+    String percentGoodAQLBinary;
+    String percentGoodCompileBinary;
+    String percentBadAQLBinary;
+    String percentBadCompileBinary;
+
     String avgRotation;
     String totalRotation;
-    String avgGoodAQL;
-    String totalGoodAQL;
-    String avgGoodCompile;
-    String totalGoodCompile;
-    String avgBadAQL;
-    String totalBadAQL;
-    String avgBadCompile;
-    String totalBadCompile;
-    String percentBinary;
-    String percentGoodAQL;
-    String percentGoodCompile;
-    String percentBadAQL;
-    String percentBadCompile;
+    String avgGoodAQLHDD;
+    String totalGoodAQLHDD;
+    String avgGoodCompileHDD;
+    String totalGoodCompileHDD;
+    String avgBadAQLHDD;
+    String totalBadAQLHDD;
+    String avgBadCompileHDD;
+    String totalBadCompileHDD;
+    String percentGoodAQLHDD;
+    String percentGoodCompileHDD;
+    String percentBadAQLHDD;
+    String percentBadCompileHDD;
+
     String numCandidate;
     String startLines;
     String endLines;
     String percentLines;
 
-    public LineObj(String apk, String config1, String config2, String runtime, String violationType, String violation_or_not, String avgRotation, String totalRotation, String avgGoodAQL, String totalGoodAQL, String avgGoodCompile, String totalGoodCompile, String avgBadAQL, String totalBadAQL, String avgBadCompile, String totalBadCompile, String percentBinary, String percentGoodAQL, String percentGoodCompile, String percentBadAQL, String percentBadCompile, String numCandidate, String startLines, String endLines, String percentLines) {
+    public LineObj(String apk, String config1, String config2, String runtime, String violationType, String violation_or_not, String setupTime, String binaryTime, String dependencyGraphTime, String avgGoodAQLBinary, String totalGoodAQLBinary, String avgGoodCompileBinary, String totalGoodCompileBinary, String avgBadAQLBinary, String totalBadAQLBinary, String avgBadCompileBinary, String totalBadCompileBinary, String percentBinary, String percentGoodAQLBinary, String percentGoodCompileBinary, String percentBadAQLBinary, String percentBadCompileBinary, String avgRotation, String totalRotation, String avgGoodAQLHDD, String totalGoodAQLHDD, String avgGoodCompileHDD, String totalGoodCompileHDD, String avgBadAQLHDD, String totalBadAQLHDD, String avgBadCompileHDD, String totalBadCompileHDD, String percentGoodAQLHDD, String percentGoodCompileHDD, String percentBadAQLHDD, String percentBadCompileHDD, String numCandidate, String startLines, String endLines, String percentLines) {
         this.apk = apk;
         this.config1 = config1;
         this.config2 = config2;
         this.runtime = runtime;
         this.violationType = violationType;
         this.violation_or_not = violation_or_not;
+        this.setupTime = setupTime;
+        this.binaryTime = binaryTime;
+        this.dependencyGraphTime = dependencyGraphTime;
+        this.avgGoodAQLBinary = avgGoodAQLBinary;
+        this.totalGoodAQLBinary = totalGoodAQLBinary;
+        this.avgGoodCompileBinary = avgGoodCompileBinary;
+        this.totalGoodCompileBinary = totalGoodCompileBinary;
+        this.avgBadAQLBinary = avgBadAQLBinary;
+        this.totalBadAQLBinary = totalBadAQLBinary;
+        this.avgBadCompileBinary = avgBadCompileBinary;
+        this.totalBadCompileBinary = totalBadCompileBinary;
+        this.percentBinary = percentBinary;
+        this.percentGoodAQLBinary = percentGoodAQLBinary;
+        this.percentGoodCompileBinary = percentGoodCompileBinary;
+        this.percentBadAQLBinary = percentBadAQLBinary;
+        this.percentBadCompileBinary = percentBadCompileBinary;
         this.avgRotation = avgRotation;
         this.totalRotation = totalRotation;
-        this.avgGoodAQL = avgGoodAQL;
-        this.totalGoodAQL = totalGoodAQL;
-        this.avgGoodCompile = avgGoodCompile;
-        this.totalGoodCompile = totalGoodCompile;
-        this.avgBadAQL = avgBadAQL;
-        this.totalBadAQL = totalBadAQL;
-        this.avgBadCompile = avgBadCompile;
-        this.totalBadCompile = totalBadCompile;
-        this.percentBinary = percentBinary;
-        this.percentGoodAQL = percentGoodAQL;
-        this.percentGoodCompile = percentGoodCompile;
-        this.percentBadAQL = percentBadAQL;
-        this.percentBadCompile = percentBadCompile;
+        this.avgGoodAQLHDD = avgGoodAQLHDD;
+        this.totalGoodAQLHDD = totalGoodAQLHDD;
+        this.avgGoodCompileHDD = avgGoodCompileHDD;
+        this.totalGoodCompileHDD = totalGoodCompileHDD;
+        this.avgBadAQLHDD = avgBadAQLHDD;
+        this.totalBadAQLHDD = totalBadAQLHDD;
+        this.avgBadCompileHDD = avgBadCompileHDD;
+        this.totalBadCompileHDD = totalBadCompileHDD;
+        this.percentGoodAQLHDD = percentGoodAQLHDD;
+        this.percentGoodCompileHDD = percentGoodCompileHDD;
+        this.percentBadAQLHDD = percentBadAQLHDD;
+        this.percentBadCompileHDD = percentBadCompileHDD;
         this.numCandidate = numCandidate;
         this.startLines = startLines;
         this.endLines = endLines;
         this.percentLines = percentLines;
     }
 
-    @Override
-    public String toString() {
-        return "LineObj{" +
-                "apk='" + apk + '\'' +
-                ", config1='" + config1 + '\'' +
-                ", config2='" + config2 + '\'' +
-                ", runtime='" + runtime + '\'' +
-                ", violationType='" + violationType + '\'' +
-                ", violation_or_not='" + violation_or_not + '\'' +
-                ", avgRotation='" + avgRotation + '\'' +
-                ", totalRotation='" + totalRotation + '\'' +
-                ", avgGoodAQL='" + avgGoodAQL + '\'' +
-                ", totalGoodAQL='" + totalGoodAQL + '\'' +
-                ", avgGoodCompile='" + avgGoodCompile + '\'' +
-                ", totalGoodCompile='" + totalGoodCompile + '\'' +
-                ", avgBadAQL='" + avgBadAQL + '\'' +
-                ", totalBadAQL='" + totalBadAQL + '\'' +
-                ", avgBadCompile='" + avgBadCompile + '\'' +
-                ", totalBadCompile='" + totalBadCompile + '\'' +
-                ", percentBinary='" + percentBinary + '\'' +
-                ", percentGoodAQL='" + percentGoodAQL + '\'' +
-                ", percentGoodCompile='" + percentGoodCompile + '\'' +
-                ", percentBadAQL='" + percentBadAQL + '\'' +
-                ", percentBadCompile='" + percentBadCompile + '\'' +
-                ", numCandidate='" + numCandidate + '\'' +
-                ", startLines='" + startLines + '\'' +
-                ", endLines='" + endLines + '\'' +
-                ", percentLines='" + percentLines + '\'' +
-                '}';
-    }
+
 }
