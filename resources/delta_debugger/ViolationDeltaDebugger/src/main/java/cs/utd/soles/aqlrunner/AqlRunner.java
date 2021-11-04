@@ -75,7 +75,7 @@ public class AqlRunner implements ThreadHandler {
         //start these commands and then handle them somewhere else
         Process command1Run = null;
         Process command2Run = null;
-        pTracker.startTimer("aql_process");
+        pTracker.startTimer("aql_timer");
         if(runaql1){
             command1Run=Runtime.getRuntime().exec(command1);
         }
