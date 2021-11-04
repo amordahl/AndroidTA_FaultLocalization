@@ -24,12 +24,11 @@ public class HDDReduction implements Reduction{
         this.programInfo=programInfo;
         lock=new Object();
         this.tester = new HDDTester(lock,programInfo);
-        this.timeoutTime=timeoutTime;
+        this.timeoutTime=timeoutTime+System.currentTimeMillis();
     }
     @Override
     public void reduce(ArrayList<Object> requireds) {
         ArrayList<Pair<File,CompilationUnit>> bestCuList = (ArrayList<Pair<File, CompilationUnit>>) requireds.get(0);
-
         hddReduction(bestCuList);
     }
 
@@ -40,6 +39,7 @@ public class HDDReduction implements Reduction{
         boolean minimized=false;
         while(!minimized&&System.currentTimeMillis()<timeoutTime){
             minimized=true;
+            programInfo.getPerfTracker().addCount("total_rotations",1);
             int i=0;
             for (Pair<File, CompilationUnit> compilationUnit : bestCuList) {
                 //if we are under the time limit, traverse the tree

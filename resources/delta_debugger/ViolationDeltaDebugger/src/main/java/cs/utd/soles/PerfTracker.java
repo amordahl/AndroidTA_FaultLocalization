@@ -115,7 +115,7 @@ public class PerfTracker {
 
     //add a new count to track
     public boolean addNewCount(String name){
-        if(!namedCounts.containsKey(name)){
+        if(namedCounts.containsKey(name)){
             return false;
         }
         namedCounts.put(name, 0);
