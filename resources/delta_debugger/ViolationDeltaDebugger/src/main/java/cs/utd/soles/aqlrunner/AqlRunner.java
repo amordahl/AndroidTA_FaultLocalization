@@ -37,10 +37,14 @@ public class AqlRunner implements ThreadHandler {
                     threadResult=AQLStringHandler.handleAQL(setupInfo,finalString,finalString2);
                     if(threadResult){
                         //good one
+                        incrementCorrectCount(thread,true);
+
                     }else{
                         //failed one
+                        incrementCorrectCount(thread,false);
                     }
                     setupInfo=null;
+                    pTracker.resetTimer("aql_timer");
                     lockObject.notify();
                 }
                 break;

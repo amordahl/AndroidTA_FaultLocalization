@@ -38,12 +38,14 @@ public class ApkCreator implements ThreadHandler {
                     if (!finalString.contains("BUILD SUCCESSFUL") || finalString.contains("BUILD: FAILURE")) {
                         //assembling project failed we don't care why
                         incrementCorrectCount(thread,false);
+                        pTracker.resetTimer("compile_timer");
                         threadResult=false;
                         lockObj.notify();
                         return;
                     }
                     else {
                         incrementCorrectCount(thread, true);
+                        pTracker.resetTimer("compile_timer");
                         //build worked
                         threadResult = true;
                         lockObj.notify();
