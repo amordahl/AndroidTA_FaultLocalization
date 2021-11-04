@@ -8,6 +8,7 @@ import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
+import cs.utd.soles.apkcreator.ApkCreator;
 import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
 import cs.utd.soles.setup.SetupClass;
@@ -25,15 +26,34 @@ public class Runner {
     private static final long M_TO_MILLIS=60000;
 
     public static void main(String[] args){
-
         SetupClass programInfo = new SetupClass();
 
         setupVariablesToTrack(programInfo);
+        programInfo.getPerfTracker().startTimer("program_timer");
 
+
+        ArrayList<Pair<File,CompilationUnit>> originalCuList = new ArrayList<>();
+        ArrayList<Pair<File,CompilationUnit>> bestCuList = new ArrayList<>();
+        try {
+            originalCuList=createCuList(programInfo.getTargetProject().getProjectSrcPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         try{
+            programInfo.getPerfTracker().startTimer("setup_timer");
             programInfo.doSetup(args);
+
             System.out.println(programInfo.getArguments().printArgValues());
+
+
+            //make a regular apk;
+            Object lockO = new Object();
+            ApkCreator creator = new ApkCreator(lockO, programInfo.getPerfTracker());
+            creator.createApkFromList(programInfo,originalCuList,originalCuList,-1);
+            lockO.wait();
+
+            programInfo.getPerfTracker().stopTimer("setup_timer");
             //check if we need to do a minimization
             if(!programInfo.isNeedsToBeMinimized()){
                 saveBestAPK(programInfo);
@@ -44,13 +64,7 @@ public class Runner {
             e.printStackTrace();
         }
 
-        ArrayList<Pair<File,CompilationUnit>> originalCuList = new ArrayList<>();
-        ArrayList<Pair<File,CompilationUnit>> bestCuList = new ArrayList<>();
-        try {
-            originalCuList=createCuList(programInfo.getTargetProject().getProjectSrcPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         bestCuList = new ArrayList<>(originalCuList);
 
         BinaryReduction binaryReduction = new BinaryReduction(programInfo,originalCuList);
@@ -106,6 +120,7 @@ public class Runner {
        // Collections.sort(bestCUList,cuListComp);
 
 
+        programInfo.getPerfTracker().stopTimer("program_timer");
         //handle end line count
         try {
             int count = (int) LineCounter.countLinesDir(programInfo.getTargetProject().getProjectSrcPath());
