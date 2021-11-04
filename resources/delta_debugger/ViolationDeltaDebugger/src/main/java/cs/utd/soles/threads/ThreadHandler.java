@@ -1,6 +1,8 @@
-package cs.utd.soles;
+package cs.utd.soles.threads;
 
+//TODO:: if we have a new modification to make, is this easy to implement?
 public interface ThreadHandler {
+
 
     enum ProcessType{
         CREATE_APK_PROCESS,

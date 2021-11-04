@@ -1,4 +1,4 @@
-package cs.utd.soles;
+package cs.utd.soles.schema;
 
 import java.io.File;
 import java.io.FileWriter;

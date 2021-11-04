@@ -1,4 +1,6 @@
-package cs.utd.soles;
+package cs.utd.soles.classgraph;
+
+import cs.utd.soles.methodgraph.MethodNode;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,7 +19,7 @@ public class DependencyGraph {
     }
 
     //construct this dependency graph from the dot file
-    public void parseGraphFromDot(File f) throws FileNotFoundException {
+    public void parseGraphFromDot(File f, HashMap<String,String> classNamesToPaths) throws FileNotFoundException {
         Scanner sc = new Scanner(f);
         String text = "";
         boolean start=true;
@@ -42,10 +44,10 @@ public class DependencyGraph {
         //System.out.println(Arrays.toString(cut));
         for(int i=0;i<cut.length;i+=2){
 
-            ClassNode check = new ClassNode(cut[i], Runner.getFilePathForClass(cut[i]));
+            ClassNode check = new ClassNode(cut[i], classNamesToPaths.get(cut[i]));
             ClassNode node = graph.contains(check)? graph.get(graph.indexOf(check)):check;
 
-            ClassNode dCheck = new ClassNode(cut[i+1],Runner.getFilePathForClass(cut[i+1]));
+            ClassNode dCheck = new ClassNode(cut[i+1],classNamesToPaths.get(cut[i+1]));
             ClassNode dNode = graph.contains(dCheck)? graph.get(graph.indexOf(dCheck)):dCheck;
             //add dependency to node
             node.addDependency(dNode);

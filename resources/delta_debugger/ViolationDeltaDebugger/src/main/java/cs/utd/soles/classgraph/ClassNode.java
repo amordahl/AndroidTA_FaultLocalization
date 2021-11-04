@@ -1,4 +1,4 @@
-package cs.utd.soles;
+package cs.utd.soles.classgraph;
 
 import java.util.LinkedList;
 import java.util.Objects;

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 public class PerfTimer {
 
-
     boolean firstRotationRun=true;
 
     public PerfTimer(){

@@ -1,6 +1,6 @@
-package cs.utd.soles;
+package cs.utd.soles.threads;
 
-public class AQLThread extends Thread implements ThreadHandler{
+public class AQLThread extends Thread implements ThreadHandler {
 
     ThreadHandler t;
     Process aql1;

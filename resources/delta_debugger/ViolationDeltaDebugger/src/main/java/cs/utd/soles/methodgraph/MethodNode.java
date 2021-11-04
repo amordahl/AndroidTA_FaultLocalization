@@ -1,6 +1,7 @@
-package cs.utd.soles;
+package cs.utd.soles.methodgraph;
 
 import com.github.javaparser.ast.Node;
+import cs.utd.soles.classgraph.ClassNode;
 
 import java.util.Arrays;
 import java.util.LinkedList;
