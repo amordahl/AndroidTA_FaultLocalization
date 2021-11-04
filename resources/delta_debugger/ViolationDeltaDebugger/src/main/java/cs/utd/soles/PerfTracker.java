@@ -97,7 +97,7 @@ public class PerfTracker {
 
     //set time to track
     public boolean setTime(String name, long time){
-        if(namedTimes.containsKey(name)){
+        if(!namedTimes.containsKey(name)){
             return false;
         }
         namedTimes.put(name, time);
@@ -106,7 +106,7 @@ public class PerfTracker {
 
     //add time to a time
     public boolean addTime(String name, long time){
-        if(namedTimes.containsKey(name)){
+        if(!namedTimes.containsKey(name)){
             return false;
         }
         namedTimes.put(name, time+namedTimes.get(name));
@@ -115,7 +115,7 @@ public class PerfTracker {
 
     //add a new count to track
     public boolean addNewCount(String name){
-        if(namedCounts.containsKey(name)){
+        if(!namedCounts.containsKey(name)){
             return false;
         }
         namedCounts.put(name, 0);
@@ -124,7 +124,7 @@ public class PerfTracker {
 
     //set time to track
     public boolean setCount(String name, int count){
-        if(namedCounts.containsKey(name)){
+        if(!namedCounts.containsKey(name)){
             return false;
         }
         namedCounts.put(name, count);
@@ -133,7 +133,7 @@ public class PerfTracker {
 
     //add time to a time
     public boolean addCount(String name, int count){
-        if(namedCounts.containsKey(name)){
+        if(!namedCounts.containsKey(name)){
             return false;
         }
         namedCounts.put(name, count+namedCounts.get(name));

@@ -30,9 +30,10 @@ public class Runner {
 
         setupVariablesToTrack(programInfo);
 
+
         try{
             programInfo.doSetup(args);
-
+            System.out.println(programInfo.getArguments().printArgValues());
             //check if we need to do a minimization
             if(!programInfo.isNeedsToBeMinimized()){
                 saveBestAPK(programInfo);

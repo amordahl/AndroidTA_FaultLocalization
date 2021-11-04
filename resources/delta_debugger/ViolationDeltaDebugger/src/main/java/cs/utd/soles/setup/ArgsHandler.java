@@ -3,6 +3,7 @@ package cs.utd.soles.setup;
 import com.utdallas.cs.alps.flows.Flowset;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class ArgsHandler{
@@ -39,5 +40,12 @@ public class ArgsHandler{
     }
     public Optional<Object> getValueOfArg(String arg){
         return Optional.ofNullable(argValues.get(arg));
+    }
+    public String printArgValues(){
+        String returnString="";
+        for(Map.Entry<String, Object> e: argValues.entrySet()){
+            returnString+=e.getKey().toString()+": "+e.getValue().toString()+"\n";
+        }
+        return returnString;
     }
 }
