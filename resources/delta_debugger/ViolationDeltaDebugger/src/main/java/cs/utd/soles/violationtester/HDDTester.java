@@ -34,8 +34,8 @@ public class HDDTester implements Tester {
     public HDDTester(Object lock, SetupClass setupClass){
         this.lockObject=lock;
         this.projectInfo=setupClass;
-        this.apkCreator=new ApkCreator(lock, setupClass.getPerfTracker());
-        this.aqlRunner=new AqlRunner(lock,setupClass.getPerfTracker());
+        this.apkCreator=new ApkCreator(this.lockObject, setupClass.getPerfTracker());
+        this.aqlRunner=new AqlRunner(this.lockObject,setupClass.getPerfTracker());
 
     }
 

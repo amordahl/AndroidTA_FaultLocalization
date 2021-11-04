@@ -21,8 +21,8 @@ public class BinaryReductionTester implements Tester {
 
     public BinaryReductionTester(Object lockObject, SetupClass projectInfo) {
         this.lockObject = lockObject;
-        this.apkCreator = new ApkCreator(lockObject, projectInfo.getPerfTracker());
-        this.aqlRunner = new AqlRunner(lockObject,projectInfo.getPerfTracker());
+        this.apkCreator = new ApkCreator(this.lockObject, projectInfo.getPerfTracker());
+        this.aqlRunner = new AqlRunner(this.lockObject,projectInfo.getPerfTracker());
         this.projectInfo = projectInfo;
     }
 
@@ -41,29 +41,31 @@ public class BinaryReductionTester implements Tester {
         boolean returnVal=false;
 
         try{
-            //make apk with changes
-            apkCreator.createApkFromList(projectInfo,originalUnits,proposal,0);
-            lockObject.wait();
-            //see if compiled
-            if(!apkCreator.getThreadResult()){
-                return false;
+            synchronized(lockObject) {
+                //make apk with changes
+                apkCreator.createApkFromList(projectInfo, originalUnits, proposal, 0);
+                lockObject.wait();
+                //see if compiled
+                if (!apkCreator.getThreadResult()) {
+                    return false;
+                }
+                //try aql
+                try {
+                    aqlRunner.runAql(projectInfo, 0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+                lockObject.wait();
+                //see if aql worked
+                //get the results
+                if (!aqlRunner.getThreadResult()) {
+                    return false;
+                }
+                //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!
+                //TODO:: count lines, performance log add changes
+                returnVal = true;
             }
-            //try aql
-            try {
-                aqlRunner.runAql(projectInfo, 0);
-            }catch(Exception e){
-                e.printStackTrace();
-                return false;
-            }
-            lockObject.wait();
-            //see if aql worked
-            //get the results
-            if(!aqlRunner.getThreadResult()){
-                return false;
-            }
-            //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!
-            //TODO:: count lines, performance log add changes
-            returnVal=true;
         }catch(InterruptedException e){
             e.printStackTrace();
         }
