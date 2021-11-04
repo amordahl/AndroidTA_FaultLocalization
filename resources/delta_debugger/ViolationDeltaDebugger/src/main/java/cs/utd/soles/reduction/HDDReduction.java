@@ -36,7 +36,7 @@ public class HDDReduction implements Reduction{
     public void hddReduction(ArrayList<Pair<File, CompilationUnit>> bestCuList){
 
         programInfo.getPerfTracker().startTimer("hdd_timer");
-        boolean minimized=false;
+        Boolean minimized=false;
         while(!minimized&&System.currentTimeMillis()<timeoutTime){
             minimized=true;
             programInfo.getPerfTracker().addCount("total_rotations",1);
@@ -44,14 +44,14 @@ public class HDDReduction implements Reduction{
             for (Pair<File, CompilationUnit> compilationUnit : bestCuList) {
                 //if we are under the time limit, traverse the tree
                 if(System.currentTimeMillis()<timeoutTime)
-                    traverseTree(i, compilationUnit.getValue1(), bestCuList);
+                    traverseTree(i, compilationUnit.getValue1(), bestCuList, minimized);
                 i++;
             }
         }
         programInfo.getPerfTracker().stopTimer("hdd_timer");
     }
 
-    private void traverseTree(int currentCU, Node currentNode, ArrayList<Pair<File, CompilationUnit>> bestCuList){
+    private void traverseTree(int currentCU, Node currentNode, ArrayList<Pair<File, CompilationUnit>> bestCuList, Boolean minimized){
 
 
         if(!currentNode.getParentNode().isPresent()&&!(currentNode instanceof CompilationUnit)||currentNode==null){
@@ -61,15 +61,15 @@ public class HDDReduction implements Reduction{
         if(timeoutTime<System.currentTimeMillis())
             return;
         //process node
-        process(currentCU, currentNode, bestCuList);
+        process(currentCU, currentNode, bestCuList,minimized);
         //traverse children
         for(Node x: currentNode.getChildNodes()){
 
-            traverseTree(currentCU, x, bestCuList);
+            traverseTree(currentCU, x, bestCuList, minimized);
         }
 
     }
-    private void process(int currentCUPos, Node currentNode, ArrayList<Pair<File, CompilationUnit>> bestCuList){
+    private void process(int currentCUPos, Node currentNode, ArrayList<Pair<File, CompilationUnit>> bestCuList, Boolean minimized){
 
         if(!currentNode.getParentNode().isPresent()&&!(currentNode instanceof CompilationUnit)){
             return;
@@ -83,7 +83,7 @@ public class HDDReduction implements Reduction{
                     childList.add(x);
                 }
             }
-            handleNodeList(currentCUPos,currentNode, childList, bestCuList);
+            handleNodeList(currentCUPos,currentNode, childList, bestCuList,minimized);
 
         }
         if(currentNode instanceof BlockStmt) {
@@ -95,13 +95,13 @@ public class HDDReduction implements Reduction{
                     childList.add(x);
                 }
             }
-            handleNodeList(currentCUPos,currentNode, childList, bestCuList);
+            handleNodeList(currentCUPos,currentNode, childList, bestCuList, minimized);
         }
 
 
     }
 
-    private void handleNodeList(int compPosition, Node currentNode, List<Node> childList, ArrayList<Pair<File, CompilationUnit>> bestCuList){
+    private void handleNodeList(int compPosition, Node currentNode, List<Node> childList, ArrayList<Pair<File, CompilationUnit>> bestCuList, Boolean minimized){
 
         //make a copy of the tree
         CompilationUnit copiedUnit = bestCuList.get(compPosition).getValue1().clone();
@@ -132,6 +132,7 @@ public class HDDReduction implements Reduction{
                 requiredForTest.add(compPosition);
                 requiredForTest.add(copiedUnit);
                 if(tester.runTest(requiredForTest)){
+                    minimized=false;
                     //if changed, remove the nodes we removed from the original ast
                     for(Node x:alterableRemoves){
                         currentNode.remove(x);
