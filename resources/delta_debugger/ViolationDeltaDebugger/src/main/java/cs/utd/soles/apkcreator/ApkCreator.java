@@ -83,7 +83,7 @@ public class ApkCreator implements ThreadHandler {
         threadResult=false;
         try{
             saveCompilationUnits(list, positionChanged, changedUnit);
-            //TODO:: add start compilation time things
+            pTracker.startTimer("compile_timer");
             Process p = Runtime.getRuntime().exec(command);
             ProcessThread pThread = new ProcessThread(p,this,ProcessType.CREATE_APK_PROCESS, 300000, caller);
             pThread.start();

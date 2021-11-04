@@ -1,6 +1,7 @@
 package cs.utd.soles.violationtester;
 
 import com.github.javaparser.ast.CompilationUnit;
+import cs.utd.soles.LineCounter;
 import cs.utd.soles.apkcreator.ApkCreator;
 import cs.utd.soles.aqlrunner.AQLStringHandler;
 import cs.utd.soles.aqlrunner.AqlRunner;
@@ -8,6 +9,7 @@ import cs.utd.soles.setup.SetupClass;
 import org.javatuples.Pair;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class BinaryReductionTester implements Tester {
@@ -20,7 +22,7 @@ public class BinaryReductionTester implements Tester {
     public BinaryReductionTester(Object lockObject, SetupClass projectInfo) {
         this.lockObject = lockObject;
         this.apkCreator = new ApkCreator(lockObject, projectInfo.getPerfTracker());
-        this.aqlRunner = new AqlRunner(lockObject);
+        this.aqlRunner = new AqlRunner(lockObject,projectInfo.getPerfTracker());
         this.projectInfo = projectInfo;
     }
 
@@ -35,7 +37,7 @@ public class BinaryReductionTester implements Tester {
 
     private boolean checkProposal(ArrayList<Pair<File, CompilationUnit>> originalUnits,ArrayList<Pair<File, CompilationUnit>> proposal){
 
-        //TODO:: addChangeNum()
+        projectInfo.getPerfTracker().addCount("ast_changes",1);
         boolean returnVal=false;
 
         try{
@@ -55,9 +57,8 @@ public class BinaryReductionTester implements Tester {
             }
             lockObject.wait();
             //see if aql worked
-            boolean result = AQLStringHandler.handleAQL(projectInfo,aqlRunner.getAqlString1(),aqlRunner.getAqlString2());
             //get the results
-            if(!result){
+            if(!aqlRunner.getThreadResult()){
                 return false;
             }
             //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!

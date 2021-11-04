@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 
 public class DotFileCreator {
     public static File createDotForProject(SetupClass programInfo){
-        //TODO:: this needs to be timed
+        programInfo.getPerfTracker().startTimer("jdeps_timer");
         try {
             String[] command = {"jdeps", "-R", "-verbose", "-dotoutput", programInfo.getTargetProject().getProjectClassFiles() + "/dotfiles", programInfo.getTargetProject().getProjectClassFiles()};
 
@@ -24,9 +24,10 @@ public class DotFileCreator {
                     result += in.readLine() + "\n";
                 }
             p.waitFor();
-
+            programInfo.getPerfTracker().stopTimer("jdeps_timer");
             return programInfo.getTargetProject().getDotFile();
         }catch(Exception e){
+            programInfo.getPerfTracker().stopTimer("jdeps_timer");
             e.printStackTrace();
         }
         return null;

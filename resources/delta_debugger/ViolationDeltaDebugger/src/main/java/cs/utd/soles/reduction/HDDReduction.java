@@ -35,7 +35,8 @@ public class HDDReduction implements Reduction{
 
 
     public void hddReduction(ArrayList<Pair<File, CompilationUnit>> bestCuList){
-        //TODO:: figure out how to time
+
+        programInfo.getPerfTracker().startTimer("hdd_timer");
         boolean minimized=false;
         while(!minimized&&System.currentTimeMillis()<timeoutTime){
             minimized=true;
@@ -47,6 +48,7 @@ public class HDDReduction implements Reduction{
                 i++;
             }
         }
+        programInfo.getPerfTracker().stopTimer("hdd_timer");
     }
 
     private void traverseTree(int currentCU, Node currentNode, ArrayList<Pair<File, CompilationUnit>> bestCuList){

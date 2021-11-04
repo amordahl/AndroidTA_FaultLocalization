@@ -12,6 +12,9 @@ public class AQLThread extends Thread implements ThreadHandler {
     final Object lockObj;
     int doneCount;
     public int caller;
+    public int getCaller(){
+        return caller;
+    }
     public AQLThread(Process aql1, Process aql2, ThreadHandler t, int caller){
 
         this.aql1=aql1;

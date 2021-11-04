@@ -1,6 +1,5 @@
 package cs.utd.soles.threads;
 
-//TODO:: if we have a new modification to make, is this easy to implement?
 public interface ThreadHandler {
 
 

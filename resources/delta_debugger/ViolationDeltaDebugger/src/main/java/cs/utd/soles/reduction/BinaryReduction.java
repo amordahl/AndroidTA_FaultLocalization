@@ -29,16 +29,16 @@ public class BinaryReduction implements Reduction{
 
     @Override
     public void reduce(ArrayList<Object> requireds) {
-        //TODO:: find some way to time this stuff
-
         ArrayList<Pair<File,CompilationUnit>> originalCuList = (ArrayList<Pair<File, CompilationUnit>>) requireds.get(0);
         ArrayList<Pair<File,CompilationUnit>> bestCuList = (ArrayList<Pair<File, CompilationUnit>>) requireds.get(1);
 
+        programInfo.getPerfTracker().startTimer("binary_timer");
+
         DependencyGraph graph = createDependencyNodes(originalCuList);
-
         ArrayList<HashSet<ClassNode>> closures = graph.getTransitiveClosuresDifferent();
-
         binaryReduction(closures, originalCuList, bestCuList);
+
+        programInfo.getPerfTracker().stopTimer("binary_timer");
     }
 
     private DependencyGraph createDependencyNodes(ArrayList<Pair<File, CompilationUnit>> bestCuList) {

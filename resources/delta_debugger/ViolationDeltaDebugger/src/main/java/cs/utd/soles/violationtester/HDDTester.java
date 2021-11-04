@@ -9,6 +9,7 @@ import cs.utd.soles.setup.SetupClass;
 import org.javatuples.Pair;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -34,7 +35,7 @@ public class HDDTester implements Tester {
         this.lockObject=lock;
         this.projectInfo=setupClass;
         this.apkCreator=new ApkCreator(lock, setupClass.getPerfTracker());
-        this.aqlRunner=new AqlRunner(lock);
+        this.aqlRunner=new AqlRunner(lock,setupClass.getPerfTracker());
 
     }
 
@@ -43,7 +44,7 @@ public class HDDTester implements Tester {
     private boolean checkChanges(ArrayList<Pair<File, CompilationUnit>> cuListToTest, int compPosition, CompilationUnit copiedu){
 
         boolean returnVal=false;
-        //TODO:: add a change num
+        projectInfo.getPerfTracker().addCount("ast_changes",1);
         try {
             //enter synchronized
             synchronized(lockObject) {
@@ -68,9 +69,8 @@ public class HDDTester implements Tester {
                 //wait for aqlprocess to be done
                 lockObject.wait();
                 //AQlRunner will have some cool strings in it, so give them to AQLStringHandler to interpret
-                boolean result = AQLStringHandler.handleAQL(projectInfo,aqlRunner.getAqlString1(),aqlRunner.getAqlString2());
                 //get the results
-                if(!result){
+                if(!aqlRunner.getThreadResult()){
                     return false;
                 }
 

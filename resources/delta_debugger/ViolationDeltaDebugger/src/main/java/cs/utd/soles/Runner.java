@@ -19,8 +19,8 @@ import java.util.*;
 
 public class Runner {
 
-    static File intermediateJavaDir=null;
-    static PerfTimer performanceLog = new PerfTimer();
+    //static File intermediateJavaDir=null;
+    //static PerfTimer performanceLog = new PerfTimer();
     //1 minute is this long in millis
     private static final long M_TO_MILLIS=60000;
 
@@ -105,7 +105,33 @@ public class Runner {
        // Collections.sort(bestCUList,cuListComp);
 
 
+        //handle end line count
+        try {
+            int count = (int) LineCounter.countLinesDir(programInfo.getTargetProject().getProjectSrcPath());
+            programInfo.getPerfTracker().setCount("end_line_count",count);
+            String bigString="";
+            PerfTracker pt = programInfo.getPerfTracker();
+            bigString+="Counts: \n";
+            bigString+=pt.printAllCounts();
+            bigString+="\nTimes: \n";
+            bigString+=pt.printAllTimes();
+            bigString+="\nTimers: \n";
+            bigString+=pt.printTimerTimes();
 
+            String filePathName = "debugger/"+programInfo.getThisRunName()+"_time.txt";
+            File file = new File(filePathName);
+            file.mkdirs();
+            if (file.exists())
+                file.delete();
+            file.createNewFile();
+            FileWriter fw = new FileWriter(file);
+            fw.write(bigString);
+            fw.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //doPrintLog();
     }
 
