@@ -46,9 +46,11 @@ public class Runner {
 
             //make a regular apk;
             Object lockO = new Object();
-            ApkCreator creator = new ApkCreator(lockO, programInfo.getPerfTracker());
-            creator.createApkFromList(programInfo,originalCuList,originalCuList,-1);
-            lockO.wait();
+            synchronized(lockO) {
+                ApkCreator creator = new ApkCreator(lockO, programInfo.getPerfTracker());
+                creator.createApkFromList(programInfo, originalCuList, originalCuList, -1);
+                lockO.wait();
+            }
 
             programInfo.getPerfTracker().stopTimer("setup_timer");
             //check if we need to do a minimization
