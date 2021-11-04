@@ -34,15 +34,12 @@ public class Runner {
 
         ArrayList<Pair<File,CompilationUnit>> originalCuList = new ArrayList<>();
         ArrayList<Pair<File,CompilationUnit>> bestCuList = new ArrayList<>();
-        try {
-            originalCuList=createCuList(programInfo.getTargetProject().getProjectSrcPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         try{
             programInfo.getPerfTracker().startTimer("setup_timer");
             programInfo.doSetup(args);
+
+            originalCuList=createCuList(programInfo.getTargetProject().getProjectSrcPath());
 
             System.out.println(programInfo.getArguments().printArgValues());
 
