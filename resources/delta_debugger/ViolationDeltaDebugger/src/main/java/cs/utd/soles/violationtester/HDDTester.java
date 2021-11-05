@@ -60,7 +60,7 @@ public class HDDTester implements Tester {
                 }
                 //start aql process
                 try {
-                    aqlRunner.runAql(projectInfo, 1);
+                    aqlRunner.runAql(projectInfo, 1,cuListToTest, compPosition);
                 }catch(Exception e){
                     e.printStackTrace();
                     return false;

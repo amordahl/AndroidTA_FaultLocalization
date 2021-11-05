@@ -20,8 +20,6 @@ import java.util.*;
 
 public class Runner {
 
-    //static File intermediateJavaDir=null;
-    //static PerfTimer performanceLog = new PerfTimer();
     //1 minute is this long in millis
     private static final long M_TO_MILLIS=60000;
 
@@ -41,8 +39,9 @@ public class Runner {
 
             originalCuList=createCuList(programInfo.getTargetProject().getProjectSrcPath());
 
-            System.out.println(programInfo.getArguments().printArgValues());
+            trackFilesChanges(programInfo,originalCuList);
 
+            System.out.println(programInfo.getArguments().printArgValues());
 
             //make a regular apk;
             final Object lockO = new Object();
@@ -148,6 +147,17 @@ public class Runner {
             e.printStackTrace();
         }
         //doPrintLog();
+    }
+
+    private static void trackFilesChanges(SetupClass programInfo, ArrayList<Pair<File, CompilationUnit>> cuList) {
+
+        for(int i=0;i<cuList.size();i++){
+            programInfo.getPerfTracker().addNewCount(cuList.get(0).getValue0().toString()+"_bad_compile");
+            programInfo.getPerfTracker().addNewCount(cuList.get(0).getValue0().toString()+"_good_compile");
+            programInfo.getPerfTracker().addNewCount(cuList.get(0).getValue0().toString()+"_bad_aql");
+            programInfo.getPerfTracker().addNewCount(cuList.get(0).getValue0().toString()+"_good_aql");
+        }
+
     }
 
     //this method just makes all of the relevant key, value pairs we want to look at.
@@ -304,7 +314,7 @@ public class Runner {
         }
     }*/
 
-   /* public static CompilationUnit getASTForFile(String filePath){
+    /* public static CompilationUnit getASTForFile(String filePath){
             for(Pair<File,CompilationUnit> p:bestCUList){
                 if(p.getValue0().getAbsolutePath().equals(filePath))
                     return p.getValue1();

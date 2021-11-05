@@ -1,15 +1,12 @@
 package cs.utd.soles.violationtester;
 
 import com.github.javaparser.ast.CompilationUnit;
-import cs.utd.soles.LineCounter;
 import cs.utd.soles.apkcreator.ApkCreator;
-import cs.utd.soles.aqlrunner.AQLStringHandler;
 import cs.utd.soles.aqlrunner.AqlRunner;
 import cs.utd.soles.setup.SetupClass;
 import org.javatuples.Pair;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class BinaryReductionTester implements Tester {
@@ -51,7 +48,7 @@ public class BinaryReductionTester implements Tester {
                 }
                 //try aql
                 try {
-                    aqlRunner.runAql(projectInfo, 0);
+                    aqlRunner.runAql(projectInfo, 0, null, -1);
                 } catch (Exception e) {
                     e.printStackTrace();
                     return false;

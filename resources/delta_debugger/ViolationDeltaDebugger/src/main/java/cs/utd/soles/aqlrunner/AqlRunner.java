@@ -1,12 +1,15 @@
 package cs.utd.soles.aqlrunner;
 
+import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.PerfTracker;
 import cs.utd.soles.threads.AQLThread;
 import cs.utd.soles.setup.SetupClass;
-import cs.utd.soles.threads.ProcessThread;
 import cs.utd.soles.threads.ThreadHandler;
+import org.javatuples.Pair;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class AqlRunner implements ThreadHandler {
 
@@ -18,7 +21,8 @@ public class AqlRunner implements ThreadHandler {
     final Object lockObject;
     PerfTracker pTracker;
     private SetupClass setupInfo;
-
+    private static int posChanged;
+    private static ArrayList<Pair<File, CompilationUnit>> list;
     public AqlRunner(Object lockObject, PerfTracker pT) {
         this.lockObject = lockObject;
         this.pTracker=pT;
@@ -29,8 +33,6 @@ public class AqlRunner implements ThreadHandler {
         switch(type){
             case AQL_RUN:
                 synchronized(lockObject){
-
-
                     //final results of aql are in both finalString1 and finalString2 respectively
                     //order is config1, config2
                     pTracker.stopTimer("aql_timer");
@@ -51,13 +53,14 @@ public class AqlRunner implements ThreadHandler {
         }
     }
 
-    public void runAql(SetupClass info, int caller) throws IOException {
+    public void runAql(SetupClass info, int caller, ArrayList<Pair<File, CompilationUnit>> cuListToTest, int posChanged) throws IOException {
         threadResult=false;
         setupInfo=info;
         //this bit runs and captures the output of the aql script
         String command1 = "python runaql.py "+info.getConfig1()+" "+info.getTargetProject().getProjectAPKPath()+" -f";
         String command2 = "python runaql.py "+info.getConfig2()+" "+info.getTargetProject().getProjectAPKPath()+" -f";
-
+        list=cuListToTest;
+        AqlRunner.posChanged =posChanged;
 
         boolean runaql1=true;
         boolean runaql2=true;
@@ -104,6 +107,12 @@ public class AqlRunner implements ThreadHandler {
                 pTracker.addCount(correctName,1);
                 correctName="time_"+correctName;
                 pTracker.addTime(correctName,pTracker.getTimeForTimer("aql_timer"));
+
+                if(posChanged>-1&&posChanged<list.size()) {
+                    correctName=list.get(posChanged).getValue(0).toString();
+                    correctName+=passOrFail?"_good_aql":"_bad_aql";
+                    pTracker.addCount(correctName, 1);
+                }
                 break;
             default:
                 break;

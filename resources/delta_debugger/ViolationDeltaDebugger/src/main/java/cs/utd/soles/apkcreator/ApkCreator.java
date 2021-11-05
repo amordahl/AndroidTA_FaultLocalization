@@ -18,6 +18,8 @@ public class ApkCreator implements ThreadHandler {
     boolean threadResult;
     final Object lockObj;
     private PerfTracker pTracker;
+    private static int posChanged=-1;
+    private static ArrayList<Pair<File,CompilationUnit>> list;
     public ApkCreator(Object lock, PerfTracker performance){
         this.lockObj=lock;
         this.pTracker=performance;
@@ -72,6 +74,12 @@ public class ApkCreator implements ThreadHandler {
                 pTracker.addCount(correctName,1);
                 correctName="time_"+correctName;
                 pTracker.addTime(correctName,pTracker.getTimeForTimer("compile_timer"));
+
+                if(posChanged>-1&&posChanged<list.size()) {
+                    correctName=list.get(posChanged).getValue(0).toString();
+                    correctName+=passOrFail?"_good_compile":"_bad_compile";
+                    pTracker.addCount(correctName, 1);
+                }
                 break;
             default:
                 break;
@@ -95,6 +103,8 @@ public class ApkCreator implements ThreadHandler {
 
     }
     public static void saveCompilationUnits(ArrayList<Pair<File, CompilationUnit>> compilationUnits, int positionChanged, CompilationUnit changedUnit) throws IOException {
+        list=compilationUnits;
+        posChanged=positionChanged;
         int i=0;
         for(Pair<File,CompilationUnit> x: compilationUnits){
 
