@@ -29,7 +29,6 @@ public class Runner {
         setupVariablesToTrack(programInfo);
         programInfo.getPerfTracker().startTimer("program_timer");
 
-
         ArrayList<Pair<File,CompilationUnit>> originalCuList = new ArrayList<>();
         ArrayList<Pair<File,CompilationUnit>> bestCuList = new ArrayList<>();
 
@@ -50,6 +49,7 @@ public class Runner {
                 creator.createApkFromList(programInfo, originalCuList, originalCuList, -1);
                 lockO.wait();
             }
+            programInfo.getPerfTracker().setCount("start_line_count", (int) LineCounter.countLinesDir(programInfo.getTargetProject().getProjectSrcPath()));
 
             programInfo.getPerfTracker().stopTimer("setup_timer");
             //check if we need to do a minimization
@@ -152,10 +152,10 @@ public class Runner {
     private static void trackFilesChanges(SetupClass programInfo, ArrayList<Pair<File, CompilationUnit>> cuList) {
 
         for(int i=0;i<cuList.size();i++){
-            programInfo.getPerfTracker().addNewCount(cuList.get(0).getValue0().toString()+"_bad_compile");
-            programInfo.getPerfTracker().addNewCount(cuList.get(0).getValue0().toString()+"_good_compile");
-            programInfo.getPerfTracker().addNewCount(cuList.get(0).getValue0().toString()+"_bad_aql");
-            programInfo.getPerfTracker().addNewCount(cuList.get(0).getValue0().toString()+"_good_aql");
+            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(0).getValue0().getName()+"_bad_compile");
+            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(0).getValue0().getName()+"_good_compile");
+            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(0).getValue0().getName()+"_bad_aql");
+            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(0).getValue0().getName()+"_good_aql");
         }
 
     }

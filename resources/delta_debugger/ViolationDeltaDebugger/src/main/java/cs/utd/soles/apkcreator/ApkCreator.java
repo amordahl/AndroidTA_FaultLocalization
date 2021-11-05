@@ -76,8 +76,8 @@ public class ApkCreator implements ThreadHandler {
                 pTracker.addTime(correctName,pTracker.getTimeForTimer("compile_timer"));
 
                 if(posChanged>-1&&posChanged<list.size()) {
-                    correctName=list.get(posChanged).getValue(0).toString();
-                    correctName+=passOrFail?"_good_compile":"_bad_compile";
+                    correctName=list.get(posChanged).getValue0().getName();
+                    correctName="cucount_"+correctName+(passOrFail?"_good_compile":"_bad_compile");
                     pTracker.addCount(correctName, 1);
                 }
                 break;
