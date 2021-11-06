@@ -16,6 +16,7 @@ import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTaskReader;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.BaselineInstlogProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureContentLogProcessor;
+import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureElementwiseLogProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.AbstractPostProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.IdentityPostProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.AbstractCoverageTaskProcessor;
@@ -59,7 +60,7 @@ public class Application {
 	// TODO: Make these into parameters.
 	private ILocalizer<Object> localizer = new TarantulaLocalizer<Object>();
 	private AbstractCoverageTaskProcessor<?> processor = 
-			phase2 ? new DataStructureContentLogProcessor() : new BaselineInstlogProcessor();	
+			phase2 ? new DataStructureElementwiseLogProcessor() : new BaselineInstlogProcessor();	
 	private AbstractPostProcessor<Object> app = new IdentityPostProcessor<Object>();
 	/**
 	 * Just sets up the JCommander argument parser.

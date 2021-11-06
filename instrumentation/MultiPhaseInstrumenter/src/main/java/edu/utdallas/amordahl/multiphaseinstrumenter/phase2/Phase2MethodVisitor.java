@@ -54,12 +54,13 @@ public class Phase2MethodVisitor extends MethodVisitor {
 		Phase2MethodVisitor.lineNumber = line;
 		Phase2MethodVisitor.dataStructureIndex = 0;
 		LineCoverageRecord lr = new LineCoverageRecord(this.name, Integer.valueOf(line));
-		if (covered.size() == 0 || 
-				covered.contains(new LineCoverageRecord(this.name, Integer.valueOf(line)))) {
+		if (covered.size() == 0 ||
+		    covered.contains(new LineCoverageRecord(this.name, Integer.valueOf(line)))) {
 			logger.debug(String.format("%s was in coverage record.", lr.toString()));
 			toggle = true;
 		} else {
-			toggle = false;
+		    logger.debug("{} was not in coverage.", lr);
+		    toggle = false;
 		}
 		super.visitLineNumber(line, start);
 	}
@@ -68,9 +69,9 @@ public class Phase2MethodVisitor extends MethodVisitor {
 	
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		// TODO Auto-generated method stub
+	    logger.trace("In visitFieldInsn.");
+	    logger.debug("Description for instruction (opcode {}) on line {}:{} is {}", opcode, this.name, Phase2MethodVisitor.lineNumber, desc);
 		if (toggle && desc.startsWith("L")) {
-			logger.debug("Description for instruction on line {}:{} is {}", this.name, Phase2MethodVisitor.lineNumber, desc);
 			switch (opcode) {
 			case GETFIELD:
 			case GETSTATIC:
@@ -103,15 +104,24 @@ public class Phase2MethodVisitor extends MethodVisitor {
 	private void logDataStructure(String description) {
 		// STACK STATE: ..., OBJ
 		// First, clone object reference.
+	    logger.debug("inside logDataStructure");
 		for (SupportedInstrumentations s: SettingsManager.getInstrumentationType()) {
+		    logger.debug("Supported instrumentation is {}", s);
 			super.visitInsn(DUP); // ..., OBJ, OBJ
+			logger.trace("Put DUP.");
 			super.visitLdcInsn(this.name); // ..., OBJ, OBJ, name
+			logger.trace("Put name.");
 			super.visitLdcInsn(Phase2MethodVisitor.lineNumber); // ..., OBJ, OBJ, name, linum
-			super.visitLdcInsn(Phase2MethodVisitor.dataStructureIndex++); // ..., OBJ, OBJ, name, linum, index 
+			logger.trace("Put line number.");
+			super.visitLdcInsn(Phase2MethodVisitor.dataStructureIndex++); // ..., OBJ, OBJ, name, linum, index
+			logger.trace("Put data structure index.");
 			super.visitLdcInsn(description);
+			logger.trace("Put description.");
 			super.visitLdcInsn(s.toString()); // ..., OBJ, OBJ, name, linum, index, type
+			logger.trace("Put instrumentation type.");
 			super.visitMethodInsn(INVOKESTATIC, LOG_TRACKER, "logDataStructure", 
 					"(Ljava/lang/Object;Ljava/lang/String;IILjava/lang/String;Ljava/lang/String;)V", false); // ..., OBJ
+			logger.trace("Put call to logDataStructure.");
 		}	
 		
 	}

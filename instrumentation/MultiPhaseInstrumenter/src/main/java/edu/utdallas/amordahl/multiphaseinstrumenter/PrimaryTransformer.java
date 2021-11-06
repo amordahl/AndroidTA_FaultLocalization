@@ -80,7 +80,10 @@ public class PrimaryTransformer implements ClassFileTransformer {
 				e.printStackTrace();
 				System.exit(2);
 			}
-		} return covered;
+		}
+		logger.debug("Size of covered is {}", covered.size());
+		logger.debug("Covered is {}", covered.toString());
+		return covered;
 	}
 	
 	@Override
@@ -114,7 +117,7 @@ public class PrimaryTransformer implements ClassFileTransformer {
 		classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
 		
 		try {
-			Path outputDirectory = Paths.get("/Users/austin/Desktop/class_outputs");
+			Path outputDirectory = Paths.get("/home/austin/Desktop/class_outputs");
 			if (Files.exists(outputDirectory, new LinkOption[] {})) {
 				logger.debug("Output directory is " + outputDirectory.toString());
 				// Write to output so we can inspect outputs.
