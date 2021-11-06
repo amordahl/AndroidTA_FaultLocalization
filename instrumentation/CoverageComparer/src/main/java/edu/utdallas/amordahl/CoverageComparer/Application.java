@@ -81,6 +81,11 @@ public class Application {
 	}
 	
 	private void run() {
+		localizer = new TarantulaLocalizer<Object>();
+		processor = 
+				phase2 ? new DataStructureContentLogProcessor() : new BaselineInstlogProcessor(false);	
+		app = new IdentityPostProcessor<Object>();
+
 		for (String s: this.coverageTasks) {
 			// Read in coverage file, which details the passed and failed test cases.
 			System.out.println(String.format("Reading in coverage file %s", Paths.get(s)));

@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.utdallas.amordahl.multiphaseinstrumenter.util.LineCoverageRecord;
 import edu.utdallas.amordahl.multiphaseinstrumenter.util.LineCoverageRecordFactory;
+import edu.utdallas.amordahl.SupportedInstrumentations;
 import edu.utdallas.amordahl.multiphaseinstrumenter.phase1.Phase1ClassVisitor;
 import edu.utdallas.amordahl.multiphaseinstrumenter.phase2.Phase2ClassVisitor;
 
@@ -103,7 +104,7 @@ public class PrimaryTransformer implements ClassFileTransformer {
 		logger.debug("Created all three visitors.");
 		// Create different class visitors depending on whether we have a coverage file or not.
 		try {
-			if (SettingsManager.getCoverageFile() != null) {
+			if (!SettingsManager.getInstrumentationType().contains(SupportedInstrumentations.COVERAGE)) {
 			logger.debug("Creating a phase 2 instrumentation.");
 			classVisitor = new TraceClassVisitor(new Phase2ClassVisitor(new CheckClassAdapter(classWriter, false), 
 					className, PrimaryTransformer.getCovered()), null);
@@ -112,7 +113,7 @@ public class PrimaryTransformer implements ClassFileTransformer {
 			classVisitor = new Phase1ClassVisitor(classWriter, className);
 		}
 		} catch (Throwable ex) {
-			logger.error("Something bad happened: {}", ex.fillInStackTrace());
+			logger.error("Something bad happened.", ex.fillInStackTrace());
 		}
 		classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
 		

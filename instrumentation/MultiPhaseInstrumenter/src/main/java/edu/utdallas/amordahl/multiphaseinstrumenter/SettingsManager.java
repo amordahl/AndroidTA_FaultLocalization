@@ -32,7 +32,7 @@ public class SettingsManager {
 				result.add(SupportedInstrumentations.valueOf(v.toUpperCase()));
 			}
 		} else {
-			result.add(SupportedInstrumentations.CONTENT);
+			result.add(SupportedInstrumentations.COVERAGE);
 		}
 		if (result.size() > 1) {
 			throw new UnsupportedOperationException("Have not implemented multiple types of instrumentation at once.");
