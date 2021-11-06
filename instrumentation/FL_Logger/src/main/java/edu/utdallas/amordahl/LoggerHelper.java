@@ -28,7 +28,7 @@ public class LoggerHelper {
 	private static long LAST_TIME = new Date().getTime();
 	private static FileWriter fw;
 	private static BufferedWriter bw;
-	private static Set<String> covered = new HashSet<String>();
+	private static Map<String, Integer> covered = new HashMap<String, Integer>();
 
 	/**
 	 * Threadsafe way to log coverage information. Will await a lock on the file
@@ -42,10 +42,11 @@ public class LoggerHelper {
 		logger.debug("Logging coverage info.");
 		String fullLoc = String.format("%s:%d", location, linenumber);
 		synchronized (covered) {
-			if (covered.contains(fullLoc)) {
+			if (covered.containsKey(fullLoc)) {
+				covered.put(fullLoc, covered.get(fullLoc) + 1);
 				return;
 			} else {
-				covered.add(fullLoc);
+				covered.put(fullLoc, 1);
 				System.out.println(fullLoc);
 			}
 		}
@@ -57,16 +58,26 @@ public class LoggerHelper {
 
 	private static void logDataStructureInfo(Object obj, String name, int lineNumber, int index, 
 			SupportedInstrumentations type, String content) {
+		
+		String objType;
+		
+		try {
+			objType = obj.getClass().toString();
+		} catch (NullPointerException ne) {
+			objType = "null";
+		}
+
 		System.out.println(String.format("DATASTRUCTURE:%s:%d-%d,%s,%s",
-				name, lineNumber, index, obj.getClass().toString(), content));
+				name, lineNumber, index, objType, content));
 	}
 	
 	public static void logDataStructure(Object obj, String name, int lineNumber, int index, 
 			String dataType, String instrumentationType) {
 		logger.debug("logDataStructure called from location {}:{}-{} with datatype {}", name, lineNumber, index, dataType);
-		if (obj == null) obj = new String[] {};
 		switch (SupportedInstrumentations.valueOf(instrumentationType.toUpperCase())) {
 		case SIZE:
+			if (obj == null) obj = new String[] {};
+
 			if (obj instanceof Collection) {
 				logDataStructureInfo(obj, name, lineNumber, index, SupportedInstrumentations.SIZE,
 						Integer.toString(((Collection<?>)obj).size()));
@@ -79,12 +90,29 @@ public class LoggerHelper {
 			}
 			break;
 		case CONTENT:
+			if (obj == null) obj = new String[] {};
+
 			logDataStructureInfo(obj, name, lineNumber, index,
 					SupportedInstrumentations.CONTENT, obj.toString());
 			break;
 		case NULL:
+			// Three potential values:
+			// 0 = null
+			// 1 = collection, and empty
+			// 2 = collection, and only contains null
+			// 3 = neither
+			int result;
+			if (obj == null) {
+				result = 0;
+			} else {
+				if (obj instanceof Collection) {
+					result = ((Collection<?>)obj).size() == 0 ? 1 : 2;
+				} else {
+					result = 2;
+				}
+			}
 			logDataStructureInfo(obj, name, lineNumber, index,
-					SupportedInstrumentations.NULL, (obj == null) ? "1" : "0");
+					SupportedInstrumentations.NULL, Integer.toString(result));
 			break;
 		default:
 			logger.error("Instrumentation type %s could not be parsed.", instrumentationType);

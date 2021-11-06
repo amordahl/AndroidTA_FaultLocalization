@@ -47,7 +47,11 @@ public class DataStructureElementwiseLogProcessor extends AbstractCoverageTaskPr
 		Collection<DataStructureCoverageRecord> contentLog = new DataStructureContentLogProcessor().processLine(line);
 		for (DataStructureCoverageRecord cr : contentLog) {
 			if (cr.getClass().isInstance(Collection.class)) {
-		
+				for (Object t: (Collection)cr.getDataStructureContent()) {
+					result.add(new DataStructureCoverageRecord(cr.getLocation(), cr.getType(), t));
+				}
+			} else {
+				result.add(cr);
 		}
 		return result;
 	}

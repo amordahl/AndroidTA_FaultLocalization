@@ -52,7 +52,11 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 
 		GeneralArrayListener gla = new GeneralArrayListener();
 		p.addParseListener(gla);
+		try {
 		p.array().enterRule(gla);
+		} catch (IllegalStateException ise) {
+			throw ise;
+		}
 		return gla.getMaster();
 	}
 	
@@ -70,6 +74,10 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 	public Collection<DataStructureCoverageRecord> processLine(String line) {
 		// Format of line: SampleClass:0-1,java.lang.String,sampleString
 		Collection<DataStructureCoverageRecord> result = new ArrayList<>();
+		if (!line.startsWith("DATASTRUCTURE:")) {
+			return result;
+		}
+		
 		String location = line.split(",")[0];
 		String clazz = line.split(",")[1];
 		
@@ -77,7 +85,7 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 		String content = line.substring(location.length() + clazz.length() + 2);
 		Class<?> type;
 		try {
-			type = Class.forName(clazz);
+			type = Class.forName(clazz.split(" ")[1]); // because the string is "class CLASSNAME"
 		} catch (ClassNotFoundException cnfe) {
 			logger.warn("Could not convert string {} to a class. Constructing its record with java.lang.Object",
 					clazz);

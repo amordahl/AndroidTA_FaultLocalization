@@ -13,11 +13,11 @@ element
 	;
 	
 delimiter
-	: DELIMITER ' '?
+	: DELIMITER SPACE?
 	;
 
 string
-	: ALLOWED_CHARACTER+
+	: (ALLOWED_CHARACTER | SPACE)+
 	;
 	
 /*
@@ -35,7 +35,17 @@ RIGHT_BRACKET
 DELIMITER
  	: ','
  	;
- 	
- ALLOWED_CHARACTER
- 	: ~ [\r\n ,]
- 	;
+
+SPACE
+	: ' '
+	;
+	
+IGNORABLE_WS
+	:   [\t\r\n]+ -> skip
+    	;
+
+ALLOWED_CHARACTER
+ 	: .
+	;
+
+

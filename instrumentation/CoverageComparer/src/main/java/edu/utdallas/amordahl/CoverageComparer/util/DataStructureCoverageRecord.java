@@ -9,6 +9,11 @@ import org.slf4j.LoggerFactory;
  */
 public class DataStructureCoverageRecord implements ICoverageRecord<String, Object> {
 
+	@Override
+	public String toString() {
+		return String.format("%s:%s", location, content);
+	}
+
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(DataStructureCoverageRecord.class);
 	private Class<?> type;

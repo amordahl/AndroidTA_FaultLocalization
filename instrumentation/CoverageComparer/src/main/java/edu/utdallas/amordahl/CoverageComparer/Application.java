@@ -16,6 +16,7 @@ import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTaskReader;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.BaselineInstlogProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureContentLogProcessor;
+import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureElementwiseLogProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.AbstractPostProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.IdentityPostProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.AbstractCoverageTaskProcessor;
@@ -57,10 +58,10 @@ public class Application {
 	private boolean phase2 = false;
 	
 	// TODO: Make these into parameters.
-	private ILocalizer<Object> localizer = new TarantulaLocalizer<Object>();
-	private AbstractCoverageTaskProcessor<?> processor = 
-			phase2 ? new DataStructureContentLogProcessor() : new BaselineInstlogProcessor();	
-	private AbstractPostProcessor<Object> app = new IdentityPostProcessor<Object>();
+	private ILocalizer<Object> localizer;
+	private AbstractCoverageTaskProcessor<?> processor;
+	private AbstractPostProcessor<Object> app;
+
 	/**
 	 * Just sets up the JCommander argument parser.
 	 * 
@@ -80,6 +81,11 @@ public class Application {
 	}
 	
 	private void run() {
+		localizer = new TarantulaLocalizer<Object>();
+		processor = 
+				phase2 ? new DataStructureContentLogProcessor() : new BaselineInstlogProcessor(false);	
+		app = new IdentityPostProcessor<Object>();
+
 		for (String s: this.coverageTasks) {
 			// Read in coverage file, which details the passed and failed test cases.
 			System.out.println(String.format("Reading in coverage file %s", Paths.get(s)));
