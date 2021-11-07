@@ -4,8 +4,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.WriteAbortedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -23,17 +25,17 @@ import edu.utdallas.amordahl.CoverageComparer.util.ICoverageRecord;
 import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
 
 public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?, ?>> {
-	
+
 	private static Logger logger = LoggerFactory.getLogger(AbstractCoverageTaskProcessor.class);
 	private boolean readIntermediates;
-	
+
 	/**
 	 * Constructs an AbstractCoverageTaskProcessor that reads in intermediate files.
 	 */
 	public AbstractCoverageTaskProcessor() {
 		this.readIntermediates = true;
 	}
-	
+
 	/**
 	 * Constructs an AbstractCoverageTaskProcessor.
 	 * @param readIntermediates Whether to read in intermediate files. If false, will read all files from scratch regardless of whether an intermediate file exists.
@@ -41,20 +43,20 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 	public AbstractCoverageTaskProcessor(boolean readIntermediates) {
 		this.readIntermediates = readIntermediates;
 	}
-	
+
 	/**
 	 * Given a path, return the intermediate name.
 	 * @param p The path of the instrumentation log file.
 	 * @return The path to store or read the intermediate results from.
 	 */
 	protected abstract Path getIntermediateName(Path p);
-	
+
 	/**
 	 * Gets the name of this processor.
 	 * @return The name of the processor.
 	 */
 	public abstract String getName();
-	
+
 	/**
 	 * 
 	 * @param ps A set of paths, pointing to instrumentation logs.
@@ -96,26 +98,38 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 		logger.trace("In readInstLogFile with argument {}", p);
 		// First, check for intermediate files.
 		Path intermediate = getIntermediateName(p);
-		if (intermediate != null && Files.exists(intermediate) && this.readIntermediates) {
-			logger.debug("Intermediate file for {} found.", p.toString());
-			Collection<S> intermediateContent = readSetFromFile(intermediate); 
-			return intermediateContent;
+
+		try {
+			if (intermediate != null && Files.exists(intermediate) && this.readIntermediates) {
+				logger.debug("Intermediate file for {} found.", p.toString());
+				Collection<S> intermediateContent = readSetFromFile(intermediate);
+				return intermediateContent;
+			}
+		} catch (IOException | ClassNotFoundException ex) {
+			logger.debug("Error trying to read in intermediate file.", ex);
 		}
-		
+
 		// If we get here, the previous line did not return and thus, we need to read from scratch.
 		logger.debug("Not reading in intermediate file for {}", p.toString());
 		Collection<S> fileContent = readInstFile(p);
-		writeSetToFile(fileContent, intermediate);
+		try {
+			writeSetToFile(fileContent, intermediate);
+		} catch (IOException e) {
+			logger.debug("Error trying to write intermediate file.", e);
+		}
+
 		return fileContent;
 	}
-	 
+
 	/**
 	 * Reads in the content from an intermediate file.
 	 * @param intermediate The path to the intermediate file.
 	 * @return The content of the intermediate file.
+	 * @throws IOException 
+	 * @throws ClassNotFoundException 
 	 */
 	@SuppressWarnings("unchecked")
-	protected Collection<S> readSetFromFile(Path intermediate) {
+	protected Collection<S> readSetFromFile(Path intermediate) throws IOException, ClassNotFoundException {
 		logger.trace("In readSetFromFile.");
 		Collection<S> result = null;
 		try (FileInputStream f = new FileInputStream(intermediate.toFile());
@@ -124,23 +138,24 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 			logger.debug("Successfully read in object of size {} from intermediate file {}", result.size(), intermediate.toString());
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw e;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			throw e;
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			throw e;
+		} 
 		return result;
 	}
-	
+
 	/**
 	 * Writes a collection to a file.
 	 * @param content The collection to write.
 	 * @param intermediate The path to the intermediate file.
+	 * @throws IOException 
 	 */
-	protected void writeSetToFile(Collection<S> content, Path intermediate) {
+	protected void writeSetToFile(Collection<S> content, Path intermediate) throws IOException {
 		logger.trace("In writeSetToFile");
 		try (FileOutputStream f = new FileOutputStream(intermediate.toFile());
 				ObjectOutputStream o = new ObjectOutputStream(f)) {
@@ -148,10 +163,10 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 			logger.debug("Successfully wrote intermediate file {}", intermediate.toString());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw e;
 		}
 	}
-	
+
 	/**
 	 * Given a path, reads in its contents. Client must override.
 	 * @param p A path to an instrumentation file.

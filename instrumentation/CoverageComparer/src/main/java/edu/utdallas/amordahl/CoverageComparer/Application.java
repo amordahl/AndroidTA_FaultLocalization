@@ -1,8 +1,10 @@
 package edu.utdallas.amordahl.CoverageComparer;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +59,12 @@ public class Application {
 			description = "If enabled, treat results as data structure logs.")
 	private boolean phase2 = false;
 	
+	@Parameter(
+			names = {"--verbose-output"},
+			description = "Along with the suspiciousness of each element, "
+					+ "print out the passed and failed test cases it was present in.")
+	private boolean verboseOutput;
+	
 	// TODO: Make these into parameters.
 	private ILocalizer<Object> localizer;
 	private AbstractCoverageTaskProcessor<?> processor;
@@ -105,7 +113,7 @@ public class Application {
 			Map<Object, Double> suspiciousness = localizer.computeSuspiciousness(pf);
 			
 			// Output the result.
-			output(ct, suspiciousness);
+			output(pf, suspiciousness);
 		}
 		
 	}
@@ -114,14 +122,14 @@ public class Application {
 	 * Specifies the way to output suspiciousness rankings on the command line.
 	 * @param suspiciousness
 	 */
-	private void output(CoverageTask ct, Map<?, Double> suspiciousness) {
+	private void output(PassedFailed<Object> pf, Map<?, Double> suspiciousness) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("==================================\n");
 		sb.append(String.format("Localizer: %s\n", this.localizer.getName()));
 		sb.append(String.format("Processor: %s\n", this.processor.getName()));
-		sb.append(String.format("Coverage task: %s\n", ct.getOriginalPath()));
-		sb.append(String.format("Number of passed cases: %d\n", ct.getPassed().size()));
-		sb.append(String.format("Number of failed test cases: %d\n", ct.getFailed().size()));
+		sb.append(String.format("Coverage task: %s\n", pf.getOriginatingTask().getOriginalPath()));
+		sb.append(String.format("Number of passed cases: %d\n", pf.getPassed().size()));
+		sb.append(String.format("Number of failed test cases: %d\n", pf.getFailed().size()));
 		sb.append(String.format("Preserved: %f\n", (Double)this.preserve));
 		sb.append("\n");
 		
@@ -135,8 +143,24 @@ public class Application {
 				sorted = sorted.subList(0, (int)(sorted.size() * preserve));
 			}
 		}
-		sorted.forEach(e -> sb.append(String.format("%s = %.3f\n", e.getKey().toString(), e.getValue())));
-		
+		sorted.forEach(e -> {
+			sb.append(String.format("%s = %.3f\n", e.getKey().toString(), e.getValue()));
+			if (this.verboseOutput) {
+				sb.append("\tFailed Test Cases:\n");
+				for (Entry<Path, Collection<Object>> entry : pf.getFailed().entrySet()) {
+					if (entry.getValue().contains(e.getKey())) {
+						sb.append(String.format("\t\t%s\n", entry.getKey()));
+					}
+				}
+				sb.append("\tPassed Test Cases:\n");
+				for (Entry<Path, Collection<Object>> entry : pf.getPassed().entrySet()) {
+					if (entry.getValue().contains(e.getValue())) {
+						sb.append(String.format("\t\t%s\n", entry.getKey()));
+					}
+				}
+				sb.append("\n");
+			}
+		});
 		sb.append("\n==================================\n");
 		System.out.println(sb);
 	}
