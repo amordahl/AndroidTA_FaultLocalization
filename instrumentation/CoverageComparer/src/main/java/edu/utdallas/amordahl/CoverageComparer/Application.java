@@ -66,10 +66,10 @@ public class Application {
 	private boolean verboseOutput;
 	
 	// TODO: Make these into parameters.
-	private ILocalizer<Object> localizer;
-	private AbstractCoverageTaskProcessor<?> processor;
-	private AbstractPostProcessor<Object> app;
-
+	private ILocalizer<Object> localizer = new TarantulaLocalizer<Object>();
+	private AbstractCoverageTaskProcessor<?> processor = 
+			phase2 ? new DataStructureElementwiseLogProcessor() : new BaselineInstlogProcessor();	
+	private AbstractPostProcessor<Object> app = new IdentityPostProcessor<Object>();
 	/**
 	 * Just sets up the JCommander argument parser.
 	 * 

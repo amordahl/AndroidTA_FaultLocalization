@@ -21,8 +21,10 @@ public class LoggerAgent {
 	
 	public static void premain(String args, Instrumentation instrumentation) throws IOException{
         if (args != null && args != "") {
+	    logger.debug("Parsing arguments {}", args);
         	SettingsManager.parseOpts(args);
         }
+	logger.debug("No arguments read.");
         PrimaryTransformer transformer = new PrimaryTransformer();
         instrumentation.addTransformer(transformer);
     }
