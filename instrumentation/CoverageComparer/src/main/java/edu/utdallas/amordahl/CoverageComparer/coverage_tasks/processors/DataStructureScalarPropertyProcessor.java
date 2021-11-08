@@ -30,4 +30,10 @@ public class DataStructureScalarPropertyProcessor extends AbstractCoverageTaskPr
 		return cd;
 	}
 
+	@Override
+	protected boolean allowParallelLineProcessing() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
 }

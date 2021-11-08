@@ -57,4 +57,11 @@ public class DataStructureElementwiseLogProcessor extends AbstractCoverageTaskPr
 	}
 		return result;
 	}
+
+
+	@Override
+	protected boolean allowParallelLineProcessing() {
+		// TODO Auto-generated method stub
+		return true;
+	}
 }

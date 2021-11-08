@@ -95,5 +95,10 @@ public class BaselineInstlogProcessor extends AbstractCoverageTaskProcessor<Simp
 	}
 	
 	public String getName() { return "BASELINE INSTLOG PROCESSOR"; }
+	
+	@Override
+	protected boolean allowParallelLineProcessing() {
+		return false;
+	}
 
 }

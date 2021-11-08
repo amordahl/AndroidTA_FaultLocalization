@@ -84,4 +84,11 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 		return result;
 	}
 
+
+	@Override
+	protected boolean allowParallelLineProcessing() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
 }

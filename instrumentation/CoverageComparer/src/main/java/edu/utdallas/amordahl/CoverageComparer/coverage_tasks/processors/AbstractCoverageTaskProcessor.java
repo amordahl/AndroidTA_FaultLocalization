@@ -58,13 +58,31 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 	public abstract String getName();
 
 	/**
+	 * Whether to allow parallel processing of lines.
+	 * @return True if parallel processing is allowed, false otherwise.
+	 */
+	protected abstract boolean allowParallelLineProcessing();
+	
+	/**
+	 * Processes the actual files.
+	 * 
+	 * Uses the value of {@link #allowParallelLineProcessing()} to determine whether to allow
+	 * parallel file processing. If {@link #allowParallelLineProcessing()} is true, then we
+	 * expect a lot of memory usage from reading in an individual file, because in order to
+	 * process lines in parallel we read in the whole thing. Alternatively, if {@link #allowParallelLineProcessing()}
+	 * is false, then we will take advantage of Scanner's lazy loading to save memory. In that case, we 
+	 * can use a parallel stream to read in files.
 	 * 
 	 * @param ps A set of paths, pointing to instrumentation logs.
 	 * @return A map, mapping each path in ps to its content.
 	 */
 	private Map<Path, Collection<S>> mapPathToMap(Set<Path> ps) {
 		logger.trace("In mapPathToMap with argument {}", ps);
-		return ps.stream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
+		if (this.allowParallelLineProcessing()) {
+			return ps.stream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
+		} else {
+			return ps.parallelStream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
+		}
 	}
 
 	/**
@@ -174,18 +192,32 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 	 */
 	protected Collection<S> readInstFile(Path p) {
 		logger.trace("In readInstLogFile with argument {}", p);
-		ArrayList<S> fileContent = new ArrayList<>();
+		Collection<String> fileContent = new ArrayList<String>();
+		Collection<S> processedContent = new ArrayList<>();
 		try (Scanner sc = new Scanner(p.toFile())) {
 			while (sc.hasNextLine()) {
 				// Replace non-printable characters
 				String line = sc.nextLine().replaceAll("\\P{Print}", "");
-				Collection<S> cr = processLine(line);
-				fileContent.addAll(cr);
+				if (!this.allowParallelLineProcessing()) {
+					// Put it here so we can take advantage of Scanner's lazy loading -- otherwise it would load
+					//  the whole file into memory even if we then wanted to process each line sequentially.
+					Collection<S> cr = processLine(line);
+					processedContent.addAll(cr);
+				}
+				else {
+					fileContent.add(line);
+				}
 			}
 		} catch (FileNotFoundException e) {
 			logger.error("Could not find path {}. Returning empty coverage set.", p.toString());
 		}
-		return fileContent;
+		if (this.allowParallelLineProcessing()) {
+			// If we do allow parallel line processing, then we instead allow the entire file to be read in
+			// and stored in memory, and then process it all at once. To compensate for this,
+			// !this.allowParallelLineProcessing() is used to determine whether to process multiple files at once.
+			fileContent.parallelStream().forEach(s -> processedContent.addAll(processLine(s)));
+		}
+		return processedContent;
 	}
 
 	/**
