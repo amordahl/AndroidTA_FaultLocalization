@@ -142,3 +142,26 @@ deltadebugger_runs/answers/
 deltadebugger_runs/data/
 #Delta debugger stuff
 deltadebugger_runs/debugger/tempfiles/
+
+# Emacs Backups
+*~
+#*#
+
+# Antlr Generated Code
+*.interp
+*.tokens
+
+# MacOS Stuff
+.DS_Store
+
+# Eclipse Stuff
+.classpath
+.project
+*.prefs
+
+# Hidden Files
+.*
+instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayParser.java
+instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayListener.java
+instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayLexer.java
+instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayBaseListener.java
