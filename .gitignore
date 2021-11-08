@@ -150,6 +150,10 @@ deltadebugger_runs/debugger/tempfiles/
 # Antlr Generated Code
 *.interp
 *.tokens
+instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayParser.java
+instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayListener.java
+instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayLexer.java
+instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayBaseListener.java
 
 # MacOS Stuff
 .DS_Store
@@ -159,9 +163,4 @@ deltadebugger_runs/debugger/tempfiles/
 .project
 *.prefs
 
-# Hidden Files
-.*
-instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayParser.java
-instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayListener.java
-instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayLexer.java
-instrumentation/CoverageComparer/src/main/java/edu/utdallas/amordahl/CoverageComparer/parsers/GeneralArrayBaseListener.java
+*#

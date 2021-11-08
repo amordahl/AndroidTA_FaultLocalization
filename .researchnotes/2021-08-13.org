@@ -1,0 +1,13 @@
+* Individual Notes
+
+- Today I met with Dakota to go over the conversation Dr. Wei and I had yesterday about pushing this work forward.
+
+* TODO Fix fault localization script.
+
+I added code to write intermediate results to disk so that on subsequent runs, we don't have to reprocess the frequency maps.
+
+* TODO Continue investigating ground truths.
+
+I'm continuing from my investigation yesterday into CGALGO |-> RTA. What causes it to miss the static invoke edge the second time around?
+
+For convenience, I'm going to append my notes to the investigation from yesterday (2021-08-12.org). 
