@@ -4,28 +4,28 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import edu.utdallas.amordahl.CoverageComparer.util.DataStructureCoverageRecord;
+import edu.utdallas.amordahl.CoverageComparer.util.DataStructureScalarPropertyRecord;
 
-public class DataStructureScalarPropertyProcessor extends AbstractCoverageTaskProcessor<DataStructureCoverageRecord> {
+public class DataStructureScalarPropertyProcessor extends AbstractCoverageTaskProcessor<DataStructureScalarPropertyRecord> {
 
 	@Override
 	protected Path getIntermediateName(Path p) {
-		return p.resolveSibling("." + p.getFileName() + ".datastructurenulllog" + ".intermediate");
+		return p.resolveSibling("." + p.getFileName() + ".datastructurescalarlog" + ".intermediate");
 	}
 
 	@Override
 	public String getName() {
-		return "DataStructureNullProcessor";
+		return "DataStructureScalarPropertyProcessor";
 	}
 
 	@Override
-	public Collection<DataStructureCoverageRecord> processLine(String line) {
-		Collection<DataStructureCoverageRecord> cd = new ArrayList<DataStructureCoverageRecord>();
+	public Collection<DataStructureScalarPropertyRecord> processLine(String line) {
+		Collection<DataStructureScalarPropertyRecord> cd = new ArrayList<DataStructureScalarPropertyRecord>();
 		if (!line.startsWith("DATASTRUCTURE:")) {
 			return cd;
 		}
 		String[] tokens = line.split(",");
-		DataStructureCoverageRecord dscr = new DataStructureCoverageRecord(tokens[0], tokens[1], tokens[2]);
+		DataStructureScalarPropertyRecord dscr = new DataStructureScalarPropertyRecord(tokens[0], tokens[1], Integer.valueOf(tokens[2]));
 		cd.add(dscr);
 		return cd;
 	}

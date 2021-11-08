@@ -64,7 +64,7 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 	 */
 	private Map<Path, Collection<S>> mapPathToMap(Set<Path> ps) {
 		logger.trace("In mapPathToMap with argument {}", ps);
-		return ps.parallelStream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
+		return ps.stream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
 	}
 
 	/**
