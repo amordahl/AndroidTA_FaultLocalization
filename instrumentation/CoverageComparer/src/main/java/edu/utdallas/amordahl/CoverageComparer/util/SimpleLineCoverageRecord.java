@@ -45,7 +45,7 @@ public class SimpleLineCoverageRecord implements ICoverageRecord<String, Boolean
 	}
 
 	@Override
-	public Class<?> getType() {
+	public String getType() {
 		return null;
 	}
 

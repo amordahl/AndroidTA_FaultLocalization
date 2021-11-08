@@ -52,19 +52,17 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 
 		GeneralArrayListener gla = new GeneralArrayListener();
 		p.addParseListener(gla);
-		try {
 		p.array().enterRule(gla);
-		} catch (IllegalStateException ise) {
-			throw ise;
-		}
 		return gla.getMaster();
 	}
 	
-	private Function<String, Object> getParserForType(Class<?> type) {
-		if (AbstractCollection.class.isAssignableFrom(type)) {
-			return s -> parseCollection(s);
-		} else { // we can return other handlers here for different types
-			return s -> s;
+	private Object parseObject(String content) {
+		try {
+			AbstractCollection<?> collection = parseCollection(content);
+			return collection;
+		} catch (IllegalStateException ise) {
+			logger.info("Could not parse {} as a collection.", content);
+			return content;
 		}
 	}
 	/**
@@ -79,19 +77,10 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 		}
 		
 		String location = line.split(",")[0];
-		String clazz = line.split(",")[1];
+		String type = line.split(",")[1];
+		String content = line.split(",")[2];
 		
-		// The rest of the string, location + clazz + 2 (for the commas)
-		String content = line.substring(location.length() + clazz.length() + 2);
-		Class<?> type;
-		try {
-			type = Class.forName(clazz.split(" ")[1]); // because the string is "class CLASSNAME"
-		} catch (ClassNotFoundException cnfe) {
-			logger.warn("Could not convert string {} to a class. Constructing its record with java.lang.Object",
-					clazz);
-			type = Object.class;
-		}
-		result.add(new DataStructureCoverageRecord(location, type, getParserForType(type).apply(content)));
+		result.add(new DataStructureCoverageRecord(location, type, parseObject(content)));
 		return result;
 	}
 

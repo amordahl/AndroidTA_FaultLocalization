@@ -10,6 +10,6 @@ public interface ICoverageRecord<S, T> {
 	 */
 	S getLocation();
 	
-	Class<?> getType();
+	String getType();
 
 }

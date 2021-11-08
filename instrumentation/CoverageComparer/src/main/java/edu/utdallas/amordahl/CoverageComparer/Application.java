@@ -19,6 +19,7 @@ import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTaskReader;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.BaselineInstlogProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureContentLogProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureElementwiseLogProcessor;
+import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureScalarPropertyProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.AbstractPostProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.IdentityPostProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.AbstractCoverageTaskProcessor;
@@ -91,7 +92,7 @@ public class Application {
 	private void run() {
 		localizer = new TarantulaLocalizer<Object>();
 		processor = 
-				phase2 ? new DataStructureContentLogProcessor() : new BaselineInstlogProcessor(false);	
+				phase2 ? new DataStructureScalarPropertyProcessor() : new BaselineInstlogProcessor(false);	
 		app = new IdentityPostProcessor<Object>();
 
 		for (String s: this.coverageTasks) {

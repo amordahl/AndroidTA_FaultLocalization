@@ -56,19 +56,10 @@ public class LoggerHelper {
 		logDataStructure(obj, name, lineNumber, 0, "size", "UNKNOWN");
 	}
 
-	private static void logDataStructureInfo(Object obj, String name, int lineNumber, int index, 
+	private static void logDataStructureInfo(Object obj, String dataType, String name, int lineNumber, int index, 
 			SupportedInstrumentations type, String content) {
-		
-		String objType;
-		
-		try {
-			objType = obj.getClass().toString();
-		} catch (NullPointerException ne) {
-			objType = "null";
-		}
-
 		System.out.println(String.format("DATASTRUCTURE:%s:%d-%d,%s,%s",
-				name, lineNumber, index, objType, content));
+				name, lineNumber, index, dataType, content));
 	}
 	
 	public static void logDataStructure(Object obj, String name, int lineNumber, int index, 
@@ -79,10 +70,10 @@ public class LoggerHelper {
 			if (obj == null) obj = new String[] {};
 
 			if (obj instanceof Collection) {
-				logDataStructureInfo(obj, name, lineNumber, index, SupportedInstrumentations.SIZE,
+				logDataStructureInfo(obj, dataType, name, lineNumber, index, SupportedInstrumentations.SIZE,
 						Integer.toString(((Collection<?>)obj).size()));
 			} else if (obj instanceof Map) {
-				logDataStructureInfo(obj, name, lineNumber, index, SupportedInstrumentations.SIZE,
+				logDataStructureInfo(obj, dataType, name, lineNumber, index, SupportedInstrumentations.SIZE,
 						Integer.toString(((Map<?, ?>)obj).size()));
 			} else {
 				logger.error("Could not cast data structure at {}:{} of type {} to collection or map.",
@@ -92,26 +83,25 @@ public class LoggerHelper {
 		case CONTENT:
 			if (obj == null) obj = new String[] {};
 
-			logDataStructureInfo(obj, name, lineNumber, index,
+			logDataStructureInfo(obj, dataType, name, lineNumber, index,
 					SupportedInstrumentations.CONTENT, obj.toString());
 			break;
 		case NULL:
 			// Three potential values:
-			// 0 = null
-			// 1 = collection, and empty
-			// 2 = collection, and only contains null
-			// 3 = neither
+			// 1 = null, or empty collection
+			// 0 = neither
 			int result;
 			if (obj == null) {
-				result = 0;
+				result = 1;
 			} else {
 				if (obj instanceof Collection) {
-					result = ((Collection<?>)obj).size() == 0 ? 1 : 2;
+					Collection<?> objAsCollection = ((Collection<?>)obj);
+					result = objAsCollection.size() == 0 ? 1 : 0;
 				} else {
-					result = 2;
+					result = 0;
 				}
 			}
-			logDataStructureInfo(obj, name, lineNumber, index,
+			logDataStructureInfo(obj, dataType, name, lineNumber, index,
 					SupportedInstrumentations.NULL, Integer.toString(result));
 			break;
 		default:

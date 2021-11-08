@@ -11,16 +11,16 @@ public class DataStructureCoverageRecord implements ICoverageRecord<String, Obje
 
 	@Override
 	public String toString() {
-		return String.format("%s:%s", location, content);
+		return String.format("%s:%s:%s", location, type, content);
 	}
 
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(DataStructureCoverageRecord.class);
-	private Class<?> type;
+	private String type;
 	private String location;
 	private Object content;
 	
-	public DataStructureCoverageRecord(String location, Class<?> type, Object content) {
+	public DataStructureCoverageRecord(String location, String type, Object content) {
 		this.location = location;
 		this.type = type;
 		this.content = content;
@@ -33,7 +33,7 @@ public class DataStructureCoverageRecord implements ICoverageRecord<String, Obje
 	}
 
 	@Override
-	public Class<?> getType() {
+	public String getType() {
 		// TODO Auto-generated method stub
 		return type;
 	}
