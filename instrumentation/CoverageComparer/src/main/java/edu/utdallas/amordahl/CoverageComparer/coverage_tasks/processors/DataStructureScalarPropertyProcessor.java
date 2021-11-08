@@ -21,6 +21,9 @@ public class DataStructureScalarPropertyProcessor extends AbstractCoverageTaskPr
 	@Override
 	public Collection<DataStructureCoverageRecord> processLine(String line) {
 		Collection<DataStructureCoverageRecord> cd = new ArrayList<DataStructureCoverageRecord>();
+		if (!line.startsWith("DATASTRUCTURE:")) {
+			return cd;
+		}
 		String[] tokens = line.split(",");
 		DataStructureCoverageRecord dscr = new DataStructureCoverageRecord(tokens[0], tokens[1], tokens[2]);
 		cd.add(dscr);
