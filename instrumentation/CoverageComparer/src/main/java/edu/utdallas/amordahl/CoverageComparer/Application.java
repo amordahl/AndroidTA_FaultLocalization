@@ -92,7 +92,7 @@ public class Application {
 	private void run() {
 		localizer = new TarantulaLocalizer<Object>();
 		processor = 
-				phase2 ? new DataStructureScalarPropertyProcessor() : new BaselineInstlogProcessor(false);	
+				phase2 ? new DataStructureScalarPropertyProcessor() : new BaselineInstlogProcessor();	
 		app = new IdentityPostProcessor<Object>();
 
 		for (String s: this.coverageTasks) {
@@ -155,7 +155,7 @@ public class Application {
 				}
 				sb.append("\tPassed Test Cases:\n");
 				for (Entry<Path, Collection<Object>> entry : pf.getPassed().entrySet()) {
-					if (entry.getValue().contains(e.getValue())) {
+					if (entry.getValue().contains(e.getKey())) {
 						sb.append(String.format("\t\t%s\n", entry.getKey()));
 					}
 				}

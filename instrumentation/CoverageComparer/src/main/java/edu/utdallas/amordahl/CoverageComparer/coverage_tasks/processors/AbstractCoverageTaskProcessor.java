@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -78,11 +80,11 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 	 */
 	private Map<Path, Collection<S>> mapPathToMap(Set<Path> ps) {
 		logger.trace("In mapPathToMap with argument {}", ps);
-		if (this.allowParallelLineProcessing()) {
-			return ps.stream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
-		} else {
+//		if (this.allowParallelLineProcessing()) {
+//			return ps.stream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
+//		} else {
 			return ps.parallelStream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
-		}
+//		}
 	}
 
 	/**
@@ -193,7 +195,7 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 	protected Collection<S> readInstFile(Path p) {
 		logger.trace("In readInstLogFile with argument {}", p);
 		Collection<String> fileContent = new ArrayList<String>();
-		Collection<S> processedContent = new ArrayList<>();
+		Collection<S> processedContent = Collections.synchronizedCollection(new HashSet<S>());
 		try (Scanner sc = new Scanner(p.toFile())) {
 			while (sc.hasNextLine()) {
 				// Replace non-printable characters
