@@ -150,13 +150,13 @@ public class Application {
 				sb.append("\tFailed Test Cases:\n");
 				for (Entry<Path, Collection<Object>> entry : pf.getFailed().entrySet()) {
 					if (entry.getValue().contains(e.getKey())) {
-						sb.append(String.format("\t\t%s\n", entry.getKey()));
+						sb.append(String.format("\t\t%s\n", entry.getKey().getFileName()));
 					}
 				}
 				sb.append("\tPassed Test Cases:\n");
 				for (Entry<Path, Collection<Object>> entry : pf.getPassed().entrySet()) {
 					if (entry.getValue().contains(e.getKey())) {
-						sb.append(String.format("\t\t%s\n", entry.getKey()));
+						sb.append(String.format("\t\t%s\n", entry.getKey().getFileName()));
 					}
 				}
 				sb.append("\n");
