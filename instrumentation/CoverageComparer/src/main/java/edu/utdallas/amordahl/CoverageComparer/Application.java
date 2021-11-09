@@ -145,7 +145,7 @@ public class Application {
 			}
 		}
 		sorted.forEach(e -> {
-			sb.append(String.format("%s = %.3f\n", e.getKey().toString(), e.getValue()));
+			sb.append(String.format("%s=%.3f\n", e.getKey().toString(), e.getValue()));
 			if (this.verboseOutput) {
 				sb.append("\tFailed Test Cases:\n");
 				for (Entry<Path, Collection<Object>> entry : pf.getFailed().entrySet()) {
