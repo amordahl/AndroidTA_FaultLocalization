@@ -198,32 +198,27 @@ public abstract class AbstractCoverageTaskProcessor<S, T> {
 	 * @return A list of its contents.
 	 */
 	protected Map<S, T> readInstFile(Path p) {
-		logger.trace("In readInstLogFile with argument {}", p);
+		logger.trace("In readInstFile with argument {}", p);
 		Collection<String> fileContent = new ArrayList<String>();
-		Map<S, T> processedContent = Collections.synchronizedMap(new HashMap<S, T>());
+		Map<S, T> processedContent = new HashMap<S, T>();
 		try (Scanner sc = new Scanner(p.toFile())) {
 			while (sc.hasNextLine()) {
 				// Replace non-printable characters
 				String line = sc.nextLine().replaceAll("\\P{Print}", "");
-				if (!this.allowParallelLineProcessing()) {
 					// Put it here so we can take advantage of Scanner's lazy loading -- otherwise it would load
 					//  the whole file into memory even if we then wanted to process each line sequentially.
 					Map<S, T> cr = processLine(line);
 					processedContent.putAll(cr);
 				}
-				else {
-					fileContent.add(line);
-				}
-			}
 		} catch (FileNotFoundException e) {
 			logger.error("Could not find path {}. Returning empty coverage set.", p.toString());
 		}
-		if (this.allowParallelLineProcessing()) {
-			// If we do allow parallel line processing, then we instead allow the entire file to be read in
-			// and stored in memory, and then process it all at once. To compensate for this,
-			// !this.allowParallelLineProcessing() is used to determine whether to process multiple files at once.
-			fileContent.parallelStream().forEach(s -> processedContent.putAll(processLine(s)));
-		}
+//		if (this.allowParallelLineProcessing()) {
+//			// If we do allow parallel line processing, then we instead allow the entire file to be read in
+//			// and stored in memory, and then process it all at once. To compensate for this,
+//			// !this.allowParallelLineProcessing() is used to determine whether to process multiple files at once.
+//			fileContent.parallelStream().forEach(s -> processedContent.putAll(processLine(s)));
+//		}
 		return processedContent;
 	}
 
