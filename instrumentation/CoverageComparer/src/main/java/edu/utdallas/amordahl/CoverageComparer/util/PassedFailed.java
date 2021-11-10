@@ -47,13 +47,15 @@ public class PassedFailed<S, T> {
 	}
 
 	public void setValueOfInPath(S row, Path column, T value) {
-		if (!content.containsKey(row)) {
-			content.put(row, new HashMap<Path, Set<T>>());
+		synchronized(content) {
+			if (!content.containsKey(row)) {
+				content.put(row, new HashMap<Path, Set<T>>());
+			}
+			if (!content.get(row).containsKey(column)) {
+				content.get(row).put(column, new HashSet<T>());
+			}
+			content.get(row).get(column).add(value);
 		}
-		if (!content.get(row).containsKey(column)) {
-			content.get(row).put(column, new HashSet<T>());
-		}
-		content.get(row).get(column).add(value);
 	}
 
 	public void setAllValuesForPath(Path column, Map<S, T> values) {

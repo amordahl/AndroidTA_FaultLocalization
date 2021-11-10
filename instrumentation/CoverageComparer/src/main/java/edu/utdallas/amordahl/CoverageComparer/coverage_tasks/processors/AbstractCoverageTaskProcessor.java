@@ -110,7 +110,7 @@ public abstract class AbstractCoverageTaskProcessor<S, T> {
 			pf.setOther(ct.getOther());
 		}
 		pf.setOriginatingTask(ct);
-		pf.getAllFiles().stream().forEach(p -> pf.setAllValuesForPath(p, readInstFileOrGetIntermediate(p)));
+		pf.getAllFiles().parallelStream().forEach(p -> pf.setAllValuesForPath(p, readInstFileOrGetIntermediate(p)));
 		return pf;
 	}
 
