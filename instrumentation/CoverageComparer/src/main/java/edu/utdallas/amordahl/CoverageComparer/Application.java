@@ -64,9 +64,8 @@ public class Application {
 	private boolean verboseOutput;
 	
 	// TODO: Make these into parameters.
-	private ILocalizer<Object, Object> localizer = new TarantulaLocalizer<Object, Object>();
-	private AbstractCoverageTaskProcessor<?, ?> processor = 
-			phase2 ? new DataStructureScalarPropertyProcessor() : new BaselineInstlogProcessor();	
+	private ILocalizer<Object, Object> localizer;
+	private AbstractCoverageTaskProcessor<?, ?> processor;
 	//private AbstractPostProcessor<Object> app = new IdentityPostProcessor<Object>();
 	/**
 	 * Just sets up the JCommander argument parser.
@@ -87,10 +86,10 @@ public class Application {
 	}
 	
 	private void run() {
-//		localizer = new TarantulaLocalizer<Object>();
-//		processor = 
-//				phase2 ? new DataStructureScalarPropertyProcessor() : new BaselineInstlogProcessor();	
-//		app = new IdentityPostProcessor<Object>();
+		localizer = new TarantulaLocalizer<Object, Object>();
+		processor = 
+				phase2 ? new DataStructureScalarPropertyProcessor() : new BaselineInstlogProcessor();	
+		//app = new IdentityPostProcessor<Object>();
 
 		for (String s: this.coverageTasks) {
 			// Read in coverage file, which details the passed and failed test cases.
