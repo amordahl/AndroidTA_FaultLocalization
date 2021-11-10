@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
@@ -17,11 +18,7 @@ import com.beust.jcommander.Parameter;
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
 import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTaskReader;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.BaselineInstlogProcessor;
-import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureContentLogProcessor;
-import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureElementwiseLogProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.DataStructureScalarPropertyProcessor;
-import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.AbstractPostProcessor;
-import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.IdentityPostProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.AbstractCoverageTaskProcessor;
 import edu.utdallas.amordahl.CoverageComparer.localizers.ILocalizer;
 import edu.utdallas.amordahl.CoverageComparer.localizers.TarantulaLocalizer;
@@ -67,10 +64,10 @@ public class Application {
 	private boolean verboseOutput;
 	
 	// TODO: Make these into parameters.
-	private ILocalizer<Object> localizer = new TarantulaLocalizer<Object>();
-	private AbstractCoverageTaskProcessor<?> processor = 
-			phase2 ? new DataStructureElementwiseLogProcessor() : new BaselineInstlogProcessor();	
-	private AbstractPostProcessor<Object> app = new IdentityPostProcessor<Object>();
+	private ILocalizer<Object, Object> localizer = new TarantulaLocalizer<Object, Object>();
+	private AbstractCoverageTaskProcessor<?, ?> processor = 
+			phase2 ? new DataStructureScalarPropertyProcessor() : new BaselineInstlogProcessor();	
+	//private AbstractPostProcessor<Object> app = new IdentityPostProcessor<Object>();
 	/**
 	 * Just sets up the JCommander argument parser.
 	 * 
@@ -90,10 +87,10 @@ public class Application {
 	}
 	
 	private void run() {
-		localizer = new TarantulaLocalizer<Object>();
-		processor = 
-				phase2 ? new DataStructureScalarPropertyProcessor() : new BaselineInstlogProcessor();	
-		app = new IdentityPostProcessor<Object>();
+//		localizer = new TarantulaLocalizer<Object>();
+//		processor = 
+//				phase2 ? new DataStructureScalarPropertyProcessor() : new BaselineInstlogProcessor();	
+//		app = new IdentityPostProcessor<Object>();
 
 		for (String s: this.coverageTasks) {
 			// Read in coverage file, which details the passed and failed test cases.
@@ -103,15 +100,15 @@ public class Application {
 			// Process the coverage task -- actually read in the files and produce a PassedFailed object.
 			System.out.println(String.format("Now processing coverage task %s", Paths.get(s)));
 			@SuppressWarnings("unchecked")
-			PassedFailed<Object> pf = (PassedFailed<Object>) processor.processCoverageTask(ct);
+			PassedFailed<Object, Object> pf = (PassedFailed<Object, Object>) processor.processCoverageTask(ct);
 			
 			// Post process the PassedFailed object (e.g., only pass the delta to the localizer.
-			System.out.println(String.format("Now post-processing task %s", Paths.get(s)));
-			pf = app.postProcess(pf);
+			//System.out.println(String.format("Now post-processing task %s", Paths.get(s)));
+			//pf = app.postProcess(pf);
 			
 			// Localize the results.
 			System.out.println(String.format("Computing %s suspiciousness for task %s", localizer.getName(), Paths.get(s)));
-			Map<Object, Double> suspiciousness = localizer.computeSuspiciousness(pf);
+			Map<Pair<Object, Object>, Double> suspiciousness = localizer.computeSuspiciousness((PassedFailed<Object, Object>) pf);
 			
 			// Output the result.
 			output(pf, suspiciousness);
@@ -123,7 +120,7 @@ public class Application {
 	 * Specifies the way to output suspiciousness rankings on the command line.
 	 * @param suspiciousness
 	 */
-	private void output(PassedFailed<Object> pf, Map<?, Double> suspiciousness) {
+	private void output(PassedFailed<Object, Object> pf, Map<Pair<Object, Object>, Double> suspiciousness) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("==================================\n");
 		sb.append(String.format("Localizer: %s\n", this.localizer.getName()));
@@ -134,7 +131,7 @@ public class Application {
 		sb.append(String.format("Preserved: %f\n", (Double)this.preserve));
 		sb.append("\n");
 		
-		List<Entry<?, Double>> sorted = new ArrayList<Entry<?, Double>>(suspiciousness.entrySet());
+		List<Entry<Pair<Object, Object>, Double>> sorted = new ArrayList<Entry<Pair<Object, Object>, Double>>(suspiciousness.entrySet());
 		Collections.sort(sorted, ((e1, e2) -> e2.getValue().compareTo(e1.getValue()))); // sort in descending order.
 		if (this.preserve != 1.0) {
 			if (this.preserve > 1.0) {
@@ -148,16 +145,15 @@ public class Application {
 			sb.append(String.format("%s=%.3f\n", e.getKey().toString(), e.getValue()));
 			if (this.verboseOutput) {
 				sb.append("\tFailed Test Cases:\n");
-				for (Entry<Path, Collection<Object>> entry : pf.getFailed().entrySet()) {
-					if (entry.getValue().contains(e.getKey())) {
-						sb.append(String.format("\t\t%s\n", entry.getKey().getFileName()));
+				for (Path p : pf.getFailed()) {
+					if (pf.getValueOfInPath(e.getKey().getKey(), p).contains(e.getKey().getValue())) {
+						sb.append(String.format("\t\t%s\n", p.getFileName()));
 					}
 				}
 				sb.append("\tPassed Test Cases:\n");
-				for (Entry<Path, Collection<Object>> entry : pf.getPassed().entrySet()) {
-					if (entry.getValue().contains(e.getKey())) {
-						sb.append(String.format("\t\t%s\n", entry.getKey().getFileName()));
-					}
+				for (Path p : pf.getPassed()) {
+					if (pf.getValueOfInPath(e.getKey().getKey(), p).contains(e.getKey().getValue())) {
+						sb.append(String.format("\t\t%s\n", p.getFileName()));					}
 				}
 				sb.append("\n");
 			}

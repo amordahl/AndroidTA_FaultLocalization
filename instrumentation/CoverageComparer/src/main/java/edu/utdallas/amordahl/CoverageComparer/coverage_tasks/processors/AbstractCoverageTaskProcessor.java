@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
@@ -26,7 +27,14 @@ import edu.utdallas.amordahl.CoverageComparer.coverageTasks.CoverageTask;
 import edu.utdallas.amordahl.CoverageComparer.util.ICoverageRecord;
 import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
 
-public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?, ?>> {
+/**
+ * Superclass of all task processors.
+ * @author austin
+ *
+ * @param <S> Whatever the coverage log records (e.g., line, data structure, etc).
+ * @param <T> The value of each coverage log record (e.g., a line is present or not (boolean)).
+ */
+public abstract class AbstractCoverageTaskProcessor<S, T> {
 
 	private static Logger logger = LoggerFactory.getLogger(AbstractCoverageTaskProcessor.class);
 	private boolean readIntermediates;
@@ -78,34 +86,31 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 	 * @param ps A set of paths, pointing to instrumentation logs.
 	 * @return A map, mapping each path in ps to its content.
 	 */
-	private Map<Path, Collection<S>> mapPathToMap(Set<Path> ps) {
-		logger.trace("In mapPathToMap with argument {}", ps);
-//		if (this.allowParallelLineProcessing()) {
-//			return ps.stream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
-//		} else {
-			return ps.parallelStream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
-//		}
-	}
+//	private Map<Path, Collection<S>> mapPathToMap(Set<Path> ps) {
+//		logger.trace("In mapPathToMap with argument {}", ps);
+////		if (this.allowParallelLineProcessing()) {
+////			return ps.stream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
+////		} else {
+//			return ps.parallelStream().collect(Collectors.toMap(p -> p, p -> readInstFileOrGetIntermediate(p)));
+////		}
+//	}
 
 	/**
 	 * Given a coverage task, reads in all of the content in its passed and failed sets.
 	 * @param ct A CoverageTask.
 	 * @return The PassedFailed object, representing the content of the CoverageTask.
 	 */
-	public PassedFailed<S> processCoverageTask(CoverageTask ct) {
+	public PassedFailed<S, T> processCoverageTask(CoverageTask ct) {
 		logger.trace("Entered processCoverageTask.");
-		Map<Path, Collection<S>> passed = mapPathToMap(ct.getPassed());
-		Map<Path, Collection<S>> failed = mapPathToMap(ct.getFailed());
-		PassedFailed<S> pf = new PassedFailed<S>();
-
-		Map<Path, Collection<S>> other;
+		
+		PassedFailed<S, T> pf = new PassedFailed<S, T>();
+		pf.setPassed(ct.getPassed());
+		pf.setFailed(ct.getFailed());
 		if (ct.getOther() != null) {
-			other = mapPathToMap(ct.getOther());
-			pf.setOther(other);
+			pf.setOther(ct.getOther());
 		}
-		pf.setPassed(passed);
-		pf.setFailed(failed);
 		pf.setOriginatingTask(ct);
+		pf.getAllFiles().stream().forEach(p -> pf.setAllValuesForPath(p, readInstFileOrGetIntermediate(p)));
 		return pf;
 	}
 
@@ -114,7 +119,7 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 	 * @param p The path to the instrumentation log.
 	 * @return A collection, representing the content of that file.
 	 */
-	protected Collection<S> readInstFileOrGetIntermediate(Path p) {
+	protected Map<S, T> readInstFileOrGetIntermediate(Path p) {
 		logger.trace("In readInstLogFile with argument {}", p);
 		// First, check for intermediate files.
 		Path intermediate = getIntermediateName(p);
@@ -122,7 +127,7 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 		try {
 			if (intermediate != null && Files.exists(intermediate) && this.readIntermediates) {
 				logger.debug("Intermediate file for {} found.", p.toString());
-				Collection<S> intermediateContent = readSetFromFile(intermediate);
+				Map<S, T> intermediateContent = readSetFromFile(intermediate);
 				return intermediateContent;
 			}
 		} catch (IOException | ClassNotFoundException ex) {
@@ -131,7 +136,7 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 
 		// If we get here, the previous line did not return and thus, we need to read from scratch.
 		logger.debug("Not reading in intermediate file for {}", p.toString());
-		Collection<S> fileContent = readInstFile(p);
+		Map<S, T> fileContent = readInstFile(p);
 		try {
 			writeSetToFile(fileContent, intermediate);
 		} catch (IOException e) {
@@ -149,12 +154,12 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 	 * @throws ClassNotFoundException 
 	 */
 	@SuppressWarnings("unchecked")
-	protected Collection<S> readSetFromFile(Path intermediate) throws IOException, ClassNotFoundException {
+	protected Map<S, T> readSetFromFile(Path intermediate) throws IOException, ClassNotFoundException {
 		logger.trace("In readSetFromFile.");
-		Collection<S> result = null;
+		Map<S, T> result = null;
 		try (FileInputStream f = new FileInputStream(intermediate.toFile());
 				ObjectInputStream o = new ObjectInputStream(f)) {
-			result = (Collection<S>) o.readObject();
+			result = (Map<S, T>) o.readObject();
 			logger.debug("Successfully read in object of size {} from intermediate file {}", result.size(), intermediate.toString());
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -171,15 +176,15 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 
 	/**
 	 * Writes a collection to a file.
-	 * @param content The collection to write.
+	 * @param fileContent The collection to write.
 	 * @param intermediate The path to the intermediate file.
 	 * @throws IOException 
 	 */
-	protected void writeSetToFile(Collection<S> content, Path intermediate) throws IOException {
+	protected void writeSetToFile(Map<S, T> fileContent, Path intermediate) throws IOException {
 		logger.trace("In writeSetToFile");
 		try (FileOutputStream f = new FileOutputStream(intermediate.toFile());
 				ObjectOutputStream o = new ObjectOutputStream(f)) {
-			o.writeObject(content);
+			o.writeObject(fileContent);
 			logger.debug("Successfully wrote intermediate file {}", intermediate.toString());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -192,10 +197,10 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 	 * @param p A path to an instrumentation file.
 	 * @return A list of its contents.
 	 */
-	protected Collection<S> readInstFile(Path p) {
+	protected Map<S, T> readInstFile(Path p) {
 		logger.trace("In readInstLogFile with argument {}", p);
 		Collection<String> fileContent = new ArrayList<String>();
-		Collection<S> processedContent = Collections.synchronizedCollection(new HashSet<S>());
+		Map<S, T> processedContent = Collections.synchronizedMap(new HashMap<S, T>());
 		try (Scanner sc = new Scanner(p.toFile())) {
 			while (sc.hasNextLine()) {
 				// Replace non-printable characters
@@ -203,8 +208,8 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 				if (!this.allowParallelLineProcessing()) {
 					// Put it here so we can take advantage of Scanner's lazy loading -- otherwise it would load
 					//  the whole file into memory even if we then wanted to process each line sequentially.
-					Collection<S> cr = processLine(line);
-					processedContent.addAll(cr);
+					Map<S, T> cr = processLine(line);
+					processedContent.putAll(cr);
 				}
 				else {
 					fileContent.add(line);
@@ -217,7 +222,7 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 			// If we do allow parallel line processing, then we instead allow the entire file to be read in
 			// and stored in memory, and then process it all at once. To compensate for this,
 			// !this.allowParallelLineProcessing() is used to determine whether to process multiple files at once.
-			fileContent.parallelStream().forEach(s -> processedContent.addAll(processLine(s)));
+			fileContent.parallelStream().forEach(s -> processedContent.putAll(processLine(s)));
 		}
 		return processedContent;
 	}
@@ -228,5 +233,5 @@ public abstract class AbstractCoverageTaskProcessor<S extends ICoverageRecord<?,
 	 * @param line The line from the instrumentation file.
 	 * @return A collection of <S>, indicating the result of processing that line.
 	 */
-	public abstract Collection<S> processLine(String line);
+	public abstract Map<S, T> processLine(String line);
 }

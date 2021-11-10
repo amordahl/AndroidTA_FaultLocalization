@@ -2,43 +2,47 @@ package edu.utdallas.amordahl.CoverageComparer.localizers;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import edu.utdallas.amordahl.CoverageComparer.util.PassedFailed;
 
 /**
  * A localizer that computes the Tarantula localization rankings.
  * @author Austin Mordahl
- *
+ * @param <K>
+ * @param <V>
  * @param <T> 
  */
-public class TarantulaLocalizer<S> implements ILocalizer<S> {
+public class TarantulaLocalizer<K, V> implements ILocalizer<K, V> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<S, Double> computeSuspiciousness(PassedFailed<S> pf) {
-		Map<S, Double> suspiciousnesses = new HashMap<S, Double>();
-		Set<S> universe = new HashSet<S>();
+	public Map<Pair<K, V>, Double> computeSuspiciousness(PassedFailed<K, V> pf) {
+		Map<Pair<K, V>, Double> suspiciousnesses = Collections.synchronizedMap(new HashMap<Pair<K, V>, Double>());
 		
-		// Add all S'es into the universe set.
-		for (Map<Path, Collection<?>> m : new Map[] {pf.getPassed(), pf.getFailed()} ) {
-			for (Entry<Path, Collection<?>> e: m.entrySet()) {
-				e.getValue().forEach(s -> universe.add((S) s));
-			}
-		}
+//		// Add all S'es into the universe set.
+//		for (Map<Path, Collection<?>> m : new Map[] {pf.getPassed(), pf.getFailed()} ) {
+//			for (Entry<Path, Collection<?>> e: m.entrySet()) {
+//				e.getValue().forEach(s -> universe.add((S) s));
+//			}
+//		}
 		
 		// For each s, compute the suspiciousness
-		for (S u: universe) {
-			int numPassed = countOccurrences(u, pf.getPassed());
-			int numFailed = countOccurrences(u, pf.getFailed());
-			int totFailed = pf.getFailed().keySet().size();
-			int totPassed = pf.getPassed().keySet().size();
+		pf.getUniverse().parallelStream().forEach(u -> {
+			int numPassed = countOccurrences(u, pf, pf.getPassed());
+			int numFailed = countOccurrences(u, pf, pf.getFailed());
+			int totFailed = pf.getFailed().size();
+			int totPassed = pf.getPassed().size();
 			suspiciousnesses.put(u, computeSuspiciousnessValue(numPassed, numFailed, totFailed, totPassed));
-		}
+		});
 		
 		return suspiciousnesses;
 		
@@ -63,10 +67,11 @@ public class TarantulaLocalizer<S> implements ILocalizer<S> {
 	 * @param map A map of items to collections.
 	 * @return The number of values in the map that contained element.
 	 */
-	private Integer countOccurrences(S element, Map<Path, Collection<S>> map) {
+	private Integer countOccurrences(Pair<K, V> element, PassedFailed<K, V> pf, Collection<Path> files) {
 		int count = 0;
-		for (Collection<S> s: map.values()) {
-			if (s.contains(element)) {
+		for (Path p: files) {
+			Set<V> results = pf.getValueOfInPath(element.getKey(), p);
+			if (results.contains(element.getRight())) {
 				count += 1;
 			}
 		}

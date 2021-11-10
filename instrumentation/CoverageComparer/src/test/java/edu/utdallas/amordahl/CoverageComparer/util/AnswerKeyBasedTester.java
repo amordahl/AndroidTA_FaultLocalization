@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.util.Precision;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -35,7 +36,7 @@ import edu.utdallas.amordahl.CoverageComparer.localizers.ILocalizer;
  *
  * @param <S> The type of the CoverageRecord that is produced by the coverage task processor.
  */
-public abstract class AnswerKeyBasedTester<S extends ICoverageRecord<?, ?>> {
+public abstract class AnswerKeyBasedTester<S, T> {
 
 	public CoverageTask getCoverageTask() {
 		return coverageTask;
@@ -47,9 +48,9 @@ public abstract class AnswerKeyBasedTester<S extends ICoverageRecord<?, ?>> {
 	
 	private CoverageTask coverageTask;
 	private JSONObject answerKey;
-	public abstract AbstractCoverageTaskProcessor<S> getActp();
-	public abstract ILocalizer<S> getIl();
-	public abstract AbstractPostProcessor<S> getPostProcessor();
+	public abstract AbstractCoverageTaskProcessor<S, T> getActp();
+	public abstract ILocalizer<S, T> getIl();
+	//public abstract AbstractPostProcessor<S> getPostProcessor();
 
 	public void setCoverageTask(CoverageTask coverageTask) {
 		this.coverageTask = coverageTask;
@@ -82,13 +83,13 @@ public abstract class AnswerKeyBasedTester<S extends ICoverageRecord<?, ?>> {
 
 	@Test
 	public void testValues() {		
-		AbstractCoverageTaskProcessor<S> actp = this.getActp();
-		AbstractPostProcessor<S> postProcessor = this.getPostProcessor();
-		ILocalizer<S> il = this.getIl();
+		AbstractCoverageTaskProcessor<S, T> actp = this.getActp();
+		//AbstractPostProcessor<S, T> postProcessor = this.getPostProcessor();
+		ILocalizer<S, T> il = this.getIl();
 
-		PassedFailed<S> pf = actp.processCoverageTask(this.getCoverageTask());
-		pf = postProcessor.postProcess(pf);
-		Map<S, Double> suspiciousnesses = il.computeSuspiciousness(pf);
+		PassedFailed<S, T> pf = actp.processCoverageTask(this.getCoverageTask());
+		//pf = postProcessor.postProcess(pf);
+		Map<Pair<S, T>, Double> suspiciousnesses = il.computeSuspiciousness(pf);
 		Map<String, Double> suspiciousnessWithStrings = suspiciousnesses.entrySet().stream()
 				.collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue()));
 		Map<String, Double> suspiciousnessKey = this.getSuspiciousnessAnswers();

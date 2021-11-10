@@ -21,7 +21,7 @@ import edu.utdallas.amordahl.CoverageComparer.util.SimpleLineCoverageRecord;
 import edu.utdallas.amordahl.CoverageComparer.util.TestUtils;
 
 @RunWith(Parameterized.class)
-public class TarantulaTests extends AnswerKeyBasedTester<SimpleLineCoverageRecord> {
+public class TarantulaTests extends AnswerKeyBasedTester<String, Boolean> {
 
 	public TarantulaTests(Path coverageTaskPath, Path answerKeyPath)
 			throws FileNotFoundException, IOException, ParseException {
@@ -37,13 +37,13 @@ public class TarantulaTests extends AnswerKeyBasedTester<SimpleLineCoverageRecor
 	}
 
 	@Override
-	public AbstractCoverageTaskProcessor<SimpleLineCoverageRecord> getActp() {
+	public AbstractCoverageTaskProcessor<String, Boolean> getActp() {
 		return new BaselineInstlogProcessor();
 	}
 
 	@Override
-	public ILocalizer<SimpleLineCoverageRecord> getIl() {
-		return new TarantulaLocalizer<SimpleLineCoverageRecord>();
+	public ILocalizer<String, Boolean> getIl() {
+		return new TarantulaLocalizer<String, Boolean>();
 	}
 
 	@Override
@@ -51,9 +51,9 @@ public class TarantulaTests extends AnswerKeyBasedTester<SimpleLineCoverageRecor
 		return "tarantula";
 	}
 
-	@Override
-	public AbstractPostProcessor<SimpleLineCoverageRecord> getPostProcessor() {
-		return new IdentityPostProcessor<SimpleLineCoverageRecord>();
-	}
+//	@Override
+//	public AbstractPostProcessor<SimpleLineCoverageRecord> getPostProcessor() {
+//		return new IdentityPostProcessor<SimpleLineCoverageRecord>();
+//	}
 	
 }

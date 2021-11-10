@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -17,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import edu.utdallas.amordahl.CoverageComparer.parsers.GeneralArrayLexer;
 import edu.utdallas.amordahl.CoverageComparer.parsers.GeneralArrayParser;
 import edu.utdallas.amordahl.CoverageComparer.parsers.implemented_listeners.GeneralArrayListener;
+import edu.utdallas.amordahl.CoverageComparer.util.DataStructureCoverageLocation;
 import edu.utdallas.amordahl.CoverageComparer.util.DataStructureCoverageRecord;
 
 /**
@@ -24,7 +27,7 @@ import edu.utdallas.amordahl.CoverageComparer.util.DataStructureCoverageRecord;
  * @author austin
  *
  */
-public class DataStructureContentLogProcessor extends AbstractCoverageTaskProcessor<DataStructureCoverageRecord> {
+public class DataStructureContentLogProcessor extends AbstractCoverageTaskProcessor<DataStructureCoverageLocation, Object> {
 
 	private static Logger logger = LoggerFactory.getLogger(DataStructureContentLogProcessor.class);
 	@Override
@@ -69,9 +72,9 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 	 * Processes a line produced by the coverage instrumenter.
 	 */
 	@Override
-	public Collection<DataStructureCoverageRecord> processLine(String line) {
+	public Map<DataStructureCoverageLocation, Object> processLine(String line) {
 		// Format of line: SampleClass:0-1,java.lang.String,sampleString
-		Collection<DataStructureCoverageRecord> result = new ArrayList<>();
+		Map<DataStructureCoverageLocation, Object> result = new HashMap<DataStructureCoverageLocation, Object>();
 		if (!line.startsWith("DATASTRUCTURE:")) {
 			return result;
 		}
@@ -80,7 +83,7 @@ public class DataStructureContentLogProcessor extends AbstractCoverageTaskProces
 		String type = line.split(",")[1];
 		String content = line.split(",")[2];
 		
-		result.add(new DataStructureCoverageRecord(location, type, parseObject(content)));
+		result.put(new DataStructureCoverageLocation(location, type), parseObject(content));
 		return result;
 	}
 
