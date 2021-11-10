@@ -117,18 +117,18 @@ public class PrimaryTransformer implements ClassFileTransformer {
 		}
 		classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
 		
-		try {
-			Path outputDirectory = Paths.get("/home/austin/Desktop/class_outputs");
-			if (Files.exists(outputDirectory, new LinkOption[] {})) {
-				logger.debug("Output directory is " + outputDirectory.toString());
-				// Write to output so we can inspect outputs.
-				Path outputFile = outputDirectory.resolve(className.replace("/", "_") + ".class");
-				// System.out.println("Output file is" + outputFile.toString());
-				Files.write(outputFile, classWriter.toByteArray());
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Path outputDirectory = Paths.get("/home/austin/Desktop/class_outputs");
+//			if (Files.exists(outputDirectory, new LinkOption[] {})) {
+//				logger.debug("Output directory is " + outputDirectory.toString());
+//				// Write to output so we can inspect outputs.
+//				Path outputFile = outputDirectory.resolve(className.replace("/", "_") + ".class");
+//				// System.out.println("Output file is" + outputFile.toString());
+//				Files.write(outputFile, classWriter.toByteArray());
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		return classWriter.toByteArray();
 	}
 }
