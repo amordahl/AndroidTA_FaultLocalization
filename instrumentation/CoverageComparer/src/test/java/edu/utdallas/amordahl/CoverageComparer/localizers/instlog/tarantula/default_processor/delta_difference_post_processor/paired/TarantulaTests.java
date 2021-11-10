@@ -10,8 +10,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.AbstractPostProcessor;
-import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.postprocessors.DeltaDifferencePostProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.AbstractCoverageTaskProcessor;
 import edu.utdallas.amordahl.CoverageComparer.coverage_tasks.processors.BaselineInstlogProcessor;
 import edu.utdallas.amordahl.CoverageComparer.localizers.ILocalizer;
