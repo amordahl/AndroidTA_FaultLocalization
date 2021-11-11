@@ -24,15 +24,14 @@ public class Runner {
         //System.out.println(allDirFile);
         for(File x: allDirFile) {
             String[] extensions = {"txt"};
-            List<File> allTXTFiles = ((List<File>) FileUtils.listFiles(x, extensions, false));
-            //System.out.println(allTXTFiles);
-            everyrunFile.addAll(allTXTFiles);
+            if(x.isDirectory()) {
+                List<File> allTXTFiles = ((List<File>) FileUtils.listFiles(x, extensions, false));
+                //System.out.println(allTXTFiles);
+                everyrunFile.addAll(allTXTFiles);
+            }
 
         }
         String runprefix="";
-        System.out.println("this run prefix: "+ runprefix);
-        File violationLogsDir= null;
-        ArrayList<Flowset> violationThingList =new ArrayList<>();
         if(args.length>1) {
 
             if(args[1].equals("-p")){
@@ -40,10 +39,11 @@ public class Runner {
             }
         }
 
+        System.out.println("this run prefix: "+ runprefix);
 
         String output="";
-        String lineData="";
-        String header="" +
+
+        /*String header="" +
                 "apk," +
                 "config1," +
                 "config2," +
@@ -221,7 +221,7 @@ public class Runner {
                 //TODO:: append to end of line and also header maybe
 
 
-            }*/
+            }
 
 
 
@@ -243,8 +243,103 @@ public class Runner {
             }
             fw2.flush();
             fw2.close();
-        }
+        }*/
 
+        ArrayList<String> headerVals=new ArrayList<>();
+        boolean first=true;
+        for(File x: everyrunFile) {
+            if (!x.getName().contains(runprefix)) {
+                System.out.println("THIS DONT CONTAIN PREFIX " + x.getName());
+                continue;
+            }
+
+            //get the data, verify the results
+            String name = x.getName().replace("_time.txt","");
+            //apk config1 config2
+            String apkName = name.substring(runprefix.length()+1, name.indexOf("config"));
+            name = name.substring(runprefix.length()+1+apkName.length());
+            String config1 = name.substring(0, name.lastIndexOf("config"));
+            name = name.substring((config1.length()));
+            String config2 = name.substring(0);
+
+            Scanner sc = new Scanner(x);
+            String in="";
+            while(sc.hasNextLine()){
+                in+=sc.nextLine()+"\n";
+            }
+            in = in.replaceAll(":","");
+            HashMap<String,String> mappedValues = new HashMap<>();
+            HashMap<String,String> distValues = new HashMap<>();
+            String[] lines = in.split("\n+");
+            for(String line: lines){
+                System.out.println("line: "+line);
+                boolean dist=false;
+
+                if(line.equals("Counts")){
+                    continue;
+                }
+                if(line.equals("Times")){
+                    continue;
+                }
+                if(line.equals("Timers")){
+                    continue;
+                }
+
+                String[] lineChange = line.split("\\s+");
+                if(line.contains("cucount")){
+                    dist=true;
+                }
+                if(!dist){
+                    headerVals.add(lineChange[0]);
+                    mappedValues.put(lineChange[0],lineChange[1]);
+                }
+                else{
+                    distValues.put(lineChange[0],lineChange[1]);
+                }
+            }
+
+            //* Write dist stuff *//
+            String distop ="";
+            String distheader="";
+            String distline="";
+            for(Map.Entry<String, String> e:distValues.entrySet()){
+                distheader+=e.getKey()+",";
+                distline+=e.getValue()+",";
+            }
+            distheader=distheader.substring(0,distheader.length()-1)+"\n";
+            distline=distline.substring(0,distline.length()-1)+"\n";
+            distop=distheader+distline;
+
+            File thing = new File("distributions/");
+            thing.mkdir();
+            File outF = new File("distributions/"+x.getName().replace("_time.txt","")+"_distributions.csv");
+            FileWriter fw = new FileWriter(outF);
+            fw.write(distop);
+            fw.flush();
+            fw.close();
+
+
+            //* update line stuff *//
+            Collections.sort(headerVals);
+            if(first){
+                first=false;
+                String header="";
+
+                for(String heading:headerVals){
+                    header=header+heading+",";
+                }
+
+                header=header.substring(0,header.length()-1);
+                output+=header+"\n";
+            }
+            String line="";
+            for(String key:headerVals){
+                line+=mappedValues.get(key)+",";
+            }
+            line=line.substring(0,line.length()-1)+"\n";
+            output+=line;
+            headerVals=new ArrayList<>();
+        }
 
         File outF = new File("deltadebugger_results"+Long.toHexString(System.currentTimeMillis()) +".csv");
         FileWriter fw = new FileWriter(outF);
@@ -258,51 +353,4 @@ public class Runner {
 
     }
 
-    private static String getBestRotation(ArrayList<CodeChange> codeChangeList, LineObj j, boolean isMax) {
-
-        if(codeChangeList.size()==0){
-            return "";
-        }
-        if(codeChangeList.size()==1){
-            return (1)+","+(codeChangeList.get(0).linesRemoved)+","+((codeChangeList.get(0).linesRemoved)/(Double.parseDouble(j.percentGoodAQLHDD)+Double.parseDouble(j.percentBadAQLHDD)));
-        }
-        String returnString="";
-
-        ArrayList<Integer> rotList = new ArrayList<>();
-        rotList.add(0);
-        //System.out.println(codeChangeList);
-        for(CodeChange x: codeChangeList){
-            //System.out.println(x);
-            if(rotList.size()<x.rot+1){
-                rotList.add(x.rot,x.linesRemoved);
-            }
-            else{
-                int old = rotList.get(x.rot);
-                rotList.set(x.rot,old+x.linesRemoved);
-            }
-            //System.out.println(rotList);
-        }
-        int max=0;
-        int worst=0;
-        for(int i=0;i<rotList.size();i++){
-
-            if(rotList.get(i)>rotList.get(max)){
-                max=i;
-            }
-            if(rotList.get(i)<rotList.get(worst)){
-                worst=i;
-            }
-        }
-        /*returnString="Rotation: "+(max+1)+" removed "+rotList.get(max)+" lines, which was "+(100*(rotList.get(max))/Double.parseDouble(j.percentAQL)) +"% of the program.\n" +
-
-            "Rotation: "+(worst+1)+" removed "+rotList.get(worst)+" lines, which was "+(100*(rotList.get(worst))/Double.parseDouble(j.percentAQL)) +"% of the program.\n";*/
-
-        if(isMax){
-            returnString=(max+1)+","+rotList.get(max)+","+(100*(rotList.get(max))/(Double.parseDouble(j.percentGoodAQLHDD)+Double.parseDouble(j.percentBadAQLHDD)));
-        }else{
-            returnString=(worst+1)+","+rotList.get(worst)+","+(100*(rotList.get(worst))/(Double.parseDouble(j.percentGoodAQLHDD)+Double.parseDouble(j.percentBadAQLHDD)));
-        }
-
-        return returnString;
-    }
 }
