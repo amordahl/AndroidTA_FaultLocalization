@@ -143,17 +143,27 @@ public class Application {
 		sorted.forEach(e -> {
 			sb.append(String.format("%s=%.3f\n", e.getKey().toString(), e.getValue()));
 			if (this.verboseOutput) {
-				sb.append("\tFailed Test Cases:\n");
+				StringBuilder failed = new StringBuilder();
+				int numFailed = 0;
 				for (Path p : pf.getFailed()) {
 					if (pf.getValueOfInPath(e.getKey().getKey(), p).contains(e.getKey().getValue())) {
-						sb.append(String.format("\t\t%s\n", p.getFileName()));
+						failed.append(String.format("\t\t%s\n", p.getFileName()));
+						numFailed += 1;
 					}
 				}
-				sb.append("\tPassed Test Cases:\n");
+				sb.append(String.format("\tFailed Test Cases (%d):\n", numFailed));
+				sb.append(failed);
+				
+				StringBuilder passed = new StringBuilder();
+				int numPassed = 0;
 				for (Path p : pf.getPassed()) {
 					if (pf.getValueOfInPath(e.getKey().getKey(), p).contains(e.getKey().getValue())) {
-						sb.append(String.format("\t\t%s\n", p.getFileName()));					}
+						passed.append(String.format("\t\t%s\n", p.getFileName()));					
+						numPassed += 1;
+					}
 				}
+				sb.append(String.format("\tPassed Test Cases (%d):\n", numPassed)); 
+				sb.append(passed);
 				sb.append("\n");
 			}
 		});
