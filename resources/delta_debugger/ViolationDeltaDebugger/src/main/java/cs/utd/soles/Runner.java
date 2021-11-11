@@ -115,8 +115,7 @@ public class Runner {
         };*/
 
         /**/
-       // Collections.sort(bestCUList,cuListComp);
-
+        // Collections.sort(bestCUList,cuListComp);
 
         programInfo.getPerfTracker().stopTimer("program_timer");
         //handle end line count
@@ -152,10 +151,10 @@ public class Runner {
     private static void trackFilesChanges(SetupClass programInfo, ArrayList<Pair<File, CompilationUnit>> cuList) {
 
         for(int i=0;i<cuList.size();i++){
-            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(0).getValue0().getName()+"_bad_compile");
-            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(0).getValue0().getName()+"_good_compile");
-            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(0).getValue0().getName()+"_bad_aql");
-            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(0).getValue0().getName()+"_good_aql");
+            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(i).getValue0().getName()+"_bad_compile");
+            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(i).getValue0().getName()+"_good_compile");
+            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(i).getValue0().getName()+"_bad_aql");
+            programInfo.getPerfTracker().addNewCount("cucount_"+cuList.get(i).getValue0().getName()+"_good_aql");
         }
 
     }
