@@ -40,14 +40,14 @@ public class LoggerHelper {
 	 */
 	public static void logCoverageInfo(int linenumber, String location) throws IOException {
 		logger.debug("Logging coverage info.");
-		String fullLoc = String.format("%s:%d", location, linenumber);
+		String fullLoc = String.format("%s:%d", location, linenumber).replaceAll("\\P{Print}", "");
 		synchronized (covered) {
 			if (covered.containsKey(fullLoc)) {
 				covered.put(fullLoc, covered.get(fullLoc) + 1);
 				return;
 			} else {
 				covered.put(fullLoc, 1);
-				System.out.println(fullLoc);
+				System.out.println("COVERAGE:" + fullLoc);
 			}
 		}
 	} 
