@@ -333,7 +333,7 @@ public class Runner {
             Collections.sort(headerVals);
             if(first){
                 first=false;
-                String header="";
+                String header="apk,config1,config2";
 
                 for(String heading:headerVals){
                     header=header+heading+",";
@@ -343,6 +343,7 @@ public class Runner {
                 output+=header+"\n";
             }
             String line="";
+            line+=apkName+","+config1+","+config2+",";
             for(String key:headerVals){
                 line+=mappedValues.get(key)+",";
             }
