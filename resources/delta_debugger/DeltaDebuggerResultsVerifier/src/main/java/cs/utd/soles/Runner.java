@@ -300,14 +300,24 @@ public class Runner {
 
             //* Write dist stuff *//
             String distop ="";
-            String distheader="";
+            String distheader="File,good_aql,bad_aql,good_compile,bad_compile\n";
             String distline="";
+            ArrayList<String> seen = new ArrayList<>();
             for(Map.Entry<String, String> e:distValues.entrySet()){
-                distheader+=e.getKey()+",";
-                distline+=e.getValue()+",";
+                String fName = e.getKey().replace("cucount_","");
+                fName = fName.substring(0,fName.indexOf(".java"));
+                System.out.println(fName);
+                //distheader+=e.getKey()+",";
+                //distline+=e.getValue()+",";
+                if(!seen.contains(fName)){
+                    seen.add(fName);
+
+                    distline=distline+fName+","+distValues.get("cucount_"+fName+".java_good_aql")+","+distValues.get("cucount_"+fName+".java_bad_aql")+","
+                            +distValues.get("cucount_"+fName+".java_good_compile")+","+distValues.get("cucount_"+fName+".java_bad_compile")+"\n";
+                }
             }
-            distheader=distheader.substring(0,distheader.length()-1)+"\n";
-            distline=distline.substring(0,distline.length()-1)+"\n";
+            //distheader=distheader.substring(0,distheader.length()-1)+"\n";
+            //distline=distline.substring(0,distline.length()-1)+"\n";
             distop=distheader+distline;
 
             File thing = new File("distributions/");
