@@ -275,13 +275,13 @@ public class Runner {
                 System.out.println("line: "+line);
                 boolean dist=false;
 
-                if(line.equals("Counts")){
+                if(line.contains("Counts")){
                     continue;
                 }
-                if(line.equals("Times")){
+                if(line.contains("Times")){
                     continue;
                 }
-                if(line.equals("Timers")){
+                if(line.contains("Timers")){
                     continue;
                 }
 
