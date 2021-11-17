@@ -30,7 +30,7 @@ def main():
     if output_file[-1] == '_':
         output_file = output_file[0:-2]
 
-    CMD = CMD.replace('{phase2log}', f'=coverage,{args.phase2log}' if args.phase2log else '')
+    CMD = CMD.replace('{phase2log}', f'=coverage,{args.phase2log};type,SIZE' if args.phase2log else '=type,COVERAGE')
     
     output_file = output_file + args.suffix
     output_file = os.path.join(args.datadir, output_file)
