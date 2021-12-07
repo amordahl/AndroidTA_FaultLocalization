@@ -100,17 +100,17 @@ public class HDDReduction implements Reduction{
 
 
         if(cur instanceof ClassOrInterfaceDeclaration){
-            markNode((ClassOrInterfaceDeclaration) cur, flowsWeWant);
+            markNodeC((ClassOrInterfaceDeclaration) cur, flowsWeWant);
         }else if(cur instanceof MethodDeclaration){
             //when we get to a method that has same signature in same class as source/sink, lets just look through the statements and find one that looks good
-            markNode((MethodDeclaration) cur, flowsWeWant);
+            markNodeM((MethodDeclaration) cur, flowsWeWant);
         }else{
 
         }
 
     }
 
-    private void markNode(ClassOrInterfaceDeclaration cur, ArrayList<com.utdallas.cs.alps.flows.Statement> flowsWeWant){
+    private void markNodeC(ClassOrInterfaceDeclaration cur, ArrayList<com.utdallas.cs.alps.flows.Statement> flowsWeWant){
         //this node is a class, lets see if it matches our cool flows
 
         for(com.utdallas.cs.alps.flows.Statement x: flowsWeWant){
@@ -125,7 +125,7 @@ public class HDDReduction implements Reduction{
         }
     }
 
-    private void markNode(MethodDeclaration cur, ArrayList<com.utdallas.cs.alps.flows.Statement> flowsWeWant){
+    private void markNodeM(MethodDeclaration cur, ArrayList<com.utdallas.cs.alps.flows.Statement> flowsWeWant){
         //ok so this is a method, we can mark this method as unremoveable, but also we go through it and mark a specific line as unremoveable;
 
         ArrayList<com.utdallas.cs.alps.flows.Statement> removeStatement = new ArrayList<>();
@@ -166,7 +166,7 @@ public class HDDReduction implements Reduction{
                 checkList.addAll(curNode.getChildNodes());
                 if(curNode instanceof MethodCallExpr){
                     if(thisFlow.getStatement().contains(((MethodCallExpr)curNode).getNameAsString())){
-                        System.out.println("Found unremoveable statement: "+cur.getParentNode().get());
+                        System.out.println("Found unremoveable statement: "+cur);
                         foundUnremoveables.add(curNode);
                         return true;
                     }
