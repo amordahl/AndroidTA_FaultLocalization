@@ -87,6 +87,9 @@ public class Runner {
             if(((boolean)arg.get())) {
                 ArrayList<Object> requirements = new ArrayList<>();
                 requirements.add(bestCuList);
+                requirements.add(programInfo.getThisViolation());
+                requirements.add(programInfo.isTargetType());
+                requirements.add(programInfo.isViolationOrNot());
                 hddReduction.reduce(requirements);
             }
 
@@ -197,8 +200,6 @@ public class Runner {
         p.addNewTime("time_good_aql_runs_binary");
         p.addNewTime("time_good_aql_runs_hdd");
     }
-
-
 
 
     /*private static void doMethodReduction(){
@@ -323,13 +324,6 @@ public class Runner {
     }*/
 
 
-
-    //this method takes in the flow information and marks some parts of the ast un-removeable (like the source and sink of a flow)
-    public static void turnFlowsIntoUnremovableNodes(){
-        //get the flow, parse the info and guess which node is this flow
-    }
-
-
     private static ArrayList<Pair<File,CompilationUnit>> createCuList(String javadirpath) throws IOException {
 
         ArrayList<Pair<File,CompilationUnit>> returnList = new ArrayList<>();
@@ -359,7 +353,6 @@ public class Runner {
 
     //root project of the file
     //static String APKReductionPath="/home/dakota/AndroidTA/AndroidTAEnvironment/APKReductionDir";
-
 
     //this method updates the best apk for this run or creates it if it needs to, by the end of the run the best apk should be saved
     private static void saveBestAPK(SetupClass programInfo){
