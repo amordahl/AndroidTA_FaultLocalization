@@ -61,6 +61,24 @@ public class HDDReduction implements Reduction{
             traverseTreeAndMark(pair.getValue1(),allStatements);
         }
 
+        ArrayList<Node> addSet = new ArrayList<>(foundUnremoveables);
+        //mark all node parents
+        for(Node x: addSet){
+            markAllParentNodes(x);
+        }
+        for(Node x: foundUnremoveables){
+            System.out.println("\n\nNode that is unremoveable: "+x);
+        }
+
+    }
+
+    private void markAllParentNodes(Node x) {
+
+        Node parent = x.getParentNode().isPresent()? x.getParentNode().get() :null;
+        while(parent!=null){
+            foundUnremoveables.add(parent);
+            parent = parent.getParentNode().isPresent()? parent.getParentNode().get() :null;
+        }
     }
 
     private ArrayList<Flow> getFlowsWeWant(Flowset violation, boolean type, boolean isViolation){
@@ -166,7 +184,7 @@ public class HDDReduction implements Reduction{
                 checkList.addAll(curNode.getChildNodes());
                 if(curNode instanceof MethodCallExpr){
                     if(thisFlow.getStatement().contains(((MethodCallExpr)curNode).getNameAsString())){
-                        System.out.println("Found unremoveable statement: "+cur);
+                        System.out.println("Found unremoveable statement: "+curNode);
                         foundUnremoveables.add(curNode);
                         return true;
                     }
