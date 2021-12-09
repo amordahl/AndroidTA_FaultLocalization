@@ -379,7 +379,7 @@ public class HDDReduction implements Reduction{
                 requiredForTest.add(bestCuList);
                 requiredForTest.add(compPosition);
                 requiredForTest.add(copiedUnit);
-                if(tester.runTest(requiredForTest)){
+                if(removedNodes.size()>0&&tester.runTest(requiredForTest)){
                     //if changed, remove the nodes we removed from the original ast
                     for(Node x:alterableRemoves){
                         currentNode.remove(x);
