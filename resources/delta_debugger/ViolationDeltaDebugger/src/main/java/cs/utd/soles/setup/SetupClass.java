@@ -16,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -119,10 +120,16 @@ public class SetupClass {
         String home = System.getProperty("user.home");
         String path = home+"/.gradle/caches";
         System.out.println("Gradle path: "+path);
+        String[] files = {path+"/transforms-2/files-2.1",path+"/jars-3",path+"modules-2/files-2.1"};
         String[] extensions = {"jar"};
-        List<File> jarLibs = ((List<File>) FileUtils.listFiles(Paths.get(path).toFile(),extensions,true));
+        List<File> jarLibs = new LinkedList<>();
 
+        for(String x: files) {
+            System.out.println("Started path: "+x);
+            jarLibs.addAll(((List<File>) FileUtils.listFiles(Paths.get(x).toFile(), extensions, true)));
+        }
 
+        System.out.println("Onto androidPlatforms");
         Map<String,String> env = System.getenv();
         String androidPlatforms = env.get("ANDROID_SDK_ROOT");
         System.out.println("Android platforms: "+androidPlatforms);
