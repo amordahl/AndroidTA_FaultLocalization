@@ -340,6 +340,7 @@ public class Runner {
         String[] extensions = {"java"};
         List<File> allJFiles = ((List<File>) FileUtils.listFiles(f, extensions, true));
         if(solver !=null){
+            System.out.println("Created CU list, added src to solver");
             solver.add(new JavaParserTypeSolver(f));
         }
         int i=0;
@@ -347,7 +348,7 @@ public class Runner {
             //don't add the unmodified source files cause they will just duplicate endlessly
             if(!x.getAbsolutePath().contains("unmodified_src")) {
                 i++;
-                Pair<File, CompilationUnit> b = new Pair(x, parser.parse(x.getAbsoluteFile()).getResult().get());
+                Pair<File, CompilationUnit> b = new Pair(x, parser.parse(x).getResult().get());
                 returnList.add(b);
 
             }

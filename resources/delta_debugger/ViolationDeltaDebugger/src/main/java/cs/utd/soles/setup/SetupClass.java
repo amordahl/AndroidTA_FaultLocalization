@@ -125,6 +125,7 @@ public class SetupClass {
 
         Map<String,String> env = System.getenv();
         String androidPlatforms = env.get("ANDROID_SDK_ROOT");
+        System.out.println("Android platforms: "+androidPlatforms);
         if(androidPlatforms==null){
             System.out.println("ANDROID_SDK_ROOT not an environment variable... exiting...");
             System.exit(-1);

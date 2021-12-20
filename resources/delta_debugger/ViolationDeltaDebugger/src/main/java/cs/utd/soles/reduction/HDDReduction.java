@@ -145,7 +145,7 @@ public class HDDReduction implements Reduction{
 
             //check if this method if from an interface or superclass
             if(checkInterfaceOrAbstractMethod((MethodDeclaration) cur)){
-                //it is, so add it no another list that we will reincorporate into flowsUnremoveable later.
+                //it is, so add it another list that we will reincorporate into flowsUnremoveable later.
                 foundInterfaceAbstractMethods.add(cur);
             }
 
@@ -311,6 +311,7 @@ public class HDDReduction implements Reduction{
         //get parent
         Node parentC =  methodDec.getParentNode().get();
         CombinedTypeSolver solver = programInfo.getTypeSolver();
+        System.out.println("checking interface or abstract method");
         //check
         if(parentC instanceof ClassOrInterfaceDeclaration) {
             ClassOrInterfaceDeclaration parent = (ClassOrInterfaceDeclaration) parentC;
