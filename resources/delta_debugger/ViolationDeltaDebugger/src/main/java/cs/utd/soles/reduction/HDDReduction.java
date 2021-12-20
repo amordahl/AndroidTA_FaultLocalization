@@ -2,16 +2,28 @@ package cs.utd.soles.reduction;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.resolution.declarations.ResolvedClassDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedInterfaceDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
+import com.github.javaparser.symbolsolver.javassistmodel.JavassistMethodDeclaration;
+import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.utdallas.cs.alps.flows.Flow;
 import com.utdallas.cs.alps.flows.Flowset;
 import cs.utd.soles.setup.SetupClass;
+import cs.utd.soles.util.JavaByteReader;
 import cs.utd.soles.violationtester.HDDTester;
 import org.javatuples.Pair;
 
@@ -19,6 +31,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class HDDReduction implements Reduction{
 
@@ -34,6 +47,7 @@ public class HDDReduction implements Reduction{
         this.timeoutTime=timeoutTime+System.currentTimeMillis();
         this.foundUnremoveables=new HashSet<>();
     }
+
     @Override
     public void reduce(ArrayList<Object> requireds) {
         ArrayList<Pair<File,CompilationUnit>> bestCuList = (ArrayList<Pair<File, CompilationUnit>>) requireds.get(0);
@@ -43,7 +57,6 @@ public class HDDReduction implements Reduction{
         markNodesUnremoveable(bestCuList,thisViolation, violationType, isViolation);
         hddReduction(bestCuList);
     }
-
 
     private void markNodesUnremoveable(ArrayList<Pair<File,CompilationUnit>> bestCuList, Flowset violation, boolean violationType, boolean isViolation){
 
@@ -56,9 +69,9 @@ public class HDDReduction implements Reduction{
             allStatements.add(x.getSource());
             allStatements.add(x.getSink());
         }
-
+        ArrayList<Node> foundInterfaceAbstractMethods = new ArrayList<>();
         for(Pair<File,CompilationUnit> pair: bestCuList){
-            traverseTreeAndMark(pair.getValue1(),allStatements);
+            traverseTreeAndMark(pair.getValue1(),allStatements, foundInterfaceAbstractMethods);
         }
 
         ArrayList<Node> addSet = new ArrayList<>(foundUnremoveables);
@@ -66,6 +79,8 @@ public class HDDReduction implements Reduction{
         for(Node x: addSet){
             markAllParentNodes(x);
         }
+        //readd this after markAllParentNodes(x), so that we dont go marking alot of node as unremoveable for no reason.
+        foundUnremoveables.addAll(foundInterfaceAbstractMethods);
         for(Node x: foundUnremoveables){
             System.out.println("\n\nNode that is unremoveable: "+x);
         }
@@ -101,19 +116,24 @@ public class HDDReduction implements Reduction{
 
         return returnList;
     }
-    private void traverseTreeAndMark(Node cur, ArrayList<com.utdallas.cs.alps.flows.Statement> flowsWeWant){
+    private void traverseTreeAndMark(Node cur, ArrayList<com.utdallas.cs.alps.flows.Statement> flowsWeWant, ArrayList<Node> foundInterfaceAbstractMethods){
 
         if(flowsWeWant.size()==0){
             return;
         }
-        markNode(cur,flowsWeWant);
+        //start process for source/sink non removal
+        markNode(cur,flowsWeWant, foundInterfaceAbstractMethods);
+
         for(Node x: cur.getChildNodes()){
-            traverseTreeAndMark(x,flowsWeWant);
+            traverseTreeAndMark(x,flowsWeWant, foundInterfaceAbstractMethods);
         }
     }
 
-    //this method checks our current node to a source/sink signature
-    private void markNode(Node cur, ArrayList<com.utdallas.cs.alps.flows.Statement> flowsWeWant) {
+
+
+
+    //this method checks our current node to a source/sink signature, also calls our other removal if wanted
+    private void markNode(Node cur, ArrayList<com.utdallas.cs.alps.flows.Statement> flowsWeWant, ArrayList<Node> foundInterfaceAbstractMethods) {
 
 
 
@@ -122,12 +142,19 @@ public class HDDReduction implements Reduction{
         }else if(cur instanceof MethodDeclaration){
             //when we get to a method that has same signature in same class as source/sink, lets just look through the statements and find one that looks good
             markNodeM((MethodDeclaration) cur, flowsWeWant);
+
+            //check if this method if from an interface or superclass
+            if(checkInterfaceOrAbstractMethod((MethodDeclaration) cur)){
+                //it is, so add it no another list that we will reincorporate into flowsUnremoveable later.
+                foundInterfaceAbstractMethods.add(cur);
+            }
+
         }else{
 
         }
 
     }
-
+    //part of source/sink
     private void markNodeC(ClassOrInterfaceDeclaration cur, ArrayList<com.utdallas.cs.alps.flows.Statement> flowsWeWant){
         //this node is a class, lets see if it matches our cool flows
 
@@ -142,7 +169,7 @@ public class HDDReduction implements Reduction{
             }
         }
     }
-
+    //part of source/sink
     private void markNodeM(MethodDeclaration cur, ArrayList<com.utdallas.cs.alps.flows.Statement> flowsWeWant){
         //ok so this is a method, we can mark this method as unremoveable, but also we go through it and mark a specific line as unremoveable;
 
@@ -164,7 +191,7 @@ public class HDDReduction implements Reduction{
         }
         flowsWeWant.removeAll(removeStatement);
     }
-
+    //part of source/sink
     //TODO:: this stuff isn't gonnna work for anonymous classes, so we need to fix them eventually.
     private boolean findAndMarkStatement(MethodDeclaration cur, com.utdallas.cs.alps.flows.Statement thisFlow) {
 
@@ -280,6 +307,103 @@ public class HDDReduction implements Reduction{
         return false;
     }
 
+    private boolean checkInterfaceOrAbstractMethod(MethodDeclaration methodDec){
+        //get parent
+        Node parentC =  methodDec.getParentNode().get();
+        CombinedTypeSolver solver = programInfo.getTypeSolver();
+        //check
+        if(parentC instanceof ClassOrInterfaceDeclaration) {
+            ClassOrInterfaceDeclaration parent = (ClassOrInterfaceDeclaration) parentC;
+            NodeList<ClassOrInterfaceType> extendedClassTypes = parent.getExtendedTypes();
+            extendedClassTypes.addAll(parent.getImplementedTypes());
+            //if(!parent.isAbstract()) {
+            //    return false;
+            //}
+            for (ClassOrInterfaceType t : extendedClassTypes) {
+                try {
+                    SymbolReference<ResolvedReferenceTypeDeclaration> resType = solver.tryToSolveType(t.getNameWithScope());
+                    //check sig in abstract class method, for abstract methods
+                    ResolvedReferenceType rrt = t.resolve();
+                    if (rrt != null && !resType.isSolved()) {
+                        resType = solver.tryToSolveType(rrt.getQualifiedName());
+                        //System.out.println("new try: "+resType.isSolved());
+                    }
+
+                    if (resType.isSolved()) {
+
+                        if (resType.getCorrespondingDeclaration() instanceof ResolvedClassDeclaration) {
+                            ResolvedClassDeclaration classDec = resType.getCorrespondingDeclaration().asClass();
+
+                            Set<ResolvedMethodDeclaration> resMethods = classDec.getDeclaredMethods();
+                            String footPrint = "";
+                            String name = methodDec.getNameAsString();
+                            footPrint += name;
+
+                            for (Parameter p : methodDec.getParameters()) {
+                                footPrint += " " + p.getType().resolve().describe();
+                            }
+                            //System.out.println(footPrint);
+
+
+                            List<String> methodSignatures = new ArrayList<>();
+
+                            //tryToResolveMethods(resMethods,methodSignatures,solver);
+                            for (ResolvedMethodDeclaration methodDecX : resMethods) {
+                                if (methodDecX instanceof JavassistMethodDeclaration) {
+                                    JavassistMethodDeclaration yaboy = (JavassistMethodDeclaration) methodDecX;
+                                    String things = yaboy.toString();
+
+                                    things = things.substring(things.indexOf("[") + 1, things.lastIndexOf("]"));
+
+
+                                    String methodSig = JavaByteReader.getMethodSigFromString(things);
+                                    if (methodSig.equals(footPrint)) {
+                                        return true;
+                                    }
+
+                                }
+                            }
+                        }
+                        else if(resType.getCorrespondingDeclaration() instanceof ResolvedInterfaceDeclaration){
+                            ResolvedInterfaceDeclaration classDec = resType.getCorrespondingDeclaration().asInterface();
+
+                            Set<ResolvedMethodDeclaration> resMethods = classDec.getDeclaredMethods();
+                            String footPrint = "";
+                            String name = methodDec.getNameAsString();
+                            footPrint += name;
+
+                            for (Parameter p : methodDec.getParameters()) {
+                                footPrint += " " + p.getType().resolve().describe();
+                            }
+                            //System.out.println(footPrint);
+
+                            for (ResolvedMethodDeclaration methodDecX : resMethods) {
+                                if (methodDecX instanceof JavassistMethodDeclaration) {
+                                    JavassistMethodDeclaration yaboy = (JavassistMethodDeclaration) methodDecX;
+                                    String things = yaboy.toString();
+
+                                    things = things.substring(things.indexOf("[") + 1, things.lastIndexOf("]"));
+
+
+                                    String methodSig = JavaByteReader.getMethodSigFromString(things);
+                                    if (methodSig.equals(footPrint)) {
+                                        return true;
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }
+        return false;
+    }
+
     private boolean minimized=false;
     public void hddReduction(ArrayList<Pair<File, CompilationUnit>> bestCuList){
 
@@ -317,6 +441,7 @@ public class HDDReduction implements Reduction{
         }
 
     }
+
     private void process(int currentCUPos, Node currentNode, ArrayList<Pair<File, CompilationUnit>> bestCuList){
 
         if(!currentNode.getParentNode().isPresent()&&!(currentNode instanceof CompilationUnit)){

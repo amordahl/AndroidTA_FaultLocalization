@@ -1,13 +1,23 @@
 package cs.utd.soles.setup;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.utdallas.cs.alps.flows.AQLFlowFileReader;
 import com.utdallas.cs.alps.flows.Flowset;
 import cs.utd.soles.DroidbenchProjectCreator;
 import cs.utd.soles.PerfTracker;
 import cs.utd.soles.schema.SchemaGenerator;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
 public class SetupClass {
 
@@ -46,6 +56,19 @@ public class SetupClass {
     public PerfTracker getPerfTracker(){
         return this.performance;
     }
+
+    public CombinedTypeSolver getTypeSolver() {
+        return typeSolver;
+    }
+
+    public ParserConfiguration getParserConfig() {
+        return parserConfig;
+    }
+
+    public JavaParser getJavaParseInst() {
+        return javaParseInst;
+    }
+
     String apkName;
     String config1;
     String config2;
@@ -57,6 +80,9 @@ public class SetupClass {
     MinimizationTarget targetProject;
     String thisRunName;
     PerfTracker performance;
+    CombinedTypeSolver typeSolver;
+    ParserConfiguration parserConfig;
+    JavaParser javaParseInst;
     /*
     * Setup is a couple of steps.
     * 1. we need a schema
@@ -66,7 +92,8 @@ public class SetupClass {
 
     public SetupClass(){
         performance = new PerfTracker();
-
+        parserConfig = new ParserConfiguration();
+        javaParseInst = new JavaParser(parserConfig);
     }
     public boolean doSetup(String[] args) throws IOException {
 
@@ -76,7 +103,46 @@ public class SetupClass {
 
         targetProject = createTargetProject((String)arguments.getValueOfArg("RUN_PREFIX").get());
 
+        //TODO:: make this optional
+        typeSolver=new CombinedTypeSolver();
+        createAndAddLibsToSolver();
+        parserConfig.setSymbolResolver(new JavaSymbolSolver(typeSolver));
+
         return true;
+    }
+
+    private void createAndAddLibsToSolver() {
+
+        typeSolver.add(new ReflectionTypeSolver());
+
+        // its in .gradle\\caches file
+        String home = System.getProperty("user.home");
+        String path = home+"/.gradle/caches";
+        System.out.println("Gradle path: "+path);
+        String[] extensions = {"jar"};
+        List<File> jarLibs = ((List<File>) FileUtils.listFiles(Paths.get(path).toFile(),extensions,true));
+
+
+        Map<String,String> env = System.getenv();
+        String androidPlatforms = env.get("ANDROID_SDK_ROOT");
+        if(androidPlatforms==null){
+            System.out.println("ANDROID_SDK_ROOT not an environment variable... exiting...");
+            System.exit(-1);
+        }
+
+
+        jarLibs.addAll(((List<File>) FileUtils.listFiles(Paths.get(androidPlatforms).toFile(),extensions,true)));
+
+        for(File x: jarLibs){
+            try {
+                typeSolver.add(new JarTypeSolver(x));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
     }
 
     private ArgsHandler handleArgs(String[] args) {

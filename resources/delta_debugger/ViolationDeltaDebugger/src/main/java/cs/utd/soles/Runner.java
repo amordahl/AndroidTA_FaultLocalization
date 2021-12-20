@@ -1,5 +1,6 @@
 package cs.utd.soles;
 
+import com.github.javaparser.JavaParser;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -8,6 +9,8 @@ import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import cs.utd.soles.apkcreator.ApkCreator;
 import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
@@ -36,7 +39,7 @@ public class Runner {
             programInfo.getPerfTracker().startTimer("setup_timer");
             programInfo.doSetup(args);
 
-            originalCuList=createCuList(programInfo.getTargetProject().getProjectSrcPath());
+            originalCuList=createCuList(programInfo.getTargetProject().getProjectSrcPath(), programInfo.getJavaParseInst(),programInfo.getTypeSolver());
 
             trackFilesChanges(programInfo,originalCuList);
 
@@ -324,7 +327,7 @@ public class Runner {
     }*/
 
 
-    private static ArrayList<Pair<File,CompilationUnit>> createCuList(String javadirpath) throws IOException {
+    private static ArrayList<Pair<File,CompilationUnit>> createCuList(String javadirpath, JavaParser parser, CombinedTypeSolver solver) throws IOException {
 
         ArrayList<Pair<File,CompilationUnit>> returnList = new ArrayList<>();
 
@@ -336,13 +339,15 @@ public class Runner {
 
         String[] extensions = {"java"};
         List<File> allJFiles = ((List<File>) FileUtils.listFiles(f, extensions, true));
-
+        if(solver !=null){
+            solver.add(new JavaParserTypeSolver(f));
+        }
         int i=0;
         for(File x: allJFiles){
             //don't add the unmodified source files cause they will just duplicate endlessly
             if(!x.getAbsolutePath().contains("unmodified_src")) {
                 i++;
-                Pair<File, CompilationUnit> b = new Pair(x, StaticJavaParser.parse(x.getAbsoluteFile()));
+                Pair<File, CompilationUnit> b = new Pair(x, parser.parse(x.getAbsoluteFile()).getResult().get());
                 returnList.add(b);
 
             }
