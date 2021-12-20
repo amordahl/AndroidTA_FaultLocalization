@@ -120,7 +120,7 @@ public class SetupClass {
         String home = System.getProperty("user.home");
         String path = home+"/.gradle/caches";
         System.out.println("Gradle path: "+path);
-        String[] files = {path+"/transforms-2/files-2.1",path+"/jars-3",path+"modules-2/files-2.1"};
+        String[] files = {path+"/transforms-2/files-2.1",path+"/jars-3",path+"/modules-2/files-2.1"};
         String[] extensions = {"jar"};
         List<File> jarLibs = new LinkedList<>();
 
