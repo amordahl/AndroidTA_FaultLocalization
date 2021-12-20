@@ -182,6 +182,7 @@ public class Runner {
         p.addNewCount("good_aql_runs_binary");
         p.addNewCount("good_aql_runs_hdd");
         p.addNewCount("total_rotations");
+        p.addNewCount("rejected_changes");
 
         //some timers we need
         p.addNewTimer("compile_timer");

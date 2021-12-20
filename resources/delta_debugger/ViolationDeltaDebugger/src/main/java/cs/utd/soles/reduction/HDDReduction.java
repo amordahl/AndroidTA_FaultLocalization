@@ -345,9 +345,6 @@ public class HDDReduction implements Reduction{
                             }
                             //System.out.println(footPrint);
 
-
-                            List<String> methodSignatures = new ArrayList<>();
-
                             //tryToResolveMethods(resMethods,methodSignatures,solver);
                             for (ResolvedMethodDeclaration methodDecX : resMethods) {
                                 if (methodDecX instanceof JavassistMethodDeclaration) {
@@ -497,6 +494,7 @@ public class HDDReduction implements Reduction{
                         copiedNode.remove(x);
                         removedNodes.add(x);
                         alterableRemoves.add(alterableList.get(index));
+                        programInfo.getPerfTracker().addCount("rejected_changes",1);
                     }
                     index++;
                 }
