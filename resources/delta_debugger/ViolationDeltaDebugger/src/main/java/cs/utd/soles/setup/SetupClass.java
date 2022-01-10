@@ -106,10 +106,7 @@ public class SetupClass {
 
 
         typeSolver=new CombinedTypeSolver();
-        if(getArguments().getValueOfArg("NO_ABSTRACT_METHODS").isPresent() && (boolean) getArguments().getValueOfArg("NO_ABSTRACT_METHODS").get()) {
-            createAndAddLibsToSolver();
-
-        }
+        createAndAddLibsToSolver();
         parserConfig.setSymbolResolver(new JavaSymbolSolver(typeSolver));
         return true;
     }
