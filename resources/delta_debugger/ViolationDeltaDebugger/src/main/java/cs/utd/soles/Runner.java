@@ -339,7 +339,7 @@ public class Runner {
         ArrayList<Pair<File,CompilationUnit>> returnList = new ArrayList<>();
 
         File f = Paths.get(javadirpath).toFile();
-
+        System.out.println("Java dir path: "+ javadirpath);
         if(!f.exists()){
             throw new FileNotFoundException(javadirpath + "not found");
         }

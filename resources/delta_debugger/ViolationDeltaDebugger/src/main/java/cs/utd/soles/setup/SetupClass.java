@@ -94,7 +94,7 @@ public class SetupClass {
     public SetupClass(){
         performance = new PerfTracker();
         parserConfig = new ParserConfiguration();
-        javaParseInst = new JavaParser(parserConfig);
+
     }
     public boolean doSetup(String[] args) throws IOException {
 
@@ -108,6 +108,7 @@ public class SetupClass {
         typeSolver=new CombinedTypeSolver();
         createAndAddLibsToSolver();
         parserConfig.setSymbolResolver(new JavaSymbolSolver(typeSolver));
+        javaParseInst = new JavaParser(parserConfig);
         return true;
     }
 
