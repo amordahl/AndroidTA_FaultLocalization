@@ -25,6 +25,10 @@ public class ArgsHandler{
             if(args[i].equals("-hdd")){
                 argValues.put("REGULAR_REDUCTION",true);
             }
+            if(args[i].equals("-nam")){
+                //no abstract methods
+                argValues.put("NO_ABSTRACT_METHODS",true);
+            }
             if(args[i].equals("-p")){
                 String prefix=args[i+1];
                 prefix = ""+thisViolation.getConfig1()+"_"+thisViolation.getConfig2()+"/"+prefix.replace("/","");

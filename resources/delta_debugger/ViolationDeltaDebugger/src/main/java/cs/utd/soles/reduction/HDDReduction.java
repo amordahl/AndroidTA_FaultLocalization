@@ -39,13 +39,14 @@ public class HDDReduction implements Reduction{
     SetupClass programInfo;
     HDDTester tester;
     final Object lock;
-
+    private boolean namValue;
     public HDDReduction(SetupClass programInfo, long timeoutTime){
         this.programInfo=programInfo;
         lock=new Object();
         this.tester = new HDDTester(lock,programInfo);
         this.timeoutTime=timeoutTime+System.currentTimeMillis();
         this.foundUnremoveables=new HashSet<>();
+        namValue = programInfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").isPresent()? (boolean)programInfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").get():false;
     }
 
     @Override
@@ -144,7 +145,7 @@ public class HDDReduction implements Reduction{
             markNodeM((MethodDeclaration) cur, flowsWeWant);
 
             //check if this method if from an interface or superclass
-            if(checkInterfaceOrAbstractMethod((MethodDeclaration) cur)){
+            if(namValue&&checkInterfaceOrAbstractMethod((MethodDeclaration) cur)){
                 //it is, so add it another list that we will reincorporate into flowsUnremoveable later.
                 foundInterfaceAbstractMethods.add(cur);
             }
@@ -315,6 +316,12 @@ public class HDDReduction implements Reduction{
         //check
         if(parentC instanceof ClassOrInterfaceDeclaration) {
             ClassOrInterfaceDeclaration parent = (ClassOrInterfaceDeclaration) parentC;
+
+            if(!parent.isInterface()&&!parent.isAbstract()){
+                //dont care about methods that are removeable but can be overriden from superclass.
+                return false;
+            }
+
             NodeList<ClassOrInterfaceType> extendedClassTypes = parent.getExtendedTypes();
             extendedClassTypes.addAll(parent.getImplementedTypes());
             //if(!parent.isAbstract()) {
