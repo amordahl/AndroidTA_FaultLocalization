@@ -56,6 +56,14 @@ public class JavaByteReader {
         return returnString;
     }
 
+    public static String getMethodSigFromGetSig(String sig){
+        String returnString = sig.toString();
+        returnString = returnString.replace("("," ");
+        returnString = returnString.replace(")"," ");
+        returnString = returnString.replace(",","");
+        returnString = returnString.trim();
+        return returnString;
+    }
 
     private static String isPrimitive(char c){
         int index=0;

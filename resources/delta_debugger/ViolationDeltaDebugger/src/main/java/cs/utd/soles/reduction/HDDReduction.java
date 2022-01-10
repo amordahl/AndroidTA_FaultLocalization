@@ -372,12 +372,10 @@ public class HDDReduction implements Reduction{
                                 }
                                 if (methodDecX instanceof JavaParserMethodDeclaration){
                                     JavaParserMethodDeclaration yaboy = (JavaParserMethodDeclaration) methodDecX;
-                                    String things = yaboy.toString();
-
-                                    things = things.substring(things.indexOf("[") + 1, things.lastIndexOf("]"));
+                                    String things = yaboy.getSignature();
 
 
-                                    String methodSig = JavaByteReader.getMethodSigFromString(things);
+                                    String methodSig = JavaByteReader.getMethodSigFromGetSig(things);
                                     if (methodSig.equals(footPrint) && yaboy.isAbstract()) {
                                         return true;
                                     }
@@ -413,12 +411,9 @@ public class HDDReduction implements Reduction{
                                 }
                                 if (methodDecX instanceof JavaParserMethodDeclaration) {
                                     JavaParserMethodDeclaration yaboy = (JavaParserMethodDeclaration) methodDecX;
-                                    String things = yaboy.toString();
+                                    String things = yaboy.getSignature();
 
-                                    things = things.substring(things.indexOf("[") + 1, things.lastIndexOf("]"));
-
-
-                                    String methodSig = JavaByteReader.getMethodSigFromString(things);
+                                    String methodSig = JavaByteReader.getMethodSigFromGetSig(things);
                                     if (methodSig.equals(footPrint)) {
                                         return true;
                                     }
