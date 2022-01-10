@@ -23,6 +23,10 @@ public class MinimizationTarget{
         return projectClassFiles;
     }
 
+    public String getProjectJavaPath() {
+        return projectJavaPath;
+    }
+
     public File getDotFile() {
         return dotFile;
     }
@@ -30,6 +34,7 @@ public class MinimizationTarget{
     String projectRootPath;
     String projectGradlewPath;
     String projectSrcPath;
+    String projectJavaPath;
     String projectAPKPath;
     String projectClassFiles;
     File dotFile;
@@ -47,6 +52,7 @@ public class MinimizationTarget{
         f.setExecutable(true);
         projectAPKPath=pathFile+"/app/build/outputs/apk/debug/app-debug.apk";
         projectSrcPath=pathFile+"/app/src/";
+        projectJavaPath=pathFile+"/app/src/main/java/";
         dealWithSpecialProjects(APKName, pathFile);
         projectClassFiles = pathFile+"/"+projectAPKPath.substring(pathFile.length()+1,projectAPKPath.indexOf("/",pathFile.length()+1))+"/build/intermediates/javac/debug/classes";
         dotFile = new File(projectClassFiles+"/dotfiles/classes.dot");

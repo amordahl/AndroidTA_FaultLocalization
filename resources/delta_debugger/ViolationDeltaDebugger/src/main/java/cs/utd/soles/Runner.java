@@ -39,7 +39,7 @@ public class Runner {
             programInfo.getPerfTracker().startTimer("setup_timer");
             programInfo.doSetup(args);
 
-            originalCuList=createCuList(programInfo.getTargetProject().getProjectSrcPath(), programInfo.getJavaParseInst(),programInfo.getTypeSolver());
+            originalCuList=createCuList(programInfo.getTargetProject().getProjectJavaPath(), programInfo.getJavaParseInst(),programInfo.getTypeSolver());
 
             trackFilesChanges(programInfo,originalCuList);
 
