@@ -68,8 +68,14 @@ public class Runner {
 
         bestCuList = new ArrayList<>(originalCuList);
 
-        BinaryReduction binaryReduction = new BinaryReduction(programInfo,originalCuList);
-        Optional<Object> arg = programInfo.getArguments().getValueOfArg("CLASS_REDUCTION");
+        int btimeoutTimeMinutes = 120;
+        Optional<Object> arg = programInfo.getArguments().getValueOfArg("BINARY_TIMEOUT_TIME_MINUTES");
+        if(arg.isPresent()) {
+            btimeoutTimeMinutes= (int) arg.get();
+
+        }
+        BinaryReduction binaryReduction = new BinaryReduction(programInfo,originalCuList, btimeoutTimeMinutes*M_TO_MILLIS);
+        arg = programInfo.getArguments().getValueOfArg("CLASS_REDUCTION");
         if(arg.isPresent())
             if(((boolean)arg.get())) {
                 ArrayList<Object> requirements = new ArrayList<>();

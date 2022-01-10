@@ -104,10 +104,12 @@ public class SetupClass {
 
         targetProject = createTargetProject((String)arguments.getValueOfArg("RUN_PREFIX").get());
 
-        //TODO:: make this optional
+
         typeSolver=new CombinedTypeSolver();
-        createAndAddLibsToSolver();
-        parserConfig.setSymbolResolver(new JavaSymbolSolver(typeSolver));
+        if(getArguments().getValueOfArg("NO_ABSTRACT_METHODS").isPresent() && (boolean) getArguments().getValueOfArg("NO_ABSTRACT_METHODS").get()) {
+            createAndAddLibsToSolver();
+            parserConfig.setSymbolResolver(new JavaSymbolSolver(typeSolver));
+        }
 
         return true;
     }

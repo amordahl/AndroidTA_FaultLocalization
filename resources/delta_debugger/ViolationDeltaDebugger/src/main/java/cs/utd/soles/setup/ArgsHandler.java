@@ -39,6 +39,10 @@ public class ArgsHandler{
                 argValues.put("TIMEOUT_TIME_MINUTES",Integer.parseInt(args[i+1]));
                 i++;
             }
+            if(args[i].equals("-bt")){
+                argValues.put("BINARY_TIMEOUT_TIME_MINUTES",Integer.parseInt(args[i+1]));
+                i++;
+            }
             //add other args here if we want em
         }
     }

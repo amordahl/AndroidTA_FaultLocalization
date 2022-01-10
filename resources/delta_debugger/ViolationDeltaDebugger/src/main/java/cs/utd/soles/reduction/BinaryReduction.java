@@ -20,11 +20,15 @@ public class BinaryReduction implements Reduction{
     HashMap<String, String> classNamesToPaths;
     final Object lock;
     BinaryReductionTester tester;
-    public BinaryReduction(SetupClass programInfo, ArrayList<Pair<File, CompilationUnit>> originalUnits){
+
+    long timeout_time;
+
+    public BinaryReduction(SetupClass programInfo, ArrayList<Pair<File, CompilationUnit>> originalUnits, long timeOutTime){
         this.programInfo=programInfo;
         fillNamesToPaths(originalUnits);
         lock = new Object();
         tester = new BinaryReductionTester(lock,programInfo);
+        timeout_time = timeOutTime+System.currentTimeMillis();
     }
 
     @Override
@@ -89,7 +93,7 @@ public class BinaryReduction implements Reduction{
         //Doesn't make sense that we would require multiple closures?
         int r= unknownNodes.size();
         int i=0;
-        while(r>0&&i<=r){
+        while(r>0&&i<=r && (System.currentTimeMillis() < timeout_time)){
 
             HashSet<ClassNode> proposal = new HashSet<>(knownNodes);
             if(proposal.size()==0&&i==0){

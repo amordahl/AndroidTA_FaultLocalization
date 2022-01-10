@@ -1,5 +1,6 @@
 package cs.utd.soles.reduction;
 
+import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
@@ -17,6 +18,7 @@ import com.github.javaparser.resolution.declarations.ResolvedInterfaceDeclaratio
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
+import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserMethodDeclaration;
 import com.github.javaparser.symbolsolver.javassistmodel.JavassistMethodDeclaration;
 import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
@@ -317,10 +319,10 @@ public class HDDReduction implements Reduction{
         if(parentC instanceof ClassOrInterfaceDeclaration) {
             ClassOrInterfaceDeclaration parent = (ClassOrInterfaceDeclaration) parentC;
 
-            if(!parent.isInterface()&&!parent.isAbstract()){
+            /*if(!parent.isInterface()&&!parent.isAbstract()){
                 //dont care about methods that are removeable but can be overriden from superclass.
                 return false;
-            }
+            }*/
 
             NodeList<ClassOrInterfaceType> extendedClassTypes = parent.getExtendedTypes();
             extendedClassTypes.addAll(parent.getImplementedTypes());
@@ -336,6 +338,8 @@ public class HDDReduction implements Reduction{
                         resType = solver.tryToSolveType(rrt.getQualifiedName());
                         //System.out.println("new try: "+resType.isSolved());
                     }
+
+
 
                     if (resType.isSolved()) {
 
@@ -362,10 +366,21 @@ public class HDDReduction implements Reduction{
 
 
                                     String methodSig = JavaByteReader.getMethodSigFromString(things);
-                                    if (methodSig.equals(footPrint)) {
+                                    if (methodSig.equals(footPrint) && yaboy.isAbstract()) {
                                         return true;
                                     }
+                                }
+                                if (methodDecX instanceof JavaParserMethodDeclaration){
+                                    JavaParserMethodDeclaration yaboy = (JavaParserMethodDeclaration) methodDecX;
+                                    String things = yaboy.toString();
 
+                                    things = things.substring(things.indexOf("[") + 1, things.lastIndexOf("]"));
+
+
+                                    String methodSig = JavaByteReader.getMethodSigFromString(things);
+                                    if (methodSig.equals(footPrint) && yaboy.isAbstract()) {
+                                        return true;
+                                    }
                                 }
                             }
                         }
@@ -385,6 +400,19 @@ public class HDDReduction implements Reduction{
                             for (ResolvedMethodDeclaration methodDecX : resMethods) {
                                 if (methodDecX instanceof JavassistMethodDeclaration) {
                                     JavassistMethodDeclaration yaboy = (JavassistMethodDeclaration) methodDecX;
+                                    String things = yaboy.toString();
+
+                                    things = things.substring(things.indexOf("[") + 1, things.lastIndexOf("]"));
+
+
+                                    String methodSig = JavaByteReader.getMethodSigFromString(things);
+                                    if (methodSig.equals(footPrint)) {
+                                        return true;
+                                    }
+
+                                }
+                                if (methodDecX instanceof JavaParserMethodDeclaration) {
+                                    JavaParserMethodDeclaration yaboy = (JavaParserMethodDeclaration) methodDecX;
                                     String things = yaboy.toString();
 
                                     things = things.substring(things.indexOf("[") + 1, things.lastIndexOf("]"));
