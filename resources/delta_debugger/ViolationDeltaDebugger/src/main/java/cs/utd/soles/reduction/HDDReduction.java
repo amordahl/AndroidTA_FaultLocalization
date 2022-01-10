@@ -333,6 +333,7 @@ public class HDDReduction implements Reduction{
                 try {
                     SymbolReference<ResolvedReferenceTypeDeclaration> resType = solver.tryToSolveType(t.getNameWithScope());
                     //check sig in abstract class method, for abstract methods
+
                     ResolvedReferenceType rrt = t.resolve();
                     if (rrt != null && !resType.isSolved()) {
                         resType = solver.tryToSolveType(rrt.getQualifiedName());
