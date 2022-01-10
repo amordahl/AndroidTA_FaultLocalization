@@ -15,11 +15,12 @@ public class SchemaGenerator {
 
 
 
+    public static final String SCHEMA_PATH_DIR= "debugger/tempfiles/schema/";
     public static final String SCHEMA_PATH= "debugger/tempfiles/schema/aql_answer.xsd";
-
     public static void generateSchema() throws IOException {
         File f = Paths.get(SCHEMA_PATH).toFile();
-        f.mkdirs();
+        File fdirs = Paths.get(SCHEMA_PATH_DIR).toFile();
+        fdirs.mkdirs();
         if(f.exists()){
             //if it exists then we should just be done
             return;
