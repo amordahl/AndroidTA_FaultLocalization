@@ -67,7 +67,8 @@ public class MinimizationTarget{
                 File f = new File(projectGradlewPath);
                 f.setExecutable(true);
                 projectAPKPath = pathFile + "/dynamicLoading_DynamicSink1/build/outputs/apk/debug/dynamicLoading_DynamicSink1-debug.apk";
-                projectSrcPath = pathFile + "/dynamicLoading_DynamicSink1/src/main/java/";
+                projectSrcPath = pathFile + "/dynamicLoading_DynamicSink1/src/";
+                projectJavaPath = projectSrcPath+"main/java/";
                 break;
             }
             case "Library2": {
@@ -76,7 +77,8 @@ public class MinimizationTarget{
                 File fw = new File(projectGradlewPath);
                 fw.setExecutable(true);
                 projectAPKPath = pathFile + "/androidSpecific_Library2/build/outputs/apk/debug/androidSpecific_Library2-debug.apk";
-                projectSrcPath = pathFile + "/androidSpecific_Library2/src/main/java/";
+                projectSrcPath = pathFile + "/androidSpecific_Library2/src/";
+                projectJavaPath = projectSrcPath+"main/java/";
                 break;
             }
             case "DynamicBoth1":{
@@ -85,7 +87,8 @@ public class MinimizationTarget{
                 File fw = new File(projectGradlewPath);
                 fw.setExecutable(true);
                 projectAPKPath = pathFile + "/dynamicLoading_DynamicBoth1/build/outputs/apk/debug/dynamicLoading_DynamicBoth1-debug.apk";
-                projectSrcPath = pathFile + "/dynamicLoading_DynamicBoth1/src/main/java/";
+                projectSrcPath = pathFile + "/dynamicLoading_DynamicBoth1/src/";
+                projectJavaPath = projectSrcPath+"main/java/";
                 break;
             }
             case "DynamicSource1":{
@@ -94,7 +97,8 @@ public class MinimizationTarget{
                 File fw = new File(projectGradlewPath);
                 fw.setExecutable(true);
                 projectAPKPath = pathFile + "/dynamicLoading_DynamicSource1/build/outputs/apk/debug/dynamicLoading_DynamicSource1-debug.apk";
-                projectSrcPath = pathFile + "/dynamicLoading_DynamicSource1/src/main/java/";
+                projectSrcPath = pathFile + "/dynamicLoading_DynamicSource1/src/";
+                projectJavaPath = projectSrcPath+"main/java/";
                 break;
             }
             case "DynamicLoadingTarget1":{
@@ -103,7 +107,8 @@ public class MinimizationTarget{
                 File fw = new File(projectGradlewPath);
                 fw.setExecutable(true);
                 projectAPKPath = pathFile + "/dynamicLoading_DynamicLoadingTarget1/build/outputs/apk/debug/dynamicLoading_DynamicLoadingTarget1-debug.apk";
-                projectSrcPath = pathFile + "/dynamicLoading_DynamicLoadingTarget1/src/main/java/";
+                projectSrcPath = pathFile + "/dynamicLoading_DynamicLoadingTarget1/src/";
+                projectJavaPath = projectSrcPath+"main/java/";
                 break;
             }
             case "uk.co.yahoo.p1rpp.calendartrigger_7":{
@@ -121,6 +126,7 @@ public class MinimizationTarget{
                 fw.setExecutable(true);
                 projectAPKPath = pathFile + "/android/build/outputs/apk/debug/android-debug.apk";
                 projectSrcPath = pathFile + "/android/src/";
+                projectJavaPath = projectSrcPath+"main/java/";
                 break;
             }
             case "jackpal.androidterm_72":{
@@ -130,6 +136,7 @@ public class MinimizationTarget{
                 fw.setExecutable(true);
                 projectAPKPath = pathFile + "/term/build/outputs/apk/debug/term-debug.apk";
                 projectSrcPath = pathFile + "/term/src/";
+                projectJavaPath = projectSrcPath+"main/java/";
                 break;
             }
             case "trikita.talalarmo_19":{
@@ -139,6 +146,7 @@ public class MinimizationTarget{
                 fw.setExecutable(true);
                 projectAPKPath = pathFile + "/build/outputs/apk/debug/trikita.talalarmo_19-debug.apk";
                 projectSrcPath = pathFile + "/src/";
+                projectJavaPath = projectSrcPath+"main/java/";
                 break;
             }
 

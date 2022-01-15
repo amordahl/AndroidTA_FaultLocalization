@@ -43,6 +43,10 @@ public class ArgsHandler{
                 argValues.put("BINARY_TIMEOUT_TIME_MINUTES",Integer.parseInt(args[i+1]));
                 i++;
             }
+            if(args[i].equals("-root_projects")){
+                argValues.put("ROOT_PROJECTS_PATH",args[i+1]);
+                i++;
+            }
             //add other args here if we want em
         }
     }

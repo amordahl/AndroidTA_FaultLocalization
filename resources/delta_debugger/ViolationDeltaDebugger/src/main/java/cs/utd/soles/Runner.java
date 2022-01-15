@@ -130,12 +130,14 @@ public class Runner {
         // Collections.sort(bestCUList,cuListComp);
 
         programInfo.getPerfTracker().stopTimer("program_timer");
+
         //handle end line count
         try {
             int count = (int) LineCounter.countLinesDir(programInfo.getTargetProject().getProjectSrcPath());
             programInfo.getPerfTracker().setCount("end_line_count",count);
             String bigString="";
             PerfTracker pt = programInfo.getPerfTracker();
+            bigString+="\n"+pt.printNamedValues();
             bigString+="Counts: \n";
             bigString+=pt.printAllCounts();
             bigString+="\nTimes: \n";
@@ -209,6 +211,12 @@ public class Runner {
         p.addNewTime("time_bad_aql_runs_hdd");
         p.addNewTime("time_good_aql_runs_binary");
         p.addNewTime("time_good_aql_runs_hdd");
+
+
+        //some misc program info
+        p.setNamedValue("violation_type", "null");
+        p.setNamedValue("is_violation", "null");
+
     }
 
 

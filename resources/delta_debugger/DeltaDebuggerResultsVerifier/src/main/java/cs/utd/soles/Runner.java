@@ -333,7 +333,7 @@ public class Runner {
             Collections.sort(headerVals);
             if(first){
                 first=false;
-                String header="apk,config1,config2";
+                String header="apk,config1,config2,";
 
                 for(String heading:headerVals){
                     header=header+heading+",";
@@ -341,15 +341,22 @@ public class Runner {
 
                 header=header.substring(0,header.length()-1);
                 output+=header+"\n";
+                System.out.println(header);
             }
             String line="";
             line+=apkName+","+config1+","+config2+",";
             for(String key:headerVals){
                 line+=mappedValues.get(key)+",";
             }
-            line=line.substring(0,line.length()-1)+"\n";
+            line=line.substring(0,line.length()-1).trim()+"\n";
+            ArrayList<String> crap = new ArrayList<>(mappedValues.keySet());
+            Collections.sort(crap);
+
+            System.out.println(mappedValues.keySet().size()+ " "+crap);
             output+=line;
+            System.out.println(headerVals.size()+ " "+headerVals);
             headerVals=new ArrayList<>();
+
         }
 
         File outF = new File("deltadebugger_results"+Long.toHexString(System.currentTimeMillis()) +".csv");

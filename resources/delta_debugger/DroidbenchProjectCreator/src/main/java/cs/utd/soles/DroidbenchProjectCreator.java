@@ -21,22 +21,24 @@ public class DroidbenchProjectCreator {
     static final String PREFIXWFOSS="D:\\Local_androidTAEnvironment\\fossdroid_android_projects\\";
     static final String PREFIXDROIDL="/home/dakota/documents/droidbench_android_projects/";
 
-    static final String[] POTENTIALPREFIX = {PREFIXL,PREFIXFOSS, PREFIXWFOSS, PREFIXW, PREFIXDROIDL};
+
 
     static String projName;
     static File pathFile;
     public static void createProject(String[] args){
 
+
+
         //handle the args
         handleArgs(args);
-
+        String[] POTENTIALPREFIX = {PREFIXL,PREFIXFOSS, PREFIXWFOSS, PREFIXW, PREFIXDROIDL, args[2]};
         //which project are we copying
-        findAndCopyProject();
+        findAndCopyProject(POTENTIALPREFIX);
 
         Logger.getGlobal().log(Level.INFO, "Project Creation: Success");
     }
 
-    private static void findAndCopyProject() {
+    private static void findAndCopyProject(String[] POTENTIALPREFIX) {
         for(String pre: POTENTIALPREFIX) {
             File projectFile = Paths.get(pre + projName).toFile();
             if (projectFile.exists()) {

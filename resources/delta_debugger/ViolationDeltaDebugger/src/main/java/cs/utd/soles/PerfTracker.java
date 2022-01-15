@@ -10,11 +10,12 @@ public class PerfTracker {
     private HashMap<String,Long> namedTimes;
     private HashMap<String,StopWatch> namedTimers;
     private HashMap<String,Integer> namedCounts;
-
+    private HashMap<String, String> namedValues;
     public PerfTracker(){
         namedTimes = new HashMap<>();
         namedTimers = new HashMap<>();
         namedCounts = new HashMap<>();
+        namedValues = new HashMap<>();
     }
 
     //add a named timer
@@ -138,6 +139,20 @@ public class PerfTracker {
         }
         namedCounts.put(name, count+namedCounts.get(name));
         return true;
+    }
+
+    public boolean setNamedValue(String name, String value){
+        namedValues.put(name,value);
+        return true;
+    }
+
+    //prints values
+    public String printNamedValues(){
+        String returnString="";
+        for(Map.Entry<String, String> e:namedValues.entrySet()){
+            returnString += e.getKey().toString()+": "+e.getValue()+"\n";
+        }
+        return returnString;
     }
 
     //prints stuff for timers

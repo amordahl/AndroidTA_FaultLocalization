@@ -160,12 +160,13 @@ public class SetupClass {
 
         //everything we need is in this here object
         thisViolation = reader.getFlowSet(Paths.get(args[0]).toFile());
-
         apkName="/"+thisViolation.getApk();
-        config1="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig1()+".xml";
-        config2="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig2()+".xml";
+        config1=thisViolation.getConfig1();
+        config2=thisViolation.getConfig2();
         targetType=thisViolation.getType().equalsIgnoreCase("soundness");
         violationOrNot=thisViolation.getViolation().toLowerCase().equals("true");;
+        getPerfTracker().setNamedValue("violation_type",targetType+"");
+        getPerfTracker().setNamedValue("is_violation",violationOrNot+"");
         //the files with no flows we still need the apk info from so that we can save its apk, so figure out the apk from the filename
         //fix apkName
         if(apkName.equals("/")){
@@ -197,8 +198,8 @@ public class SetupClass {
         thisRunName=prefix+"_"+actualAPK+actualConfig1+actualConfig2;
         String pathFile="debugger/project_files/"+thisRunName;
         System.out.println(pathFile);
-
-        String[] args = {actualAPK, pathFile};
+        String projects_dir = getArguments().getValueOfArg("ROOT_PROJECTS_PATH").isPresent()? (String) getArguments().getValueOfArg("ROOT_PROJECTS_PATH").get() : "";
+        String[] args = {actualAPK, pathFile, projects_dir};
         DroidbenchProjectCreator.createProject(args);
         return new MinimizationTarget(actualAPK,pathFile);
     }
