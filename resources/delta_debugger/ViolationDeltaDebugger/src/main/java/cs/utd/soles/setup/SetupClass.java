@@ -171,6 +171,7 @@ public class SetupClass {
         //fix apkName
 
         if(apkName==null){
+            System.out.println("Violation apk was null");
             //TODO:: make a change here because the file name is flowset_violation-false(true),category,apk
             String fileName = Paths.get(args[0]).toFile().getName();
             //split
@@ -196,8 +197,11 @@ public class SetupClass {
         char separatorChar='/';
         if(apkName.contains("\\")){
             separatorChar='\\';
+            apkName=separatorChar+apkName;
         }
-
+        else if(!apkName.contains("/")){
+            apkName="/"+apkName;
+        }
         String actualAPK = apkName.substring(apkName.lastIndexOf(separatorChar)+1,apkName.lastIndexOf(".apk"));
         String actualConfig1 = config1.substring(config1.lastIndexOf(File.separatorChar)+1,config1.lastIndexOf(".xml"));
         String actualConfig2 = config2.substring(config2.lastIndexOf(File.separatorChar)+1,config2.lastIndexOf(".xml"));
