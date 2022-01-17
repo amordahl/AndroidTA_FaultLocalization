@@ -1,0 +1,17 @@
+* Review
+** What I have done
+- Read two journal papers and looked at the flowdroid results from the USENIX'18 paper.
+- Implemented fault localization module into the coverage comparison code.
+- Investigating violation for dataflowsolver flowinsensitive.
+- From Dr. Bodden's ISSTA talk -- flow and context sensitivity cannot occur simultaneously.
+
+* Meeting with Dakota and Dr. Wei
+- Dakota tested 20 jobs at once with Flowdroid, and they all finished in ~9 hours. This is highly suspicious, since it implies each took ~0.25 seconds on average to run.
+- Dakota will inspect the violations produced by the FlowDroid script, to check inconsistencies.
+- Dakota and I worked through the binary reduction algorithm in the paper, and he will work on implementing it in his own code.
+- He had already implemented an algorithm to compute closures but it will produce infinite loops if there is a cycle. I directed him to research some graph APIs that might have a reachability computation built in.
+- Dakota also researched ways to generate the java dependency graph. He found JDeps.
+
+* Meeting with Dr. Wei
+- Went over the dummy main method and tried to figure out what was wrong.
+- Need to change the null parameter being passed to the sendMessage method call to $r0 to see if this fixes the flow-sensitive variant -- if so, why is the flow insensitive one finding the flow?

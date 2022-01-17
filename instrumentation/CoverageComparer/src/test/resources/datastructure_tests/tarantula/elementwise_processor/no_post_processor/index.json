@@ -1,0 +1,6 @@
+{
+  "tests": {
+    "/datastructure_tests/coverage_logs/small_instrumentation_tests/A/coverage_A.json": "/datastructure_tests/tarantula/elementwise_processor/no_post_processor/small_instrumentation_tests/A/answerkey.json"
+  }
+
+}

@@ -1,0 +1,12 @@
+{ 
+  "passed": [
+    "/datastructure_tests/coverage_logs/small_instrumentation_tests/A/2.contentlog",
+    "/datastructure_tests/coverage_logs/small_instrumentation_tests/A/3.contentlog"
+  ],
+  "failed": [
+    "/datastructure_tests/coverage_logs/small_instrumentation_tests/A/1.contentlog",
+    "/datastructure_tests/coverage_logs/small_instrumentation_tests/A/4.contentlog",
+    "/datastructure_tests/coverage_logs/small_instrumentation_tests/A/5.contentlog"
+  ],
+  "localization": "TARANTULA"
+}

@@ -1,0 +1,2 @@
+# Meeting with Dakota and Dr. Wei
+- Dakota was able to run Droidbench results on the violation checker and get violations.

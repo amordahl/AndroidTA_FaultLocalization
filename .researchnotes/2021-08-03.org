@@ -1,0 +1,26 @@
+* Further Investigation of IFDS Solver
+- I set up three variants of Button5.apk to see if the flow sensitive solver could find flows:
+- First, I changed the order of statements in sendmessage, so that setHint first sets the hint in the button, and then getHint is called. *Flow Sensitive still does not find the flow.*
+- Then, I changed the statements and pulled out the log into the top level statement. I moved the setHint method to another method, and then invoked that method before the log was called.
+- Finally, I changed the definition of the method I created in the above step to accept a string as a parameter, and then assign the hint to the parameter (as opposed to setHint being called just on imei). Then I passed imei in from the caller.
+
+* Debugging Case 1
+- This is a strange case, in that the flow should be very easily detected. The code is as follows:
+#+NAME: Button5_Mutant1
+#+BEGIN_SRC java
+  public void sendMessage(View view) {
+      ((Button)view).setHint(imei);
+      Log.i("DroidBench", ((Button)view).getHint().toString());
+  }	
+#+END_SRC
+
+Obviously, the flow is from imei being initialized as the device ID, then set as the button hint, then logged as the button hint. The analyzer should be able to figure out that setHint writes to a heap location that getHint reads.
+
+** Taint Wrapper?
+My first suspicion was that something was wrong with the modelling of setHint and getHint. However, further investigation tells me this is wrong. setHint indeed models a field, hint, that getHint reads.
+
+** Propagation through setHint()
+The propagation through setHint seems to go down correctly. The dataflow solver correctly taints $r2.hint, where $r2 is the Button.
+
+** Propagation through getHint()
+This is where something is going wrong. When I put a breakpoint to catch processing of edges that contain getHint, we do not see the $r2.hint being given as a taint. Only imei is tainted. So somehow, we are losing the taint between setHint and getHint.

@@ -1,0 +1,13 @@
+* Investigation of IFDS Solver
+
+- I found the statement in the IFDS solver that seems to prevent the dataflow solver from being fully sound. Specifically, the line we are looking at is in soot.jimple.infoflow.problems.rules.SinkPropagationRule.java:138. The context is incorrect, in that the abstraction that reaches the sink claims to only be activated when it passes the statement that sets the hint. The abstraction seems to be implemented for the purpose of having flow-sensitive aliasing.
+
+* Meeting with Dr. Wei
+** TODO Get project from Dakota for Button5.apk.
+** TODO Experiments to try
+1. Switch two statements in sendMessage
+2. Move Log.i to caller, and then change sendMessage from a callback to an invokable method. Have new method only setHint, and then run.
+
+Both of these should find the flow, according to the paper.
+
+3. Try the implementation they have in the paper for context injection.

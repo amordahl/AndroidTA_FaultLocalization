@@ -1,0 +1,30 @@
+* Individual Notes
+
+I forgot to take notes yesterday, but I figured out the issue with CHA <=S RTA (see resources/ground_truths.txt for details).
+
+Today, I am investigating the opposite: we have three APKs in which CHA was more sound than RTA.
+
+** CG Differences
+
+I am investigating this violation throuhg DynamicSink1.apk. We see that there are various edges that the call graph for CHA constructs that the call graph for RTA is missing:
+
+)>(r2) in <edu.wayne.cs.FileUtils: void copyDex(android.content.Context,java.lang.String)> ==> <java.io.InputStream: int read(byte[])>
+34d29
+< VIRTUAL edge: $r11 = virtualinvoke $r10.<java.lang.Class: java.lang.Object newInstance()>() in <edu.wayne.cs.MainActivity: void onCreate(android.os.Bundle)> ==> <java.lang.Class: java.lang.Object newInstance()>
+40d34
+< VIRTUAL edge: $r5 = virtualinvoke $r0.<android.content.Context: java.io.File getDir(java.lang.String,int)>("dex", 0) in <edu.wayne.cs.FileUtils: void copyDex(android.content.Context,java.lang.String)> ==> <android.content.ContextWrapper: java.io.File getDir(java.lang.String,int)>
+44d37
+< VIRTUAL edge: $r5 = virtualinvoke r13.<android.telephony.TelephonyManager: java.lang.String getDeviceId()>() in <edu.wayne.cs.MainActivity: void onCreate(android.os.Bundle)> ==> <android.telephony.TelephonyManager: java.lang.String getDeviceId()>
+47d39
+< VIRTUAL edge: $r7 = virtualinvoke $r6.<android.content.res.AssetManager: java.io.InputStream open(java.lang.String)>("dynamic.jar") in <edu.wayne.cs.FileUtils: void copyDex(android.content.Context,java.lang.String)> ==> <android.content.res.AssetManager: java.io.InputStream open(java.lang.String)>
+51,55d42
+< VIRTUAL edge: virtualinvoke $r11.<java.io.IOException: void printStackTrace()>() in <edu.wayne.cs.FileUtils: void copyDex(android.content.Context,java.lang.String)> ==> <java.io.IOException: void printStackTrace()>
+< VIRTUAL edge: virtualinvoke $r19.<java.lang.InstantiationException: void printStackTrace()>() in <edu.wayne.cs.MainActivity: void onCreate(android.os.Bundle)> ==> <java.lang.InstantiationException: void printStackTrace()>
+< VIRTUAL edge: virtualinvoke $r20.<java.lang.IllegalAccessException: void printStackTrace()>() in <edu.wayne.cs.MainActivity: void onCreate(android.os.Bundle)> ==> <java.lang.IllegalAccessException: void printStackTrace()>
+< VIRTUAL edge: virtualinvoke $r7.<java.io.InputStream: void close()>() in <edu.wayne.cs.FileUtils: void copyDex(android.content.Context,java.lang.String)> ==> <java.io.FileInputStream: void close()>
+< VIRTUAL edge: virtualinvoke $r7.<java.io.InputStream: void close()>() in <edu.wayne.cs.FileUtils: void copyDex(android.content.Context,java.lang.String)> ==> <java.io.InputStream: void close()>
+57,58d43
+< VIRTUAL edge: virtualinvoke r12.<edu.wayne.cs.ParentClass: void sink(java.lang.String)>($r5) in <edu.wayne.cs.MainActivity: void onCreate(android.os.Bundle)> ==> <edu.wayne.cs.ParentClass: void sink(java.lang.String)>
+< VIRTUAL edge: virtualinvoke r14.<java.lang.ClassNotFoundException: void printStackTrace()>() in <edu.wayne.cs.MainActivity: void onCreate(android.os.Bundle)> ==> <java.lang.Throwable: void printStackTrace()>
+
+The mechanism of the app is to dynamically invoke classes that are included in a dynamic.jar file. 

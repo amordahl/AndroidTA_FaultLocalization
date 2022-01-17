@@ -1,0 +1,9 @@
+* Meeting with Dr. Wei and Dakota
+- Make change to output to preserve set difference for a violation.
+- Replicate Droidbench 3.0, with AQL.
+- OsmAnd still not compiling, but thankfully that is our only one.
+
+* Meeting with Dr. Wei
+- Idea: track different coverages of the two programs.
+- Android dynamic slicing
+- We need to discuss some different ideas on how to discriminate between 

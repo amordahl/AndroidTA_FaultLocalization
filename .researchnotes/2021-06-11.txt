@@ -1,0 +1,7 @@
+Today I had a meeting with Dr. Wei, where we talked about the infinite loop problem we are facing. Dr. Wei suggested that we look at more code examples, because this is a problem that, presumably, people would have encountered prior to now.
+
+I should email Ali, ask for any insight, and at the same time look for some other papers that also used ASM and try to find any examples.
+
+Also, I should read the code at https://github.com/ali-ghanbari/object-utils/blob/f153138ae9867353b1fabef8ac9958ac70d63bdb/src/main/java/edu/utdallas/objectutils/utils/ObjectPrinter.java, to better understand the method he used to print out object types.
+
+We took a look at the code and found that he was unwrapping objects down to their primitive types. Should we use object-utils? I sent Ali an email and am eagerly awaiting his reply.

@@ -1,0 +1,58 @@
+* Continuing FlowDroid Investigation
+From yesterday, I was still trying to figure out what kills the taint between setHint and getHint(). In the IR, there is a reassignment from the cast of $r1 to $r2; however, this shouldn't kill the taint and it doesn't seem like it should. After processing of the call-to-return edge from setHint to the next statement, we see a call to propagate the dataflow in IFDSSolver:622. A variable existingVal is assigned to the result of addFunction(edge), which adds a jump function into the ICFG.
+
+** DONE What is jumpFunctions for?
+jumpFunctions seems to be a data structure whose purpose is to prevent loops, by preventing edges from processing if we already have processed that edge or the active variant of the edge.
+
+** DONE What is happening to the taint?
+The taint is mysteriously disappearing before it reaches getHint(). When tracking invocations of PathEdgeProcessingTasks, only twice does an edge with the target of getHint() get processed. First, with a taint of imei, and second, with the taint of $r3. However, it never gets called with the taint on $r2.hint.
+
+ANSWER: The taint disappears when processing the statement $r2 = (Button) $r1 after setHint(). We can see this specifically after the call to applyNormalFlowFunction on line 367 of InfoflowProblem.java. The target contains the taint on $r2.hint, yet the call to propagateNormalFlowFunction returns nothing. Something is happening here which kills the taint.
+
+** DONE Which propagation rule is killing the taint?
+The StrongUpdatePropagationRule is killing the taint. On line 79 of the strong propagation rule, there is a rule to kill taints where x = y and x.f is tainted. This happens when $r1 is cast to a button type ($r2 = (Button) $r1). However, this implementation is unsound, because what should be happening is that if x and y alias each other, the taint should not be killed.
+
+** Conclusion
+Although this was not one of the original test cases we had, this is still an interesting problem in FlowDroid, and we should remember this for the future.
+
+
+* Next Mutant: Explicitly call method twice.
+
+I created the following application:
+
+#+BEGIN_SRC java
+public class Button1 extends Activity {
+	private static String imei = null;
+	private static Data x = new Data();
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_button1);
+
+        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        imei = telephonyManager.getDeviceId(); //source
+        setHintOfButton(findViewById(R.layout.activity_button1));
+        setHintOfButton(findViewById(R.layout.activity_button1));
+    }
+
+    private void setHintOfButton(View view) {
+        Log.i("DroidBench", ((Button)view).getHint().toString());
+        ((Button)view).setHint(imei);
+    }
+    public void sendMessage(Button button) {
+        return;
+    }
+}
+#+END_SRC
+
+which the flow sensitive variant of FlowDroid still cannot find (i.e., the default configuration of FlowDroid). Obviously, the flow happens from the source, through the first call of setHintOfButton, to the second one.
+
+** DONE Why isn't the flow being found?
+
+This is the same issue as the original APK, in that the tainted value retains the activation statement.
+
+** TODO Track the flow from when setHint originally adds the taint.
+
+The flow arrives at setHint() with $r4 tainted. This edge is processed normally, and it appears that the activation unit is added in FlowSensitiveAliasStrategy.java:34, when the backward analyzer is started.
+
+

@@ -1,0 +1,5 @@
+Today, I was hampered by a lot of trouble. My workstation wouldn't start, so I had to fix that. Then, I wrote the small program for instrumenting.
+
+I had a lot of problems with that program, since it was misconfigured to compile with java 11 instead of java 8.
+
+I have a 1:00 meeting with Dr. Wei tomorrow, by which time I need to have an actual loop from the results. I hope to find this tonight or tomorrow morning.

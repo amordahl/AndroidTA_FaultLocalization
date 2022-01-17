@@ -1,3 +1,6 @@
 [submodule "resources/modified_flowdroid/FlowDroid"]
 	path = resources/modified_flowdroid/FlowDroid
 	url = https://github.com/Pancax/FlowDroid.git
+[submodule "fuzzing/checkmate"]
+	path = fuzzing/checkmate
+	url = git@github.com:amordahl/checkmate.git

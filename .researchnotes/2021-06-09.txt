@@ -1,0 +1,39 @@
+Today, I am doing the following:
+
+1. Helping Dakota solve his problem with flowdroid. Probably just a case of his paths being wrong in either/both his config file and his .sh shell file.
+2. Continuing working on my Flowdroid instrumentation in ASM.
+
+The problem I am facing with ASM is that it is complaining about multiple class definitions. Specifically, running the following command:
+
+java.lang.LinkageError: loader (instance of  sun/misc/Launcher$AppClassLoader): attempted  duplicate class definition for name: "soot/ModuleRefType"
+	at java.lang.ClassLoader.defineClass1(Native Method)
+	at java.lang.ClassLoader.defineClass(ClassLoader.java:756)
+	at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:142)
+	at java.net.URLClassLoader.defineClass(URLClassLoader.java:468)
+	at java.net.URLClassLoader.access$100(URLClassLoader.java:74)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:369)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:363)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:362)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:418)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:352)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:351)
+	at soot.SootClass.initializeRefType(SootClass.java:154)
+	at soot.SootClass.<init>(SootClass.java:136)
+	at soot.SootClass.<init>(SootClass.java:126)
+	at soot.SootResolver.makeClassRef(SootResolver.java:124)
+	at soot.SootResolver.resolveClass(SootResolver.java:139)
+	at soot.Scene.tryLoadClass(Scene.java:968)
+	at soot.Scene.loadBasicClasses(Scene.java:1684)
+	at soot.Scene.loadNecessaryClasses(Scene.java:1784)
+	at soot.jimple.infoflow.android.SetupApplication.initializeSoot(SetupApplication.java:1087)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:1331)
+	at soot.jimple.infoflow.android.SetupApplication.runInfoflow(SetupApplication.java:1306)
+	at soot.jimple.infoflow.cmd.MainClass.run(MainClass.java:334)
+	at soot.jimple.infoflow.cmd.MainClass.main(MainClass.java:232)
+[DestroyJavaVM] INFO PrimaryTransformer - Not instrumenting class java/util/IdentityHashMap$KeyIterator
+[DestroyJavaVM] INFO PrimaryTransformer - Not instrumenting class java/util/IdentityHashMap$IdentityHashMapIterator.
+
+I was able to fix this issue by changing the flag passed to the ClassReader from COMPUTE_FRAMES. This fixed the class discovery issue. It seems that the filters I have added to my code are sufficient for avoiding the tricky edge cases, but now I am struggling with infinite loops caused by the invocation of toString.
+
+I tried downloading a graph library to track cycles, however this does not appear to work currently.

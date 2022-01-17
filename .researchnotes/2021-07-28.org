@@ -1,0 +1,9 @@
+* Research Notes
+- I have continued attempting to debug the dataflowsolver problem.
+
+** Theory 1: The dummy main method is incorrectly modeling the method calls.
+*** Test: I went into the code to generate the dummy main method, and duplicated the line that adds callback methods in (i.e., the call to "buildMethodCall" on line 320 of AbstractComponentEntryPointCreator.java)
+*** Result: This isn't the issue -- even duplicating the method changed nothing, indicating the problem is something deeper into the flow sensitive dataflow solver.
+
+** Attempt 2: Try localizing by replacement.
+*** Interesting finding -- changing the 

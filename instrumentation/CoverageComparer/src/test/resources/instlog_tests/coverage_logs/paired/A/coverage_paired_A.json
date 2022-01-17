@@ -1,0 +1,27 @@
+{
+  "failed": [
+    "/instlog_tests/coverage_logs/paired/A/A1/coverage_log_A1_3.instlog",
+    "/instlog_tests/coverage_logs/paired/A/A1/coverage_log_A1_4.instlog"
+  ],
+  "passed": [
+    "/instlog_tests/coverage_logs/paired/A/A1/coverage_log_A1_1.instlog",
+    "/instlog_tests/coverage_logs/paired/A/A1/coverage_log_A1_2.instlog"
+  ],
+  "other": [ 
+    "/instlog_tests/coverage_logs/paired/A/A2/coverage_log_A2_1.instlog",
+    "/instlog_tests/coverage_logs/paired/A/A2/coverage_log_A2_2.instlog",
+    "/instlog_tests/coverage_logs/paired/A/A2/coverage_log_A2_3.instlog",
+    "/instlog_tests/coverage_logs/paired/A/A2/coverage_log_A2_4.instlog"
+  ],
+  "pairs": { 
+  	"/Users/austin/git/AndroidTA_FaultLocalization/instrumentation/CoverageComparer/target/test-classes/instlog_tests/coverage_logs/paired/A/A1/coverage_log_A1_1.instlog":
+  		"/Users/austin/git/AndroidTA_FaultLocalization/instrumentation/CoverageComparer/target/test-classes/instlog_tests/coverage_logs/paired/A/A2/coverage_log_A2_1.instlog",
+  	"/Users/austin/git/AndroidTA_FaultLocalization/instrumentation/CoverageComparer/target/test-classes/instlog_tests/coverage_logs/paired/A/A1/coverage_log_A1_2.instlog":
+  		"/Users/austin/git/AndroidTA_FaultLocalization/instrumentation/CoverageComparer/target/test-classes/instlog_tests/coverage_logs/paired/A/A2/coverage_log_A2_2.instlog",
+   	"/Users/austin/git/AndroidTA_FaultLocalization/instrumentation/CoverageComparer/target/test-classes/instlog_tests/coverage_logs/paired/A/A1/coverage_log_A1_3.instlog":
+  		"/Users/austin/git/AndroidTA_FaultLocalization/instrumentation/CoverageComparer/target/test-classes/instlog_tests/coverage_logs/paired/A/A2/coverage_log_A2_3.instlog",
+  	"/Users/austin/git/AndroidTA_FaultLocalization/instrumentation/CoverageComparer/target/test-classes/instlog_tests/coverage_logs/paired/A/A1/coverage_log_A1_4.instlog":
+  		"/Users/austin/git/AndroidTA_FaultLocalization/instrumentation/CoverageComparer/target/test-classes/instlog_tests/coverage_logs/paired/A/A2/coverage_log_A2_4.instlog"
+  },
+  "localization": "TARANTULA"
+}

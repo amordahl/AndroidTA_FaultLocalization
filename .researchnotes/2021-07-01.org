@@ -1,0 +1,7 @@
+* Meeting with Dr. Wei and Dakota
+** TODO Modify the violation checker.
+- input: already done.
+- output: for each pair of configurations, a map mapping apks to the flows that should be preserved, and a flag indicating which pairs were violations.
+** TODO Modify the delta debugger
+- as input, the delta debugger should take the 
+** TODO come up with good ground truths 

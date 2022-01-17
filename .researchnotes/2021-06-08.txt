@@ -1,0 +1,5 @@
+Today, I continued working on the code for my instrumenter.
+
+I solved the infinite recursion issue by adding filters to the top of the visitMethodInsn to prevent it from looping. I also added temporary (fingers crossed) filters to stop us from instrtumenting anything with a double or long value, since those are 8 bytes long and need to be handled specially.
+
+It looks like the instrumentation is working as intended now, but we're snagging on a corner case where there is a duplicate definition of a class that is being picked up. I will continue working on this tomorrow.

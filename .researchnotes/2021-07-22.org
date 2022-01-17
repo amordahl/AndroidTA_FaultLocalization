@@ -1,0 +1,10 @@
+* Meeting with Dr. Wei
+- Discussed findings from preliminary analysis of coverage information.
+
+** TODO Items discussed
+- Data show that coverage information is not sufficient to figure out root cause.
+- Strange outliers in data.
+
+* Independent Investigation
+- The reason for the outlier in callbackanalyzer FAST is because InactiveActivity has no entry points according to FlowDroid.
+- The reason that analyzeframeworks executes code in InterproceduralConstantValuePropagator is because of the code on line 170 in that file -- this guard is controlled by analyzeframeworks, and determines which of the methods to include in the worklist.

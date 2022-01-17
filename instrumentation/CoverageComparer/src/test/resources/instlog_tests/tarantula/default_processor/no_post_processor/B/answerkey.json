@@ -1,0 +1,10 @@
+{
+  "failed_size": 1,
+  "passed_size": 2,
+  "localization": "tarantula",
+  "tarantula": {
+    "B:5": 1.0,
+    "B:6": 1.0,
+    "B:7": 0
+  }
+}

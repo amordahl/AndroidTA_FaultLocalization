@@ -1,0 +1,13 @@
+* Individual Notes
+
+Today, I need to transition to a new investigation. Let's transition to the taintwrapper, and see why defaultfallback is missing flows that default is not.
+
+* Meeting with Dr. Wei and Dakota
+
+** How to evaluate the fault localization approach?
+
+Case studies on real violations? We select some ground truths that we are particularly confident in, and go through the cause of the violation.
+
+** Miscellaneous Points
+
+The paper should start with the insight that existing approaches do not suffice for localizing bugs in configurable static analysis.

@@ -1,0 +1,18 @@
+* Meeting with Dakota and Dr. Wei
+
+** TODO Check if violations on wishmaster are recreatable.
+** TODO Dakota needs to create the Android projects.
+~1/3 of APKs are done.
+** Other points discussed:
+- The input to the delta-debugger should be maps telling the delta debugger what flows to preserve on each APK on each configuration.
+- Then we pass this result to a fault localization.
+** TODO Retool output of the violation checker.
+- For each partial order, on each APK, produce a list of flows the delta-debugger should preserve.
+  - For non-violations, preserve the true/false positives on both for sound/precise
+  - For violations, preserve the difference.
+
+* Dry Run of talk with Dr. Wei
+- Between 7 and 8, a better animation to transition.
+- 9 and 10, combine goals and contributions.
+
+

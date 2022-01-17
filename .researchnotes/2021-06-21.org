@@ -1,0 +1,23 @@
+Today, I had to move all of my working hours to the afternoon to deal with some stuff in the morning.
+
+I met with Dakota and Dr. Wei this morning.
+
+* Meeting with Dakota:
+- He discussed some new results.
+- Dakota added wishmaster (the large app), and only four of them are done by today.
+- The rest have been running for two days so far.
+- We are intersted in more data, but the data we see so far is interesting. The vast majority of minimization takes place near the beginning of the process. We will wait to see more from Dakota before we decide on the specific optimizations to try.
+
+** TODO Dakota will write the code to run every pair of APKs per violation.
+** TODO Dakota will generate some more intuitive graphs, that we can look at and decide on the types of optimizations to do.
+
+* My Own Work.
+
+** DONE Outline of talk
+** TODO ObjSim debugging.
+*** DONE What is the prelude transformer?
+The prelude transformer performs transformations to track field accesses.
+*** DONE Why is it failing? 
+The prelude transformer appears to not be failing, rather, it is just producing null field accesses.
+*** DONE What can we do to fix it?
+At this point, I'm unsure whether the prelude transformer is even necessary to the execution of the program. Thus, I am trying to strip it out and see if we can go without it.

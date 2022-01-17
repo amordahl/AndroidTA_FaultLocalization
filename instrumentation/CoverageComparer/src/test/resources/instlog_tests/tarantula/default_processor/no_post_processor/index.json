@@ -1,0 +1,8 @@
+{
+  "tests": {
+    "/instlog_tests/coverage_logs/A/coverage_A.json": "/instlog_tests/tarantula/default_processor/no_post_processor/A/answerkey.json",
+    "/instlog_tests/coverage_logs/B/coverage_B.json": "/instlog_tests/tarantula/default_processor/no_post_processor/B/answerkey.json",
+    "/instlog_tests/coverage_logs/C/coverage_C.json": "/instlog_tests/tarantula/default_processor/no_post_processor/C/answerkey.json"
+  }
+
+}

@@ -1,0 +1,21 @@
+* Meeting with Dakota and Dr. Wei
+
+- Just running binary reduction algorithm on budgetwatch removed about 75% of the code in budgetwatch in about 6-7 minutes, but 0% of wfwt.
+
+* Meeting with Dr. Wei
+- We should keep in mind the idea of mutating FlowDroid in order to produce more 
+
+* Tasks for Today
+** DONE Why do we need to loop and do the binary search? Why not just return the first closure that reproduces the violation?
+** DONE Email Sai to arrange a meeting.
+** DONE Create a file to hold all of our ground truths.
+** DONE Refresh myself on the particulars of CHA and RTA.
+
+The principle difference between CHA and RTA is that CHA will try to resolve method calls in the subtree of the class hierarchy that is rooted at the defined type of the variable. RTA, on the other hand, will reduce this subtree to contain only classes that are actually used in the program.
+
+A good resource is at https://dl.acm.org/doi/10.1145/236338.236371
+
+** TODO Begin investigating FlowDroid to determine the reason behind the violation between CHA and RTA. Is RTA actually supposed to be as sound as CHA?
+
+While I have read a website saying that RTA suffers from soundness issues, that does not appear to be relevant here since the actual issue is that CHA is missing flows that RTA finds. In AnonymousClass1.apk, the RTA analysis finds two flows, while CHA finds none.
+

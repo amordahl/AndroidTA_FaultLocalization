@@ -1,0 +1,9 @@
+Today, we had a big discussion about the work and what the evaluation should look like. It appears I am conflating two separate questions:
+
+1. Do I have a problem with how fault localization is generally evaluated?
+2. What about our problem necessitates a different fault localization strategy?
+
+In order to answer these questions, there are two things I need to do:
+
+1. Look through the literature to find user studies and other evaluations of fault localization. Understand what metrics they use and what the user studies that have been done show.
+2. Formalize our problem in the paper, and specify the differences in the input and how those differences require a different approach to fault localiztion (or do they?)

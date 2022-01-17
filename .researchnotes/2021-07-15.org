@@ -1,0 +1,3 @@
+* Meeting with Dakota and Shiyi
+- Dakota has still been working on resolving issues in the build.
+** TODO How is he identifying these issues? Can we write some sanity checks just to check the configuration?

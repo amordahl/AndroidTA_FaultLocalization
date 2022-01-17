@@ -1,0 +1,27 @@
+1. Violation of codeeliminationmode |-> REMOVECODE <=S default
+
+Ground truth is in InterproceduralConstantValuePropagator.java:612, in the implementation of hasSideEffectsOrReadsSink. hasSideEffectsOrReadsThis(), which is called from internalTransform() on line 259:
+
+boolean remove = callee.getReturnType() == VoidType.v() && !hasSideEffectsOrReadsThis(callee);
+remove |= !hasSideEffectsOrCallsSink(callee);
+
+The call to hasSideEffectsOrReadsThis will store false in methodSideEffects if the method has no side effects and doesn't read the "this" variable. Then, in the code for hasSideEffectsOrCallsSink(), on line 610, the method checks if hasSideEffects is set. No matter what the value, if hasSideEffects is set, it returns the value. Thus, even if hasSideEffects is false, but the method has a sink, it will be removed.
+
+2. Violation of callbackanalyzer |-> FAST <=S callbackanalyzer |-> DEFAULT
+
+Ground truth is line 50 of FastCallbackAnalyzer.java, which contains a call to analyzemethodForCallbackRegistrations. This passes null as the first parameter, which causes anonymous classes to be missing the mapping to their enclosing class.
+
+3. Violation of dataflowsolver |-> FLOWSENSITIVE <=S dataflowsolver |-> FLOWINSENSITIVE
+
+Ground truth is in FlowSensitiveAliasStrategy.java:31, inside the definition of computeAliasTaints, where the activation unit is added through deriveInactiveAbstraction, and the backward solver is spawned. For methods that are in a cycle on the ICFG, it is possible that they may be called twice (such as in Button5), and so the activation unit being added to make the abstraction inactive is unsound.
+
+4. Additional problem in dataflowsolver |-> FLOWSENSITIVE <=S dataflowsolver |-> FLOWINSENSITIVE
+
+Ground truth is in StrongUpdatePropagationRule:79. Note that this is not an original violation, but one on a mutant of Button5.apk. I created a mutant of Button5.apk by switching the statement order in sendMessage(). Recall the flow in Button5 happens on the second invocation of sendMessage -- however, in this case, it would happen the first time. The reason the analysis doesn't model this correctly is that the StrongUpdatePropagationRule is killing the taint. On line 79 of the strong propagation rule, there is a rule to kill taints where x = y and x.f is tainted. This happens when $r1 is cast to a button type ($r2 = (Button) $r1). However, this implementation is unsound, because what should be happening is that if x and y alias each other, the taint should not be killed.
+
+5. Violation of cgalgo |-> CHA <=S cgalgo |-> RTA
+
+The ground truth I propose is in AbstractCallbackAnalyzer.java:229-231. This code is part of the callback analyzer, which tries to find new callbacks to add to the callgraph and the dummy main method. Basically, RTA is actually implemented on top of Spark, while CHA is its own implementation. This part of the code is part of a loop in analyzeMethodForCallbackRegistrations. This method iterates through the lines of a method, looking for callback registrations -- it does this by iterating through the parameters of each invoke expression to see if the parameter is a component that implements callbacks (e.g., an anonymous inner class). RTA consults its points-to analysis, and as suck, the call to Scene.v().getPointsToAnalysis().reachingObjects().possibleTypes() returns a list of potential types. In the case of AnonymousClass1.apk, it correctly determines that one possible type of the parameter of type LocationListener is the anonymous class defined in AnnonymousClass [sic]. It thus adds that class to its callback worklist, and processes the callback. CHA uses an instance of DumbPointsToAnalysis, which just returns that the possible type of the parameter is any subtype of LocationListener. Critically, this is not represented as a list of types as in RTA, but simply as an instance of AnySubType, which represents the fact that the type is any subtype of LocationListener. However, because it does not actually search for subtypes, the subsequent loop on lines 231-245 never iterates over AnnonymousClass$1 (the anonymous implementation of LocationListener), and thus, never adds AnnonymousClass1$1 to its callback classes.
+
+This is a tricky ground truth, since really, I think the problem is that CHA does not set up a points-to analysis. However, we can't point to a specific line of the CHA implementation that should set up a points-to analysis, so this part of the code, where the consequence of not having a points-to analysis manifests, is sufficient.
+

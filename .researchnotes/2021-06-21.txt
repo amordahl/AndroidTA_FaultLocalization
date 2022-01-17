@@ -1,0 +1,9 @@
+Today, I had to move all of my working hours to the afternoon to deal with some stuff in the morning.
+
+I met with Dakota and Dr. Wei this morning.
+
+Meeting with Dakota:
+- He discussed some new results.
+- Dakota added wishmaster (the large app), and only four of them are done by today.
+- The rest have been running for two days so far.
+- We are intersted in more data, but the data we see so far is interesting. The vast majority of minimization takes place near the beginning of the process. We will wait to see more from Dakota before 
