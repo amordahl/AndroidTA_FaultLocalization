@@ -160,7 +160,7 @@ public class SetupClass {
 
         //everything we need is in this here object
         thisViolation = reader.getFlowSet(Paths.get(args[0]).toFile());
-        apkName="/"+thisViolation.getApk();
+        apkName=thisViolation.getApk();
         config1=thisViolation.getConfig1();
         config2=thisViolation.getConfig2();
         targetType=thisViolation.getType().equalsIgnoreCase("soundness");
@@ -170,7 +170,7 @@ public class SetupClass {
         //the files with no flows we still need the apk info from so that we can save its apk, so figure out the apk from the filename
         //fix apkName
 
-        if(apkName.equals("/")){
+        if(apkName==null){
             //TODO:: make a change here because the file name is flowset_violation-false(true),category,apk
             String fileName = Paths.get(args[0]).toFile().getName();
             //split
@@ -193,9 +193,9 @@ public class SetupClass {
 
         //this pathfile needs to be unique so it will be apk_config1_config2
 
-        char separatorChar='\\';
-        if(apkName.contains("/")){
-            separatorChar='/';
+        char separatorChar='/';
+        if(apkName.contains("\\")){
+            separatorChar='\\';
         }
 
         String actualAPK = apkName.substring(apkName.lastIndexOf(separatorChar)+1,apkName.lastIndexOf(".apk"));
