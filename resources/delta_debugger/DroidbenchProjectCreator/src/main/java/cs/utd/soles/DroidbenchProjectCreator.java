@@ -16,42 +16,41 @@ import java.util.logging.Logger;
 
 public class DroidbenchProjectCreator {
     static final String PREFIXW="D:\\Local_androidTAEnvironment\\Droidbench_projects\\";
-    static final String PREFIXL="/home/dakota/documents/AndroidTAEnvironment/resources/droidbench_android_projects/";
+    static final String PREFIXL="/home/dakota/AndroidTA/AndroidTAEnvironment/resources/droidbench_android_projects/";
     static final String PREFIXFOSS="/home/dakota/documents/fossdroid_android_projects/";
+    static final String PREFIXWFOSS="D:\\Local_androidTAEnvironment\\fossdroid_android_projects\\";
+    static final String PREFIXDROIDL="/home/dakota/documents/droidbench_android_projects/";
 
-    static final String[] POTENTIALPREFIX = {PREFIXL,PREFIXFOSS};
+
+
     static String projName;
     static File pathFile;
     public static void createProject(String[] args){
 
+
+
         //handle the args
         handleArgs(args);
-
+        String[] POTENTIALPREFIX = {PREFIXL,PREFIXFOSS, PREFIXWFOSS, PREFIXW, PREFIXDROIDL, args[2]};
         //which project are we copying
-        findAndCopyProject();
+        findAndCopyProject(POTENTIALPREFIX);
 
         Logger.getGlobal().log(Level.INFO, "Project Creation: Success");
     }
 
-    private static void findAndCopyProject() {
-        if(System.getProperty("os.name").toLowerCase().contains("win")){
-            createCopy(Paths.get(PREFIXW+projName).toFile());
-        }else{
-
-            for(String pre: POTENTIALPREFIX) {
-                File projectFile = Paths.get(pre + projName).toFile();
-                if (projectFile.exists()) {
-                    //if our project is exists then lets copy it
-                    createCopy(projectFile);
-                    return;
-                }
+    private static void findAndCopyProject(String[] POTENTIALPREFIX) {
+        for(String pre: POTENTIALPREFIX) {
+            File projectFile = Paths.get(pre + projName).toFile();
+            if (projectFile.exists()) {
+                //if our project is exists then lets copy it
+                createCopy(projectFile);
+                return;
             }
-
-
-            Logger.getGlobal().log(Level.INFO, "Project Creation: Failure");
-            System.exit(-1);
         }
 
+
+        Logger.getGlobal().log(Level.INFO, "Project Creation: Failure");
+        System.exit(-1);
     }
 
     private static void handleArgs(String[] args) {

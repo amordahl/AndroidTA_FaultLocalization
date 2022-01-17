@@ -30,6 +30,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
@@ -100,6 +101,30 @@ public abstract class XMLFlowFileReader implements FlowFileReader {
         xmlReader.parse(convertToFileURL(flowFile.getAbsolutePath()));
         return getFlowIterator(fh);
     }
+    public ArrayList<ArrayList<Flow>> getPreserveFlowList(File file, File schemaFile) throws IOException, SAXException, ParserConfigurationException {
+        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+        if (schemaFile != null) {
+            // Need to set these properties for the sax parser factory in order for
+            // validation to actually occur.
+            saxParserFactory.setNamespaceAware(true);
+            saxParserFactory.setValidating(true);
+        }
+        SAXParser saxParser = saxParserFactory.newSAXParser();
+        if (schemaFile != null) {
+            saxParser.setProperty(SAXLocalNameCount.JAXP_SCHEMA_LANGUAGE, SAXLocalNameCount.W3C_XML_SCHEMA);
+            saxParser.setProperty(SAXLocalNameCount.JAXP_SCHEMA_SOURCE, schemaFile);
+        }
+        XMLReader xmlReader = saxParser.getXMLReader();
+        DefaultHandler fh = getFlowHandler();
+        xmlReader.setContentHandler(fh);
+        xmlReader.setErrorHandler(fh);
+        xmlReader.parse(convertToFileURL(file.getAbsolutePath()));
+        return getPreserveIterator(fh);
+    }
+
+    protected abstract ArrayList<ArrayList<Flow>> getPreserveIterator(DefaultHandler fh);
+
+
 
     /**
      * Get a SAX handler to perform the XML parsing. Should override {@link DefaultHandler}
@@ -110,7 +135,6 @@ public abstract class XMLFlowFileReader implements FlowFileReader {
      * @return The implementation of DefaultHandler.
      */
     abstract DefaultHandler getFlowHandler();
-
     /**
      * Given an implementation of {@link DefaultHandler}, use it to
      * parse the XML file and read the flows.
