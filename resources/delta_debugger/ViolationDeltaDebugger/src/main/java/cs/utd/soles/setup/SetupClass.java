@@ -193,9 +193,14 @@ public class SetupClass {
 
         //this pathfile needs to be unique so it will be apk_config1_config2
 
-        String actualAPK = apkName.substring(apkName.lastIndexOf("/")+1,apkName.lastIndexOf(".apk"));
-        String actualConfig1 = config1.substring(config1.lastIndexOf("/")+1,config1.lastIndexOf(".xml"));
-        String actualConfig2 = config2.substring(config2.lastIndexOf("/")+1,config2.lastIndexOf(".xml"));
+        char separatorChar='\\';
+        if(apkName.contains("/")){
+            separatorChar='/';
+        }
+
+        String actualAPK = apkName.substring(apkName.lastIndexOf(separatorChar)+1,apkName.lastIndexOf(".apk"));
+        String actualConfig1 = config1.substring(config1.lastIndexOf(File.separatorChar)+1,config1.lastIndexOf(".xml"));
+        String actualConfig2 = config2.substring(config2.lastIndexOf(File.separatorChar)+1,config2.lastIndexOf(".xml"));
         thisRunName=prefix+"_"+actualAPK+actualConfig1+actualConfig2;
         String pathFile="debugger/project_files/"+thisRunName;
         System.out.println(pathFile);

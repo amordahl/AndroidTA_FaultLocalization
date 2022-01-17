@@ -31,7 +31,7 @@ public class DroidbenchProjectCreator {
 
         //handle the args
         handleArgs(args);
-        String[] POTENTIALPREFIX = {PREFIXL,PREFIXFOSS, PREFIXWFOSS, PREFIXW, PREFIXDROIDL, args[2]};
+        String[] POTENTIALPREFIX = {args[2]};
         //which project are we copying
         findAndCopyProject(POTENTIALPREFIX);
 
