@@ -170,6 +170,10 @@ public class SetupClass {
         //the files with no flows we still need the apk info from so that we can save its apk, so figure out the apk from the filename
         //fix apkName
 
+        System.out.println("APK: "+apkName);
+        System.out.println("Config 1: "+config1);
+        System.out.println("Config 2: "+config2);
+
         if(apkName==null){
             System.out.println("Violation apk was null");
             //TODO:: make a change here because the file name is flowset_violation-false(true),category,apk
