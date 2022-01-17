@@ -288,6 +288,7 @@ public class SchemaGenerator {
             "            <xsd:attribute type=\"xsd:string\" name=\"config2\"/>\n" +
             "            <xsd:attribute type=\"xsd:string\" name=\"type\"/>\n" +
             "            <xsd:attribute type=\"xsd:string\" name=\"violation\"/>\n" +
+            "            <xsd:attribute type=\"xsd:string\" name=\"partial_order\"/>\n"     +
             "        </xsd:complexType>\n" +
             "    </xsd:element>\n" +
             "    <xsd:element name=\"classification\" type=\"xsd:string\"/>\n" +

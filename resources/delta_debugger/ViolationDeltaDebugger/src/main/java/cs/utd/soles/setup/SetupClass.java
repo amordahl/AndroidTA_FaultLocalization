@@ -169,8 +169,9 @@ public class SetupClass {
         getPerfTracker().setNamedValue("is_violation",violationOrNot+"");
         //the files with no flows we still need the apk info from so that we can save its apk, so figure out the apk from the filename
         //fix apkName
-        if(apkName.equals("/")){
 
+        if(apkName.equals("/")){
+            //TODO:: make a change here because the file name is flowset_violation-false(true),category,apk
             String fileName = Paths.get(args[0]).toFile().getName();
             //split
             //flowset, violation-false(true), apk, split
