@@ -206,13 +206,14 @@ public class SetupClass {
         else if(!apkName.contains("/")){
             apkName="/"+apkName;
         }
-        String actualAPK = apkName.substring(apkName.lastIndexOf(separatorChar)+1,apkName.lastIndexOf(".apk"));
 
-        String cutOff1 =  config1.substring(config1.lastIndexOf(File.separatorChar)+1);
-        String cutOff2 =  config2.substring(config2.lastIndexOf(File.separatorChar)+1);
+        String actualAPK = apkName.substring(apkName.lastIndexOf(separatorChar)+1,apkName.lastIndexOf(".apk"));
+        String cutOff1 = config1.substring(config1.lastIndexOf(File.separatorChar)+1);
+        String cutOff2 = config2.substring(config2.lastIndexOf(File.separatorChar)+1);
         String actualConfig1 = cutOff1.substring(0,cutOff1.indexOf("_"));
         String actualConfig2 = cutOff2.substring(0,cutOff2.indexOf("_"));
         String category = cutOff1.substring(actualConfig1.length()+1,cutOff1.lastIndexOf("_"));
+
         //TODO:: change this to (c1hash)_(c2hash)_category_apkname
         if(category.equalsIgnoreCase("InterComponentCommunication")){
 

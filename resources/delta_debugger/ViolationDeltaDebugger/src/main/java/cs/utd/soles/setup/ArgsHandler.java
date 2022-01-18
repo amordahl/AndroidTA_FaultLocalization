@@ -31,7 +31,7 @@ public class ArgsHandler{
             }
             if(args[i].equals("-p")){
                 String prefix=args[i+1];
-                prefix = ""+thisViolation.getConfig1()+"_"+thisViolation.getConfig2()+"/"+prefix.replace("/","");
+                prefix = prefix.replace("/","-");
                 argValues.put("RUN_PREFIX",prefix);
                 i++;
             }
