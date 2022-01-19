@@ -20,9 +20,10 @@ public class Runner {
         File debuggerDir = Paths.get(args[0]).toFile();
 
         List<File> everyrunFile = new ArrayList<>();
-        File[] allDirFile = debuggerDir.listFiles();
+        String[] extensions = {"txt"};
+        //File[] allDirFile = debuggerDir.listFiles();
         //System.out.println(allDirFile);
-        for(File x: allDirFile) {
+        /*for(File x: allDirFile) {
             String[] extensions = {"txt"};
             if(x.isDirectory()) {
                 List<File> allTXTFiles = ((List<File>) FileUtils.listFiles(x, extensions, false));
@@ -30,7 +31,10 @@ public class Runner {
                 everyrunFile.addAll(allTXTFiles);
             }
 
-        }
+        }*/
+        List<File> allTXTFiles = ((List<File>) FileUtils.listFiles(debuggerDir, extensions, false));
+        everyrunFile.addAll(allTXTFiles);
+
         String runprefix="";
         if(args.length>1) {
 
@@ -254,13 +258,15 @@ public class Runner {
             }
 
             //get the data, verify the results
-            String name = x.getName().replace("_time.txt","");
+            String fname = x.getName().replace("_time.txt","");
             //apk config1 config2
-            String apkName = name.substring(runprefix.length()+1, name.indexOf("config"));
-            name = name.substring(runprefix.length()+1+apkName.length());
-            String config1 = name.substring(0, name.lastIndexOf("config"));
-            name = name.substring((config1.length()));
-            String config2 = name.substring(0);
+
+            fname = fname.substring(runprefix.length()+2);
+
+
+            //category,apk,config1,config2
+            String[] components = fname.split("_");
+
 
             Scanner sc = new Scanner(x);
             String in="";
@@ -333,7 +339,7 @@ public class Runner {
             Collections.sort(headerVals);
             if(first){
                 first=false;
-                String header="apk,config1,config2,";
+                String header="apk,category,violation_type,is_violation,config1,config2,";
 
                 for(String heading:headerVals){
                     header=header+heading+",";
@@ -344,7 +350,9 @@ public class Runner {
                 System.out.println(header);
             }
             String line="";
-            line+=apkName+","+config1+","+config2+",";
+            line+=components[1]+","+components[0]+","+mappedValues.get("violation_type")+","+mappedValues.get("is_violation")+","+components[2]+","+components[3]+",";
+            mappedValues.remove("violation_type");
+            mappedValues.remove("is_violation");
             for(String key:headerVals){
                 line+=mappedValues.get(key)+",";
             }
