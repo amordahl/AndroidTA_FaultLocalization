@@ -126,7 +126,8 @@ public class SetupClass {
 
         for(String x: files) {
             System.out.println("Started path: "+x);
-            jarLibs.addAll(((List<File>) FileUtils.listFiles(Paths.get(x).toFile(), extensions, true)));
+            if(Paths.get(x).toFile().exists())
+                jarLibs.addAll(((List<File>) FileUtils.listFiles(Paths.get(x).toFile(), extensions, true)));
         }
 
         System.out.println("Onto androidPlatforms");
@@ -215,8 +216,7 @@ public class SetupClass {
         String category = cutOff1.substring(actualConfig1.length()+1,cutOff1.lastIndexOf("_"));
 
         //TODO:: change this to (c1hash)_(c2hash)_category_apkname
-        if(category.equalsIgnoreCase("InterComponentCommunication")){
-
+        if(category.equalsIgnoreCase("InterComponentCommunication")&&(actualAPK.equalsIgnoreCase("EventOrdering1")||actualAPK.equalsIgnoreCase("SharedPreferences1"))){
             actualAPK="ICC"+actualAPK;
         }
 
