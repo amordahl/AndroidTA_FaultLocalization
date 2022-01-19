@@ -280,7 +280,9 @@ public class Runner {
             for(String line: lines){
                 System.out.println("line: "+line);
                 boolean dist=false;
-
+                if(line.trim().isEmpty()){
+                    continue;
+                }
                 if(line.contains("Counts")){
                     continue;
                 }
