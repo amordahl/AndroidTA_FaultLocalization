@@ -1,5 +1,3 @@
-package cs.utd.soles;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,18 +5,14 @@ import java.nio.file.Paths;
 
 
 /*
-* We need an aql_answer.xsd to read aql xml files so this makes the aql_answer.xsd if we don't have one
-* */
+ * We need an aql_answer.xsd to read aql xml files so this makes the aql_answer.xsd if we don't have one
+ * */
 public class SchemaGenerator {
 
 
 
 
-    public static final String SCHEMA_PATH= "debugger/tempfiles/schema/aql_answer.xsd";
-
-
-
-
+    public static final String SCHEMA_PATH= "schema/aql_answer.xsd";
 
     public static void generateSchema() throws IOException {
         File f = Paths.get(SCHEMA_PATH).toFile();
@@ -208,15 +202,6 @@ public class SchemaGenerator {
             "    <xsd:element name=\"justification\" type=\"xsd:string\"/>\n" +
             "    <xsd:element name=\"result\" type=\"xsd:string\"/>\n" +
             "    <xsd:element name=\"crossref\" type=\"xsd:string\"/>\n" +
-            "    <xsd:element name=\"classification \" >\n" +
-            "        <xsd:complexType mixed=\"true\">\n" +
-            "            <xsd:sequence>\n" +
-            "                <xsd:element ref=\"result\" minOccurs=\"0\"/>\n" +
-            "                <xsd:element ref=\"justification\" minOccurs=\"0\"/>\n" +
-            "                <xsd:element ref=\"crossref\" minOccurs=\"0\"/>\n" +
-            "            </xsd:sequence>\n" +
-            "        </xsd:complexType>\n" +
-            "    </xsd:element>\n" +
             "    <xsd:element name=\"permissions\">\n" +
             "        <xsd:complexType>\n" +
             "            <xsd:sequence>\n" +
@@ -276,7 +261,26 @@ public class SchemaGenerator {
             "            </xsd:sequence>\n" +
             "        </xsd:complexType>\n" +
             "    </xsd:element>\n" +
-            "\n" +
+            "    <xsd:element name=\"flowset\">\n" +
+            "        <xsd:complexType>\n" +
+            "            <xsd:sequence>\n" +
+            "                <xsd:element ref=\"preserve\" maxOccurs=\"unbounded\" minOccurs=\"0\"/>\n" +
+            "            </xsd:sequence>\n" +
+            "            <xsd:attribute type=\"xsd:string\" name=\"config1\"/>\n" +
+            "            <xsd:attribute type=\"xsd:string\" name=\"config2\"/>\n" +
+            "            <xsd:attribute type=\"xsd:string\" name=\"type\"/>\n" +
+            "            <xsd:attribute type=\"xsd:string\" name=\"violation\"/>\n" +
+            "        </xsd:complexType>\n" +
+            "    </xsd:element>\n" +
+            "    <xsd:element name=\"classification\" type=\"xsd:string\"/>\n" +
+            "    <xsd:element name=\"preserve\">\n" +
+            "        <xsd:complexType>\n" +
+            "            <xsd:sequence>\n" +
+            "                <xsd:element ref=\"flow\" maxOccurs=\"unbounded\" minOccurs=\"0\"/>\n" +
+            "            </xsd:sequence>\n" +
+            "            <xsd:attribute type=\"xsd:string\" name=\"config\"/>\n" +
+            "        </xsd:complexType>\n" +
+            "    </xsd:element>\n" +
             "</xsd:schema>";
 
 }

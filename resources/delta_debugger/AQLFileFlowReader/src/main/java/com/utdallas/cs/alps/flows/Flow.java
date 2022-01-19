@@ -30,6 +30,15 @@ public class Flow {
     private String id;
     private String generatingConfig;
 
+    public boolean getClassification() {
+        return classification;
+    }
+
+    public void setClassification(boolean classification) {
+        this.classification = classification;
+    }
+
+    private boolean classification;
     public String getApk() {
         return apk;
     }

@@ -46,14 +46,36 @@ import java.util.logging.Logger;
 public class AQLFlowFileReader extends XMLFlowFileReader {
     private final Logger LOGGER = Logger.getLogger(XMLFlowFileReader.class.getName());
     private static File SCHEMA = null;
-    private Violation thisViolation;
+    private Flowset thisFlowSet;
+
+    @Override
+    protected ArrayList<ArrayList<Flow>> getPreserveIterator(DefaultHandler fh) {
+        if (!(fh instanceof AQLFlowHandler)) {
+            throw new IllegalArgumentException("dh is not an instance of AQLFlowHandler!");
+        } else {
+            // Then, if the flows object is null, throw a state exception.
+            AQLFlowHandler afh = (AQLFlowHandler) fh;
+            if (afh.flows == null) {
+                throw new IllegalStateException("getFlowIterator was called before an XML " +
+                        "file was processed!");
+            } else {
+                // Otherwise, return the iterator from the flows object.
+                ArrayList<ArrayList<Flow>> bigLists = new ArrayList<>();
+                bigLists.add(afh.preserve1Flows);
+                bigLists.add(afh.preserve2Flows);
+                return bigLists;
+            }
+        }
+    }
+
     @Override
     DefaultHandler getFlowHandler() {
         return new AQLFlowHandler();
     }
+
     public AQLFlowFileReader(String schemaFilePath){
         SCHEMA = Paths.get(schemaFilePath).toFile();
-        thisViolation=new Violation();
+        thisFlowSet=new Flowset();
     }
     /**
      * Returns the flows from the default handler
@@ -81,16 +103,37 @@ public class AQLFlowFileReader extends XMLFlowFileReader {
     }
 
 
-    public Violation getThisViolation(File file){
-        Iterator<Flow> theseFlows = getFlows(file);
-        ArrayList<Flow> flowList = new ArrayList<>();
-        while(theseFlows.hasNext()){
 
-            flowList.add(theseFlows.next());
-            thisViolation.setApk(flowList.get(0).getApk());
+    public Flowset getFlowSet(File file){
+        try {
+            ArrayList<ArrayList<Flow>> theseFlows = super.getPreserveFlowList(file, SCHEMA);
+
+            //add flows to appropriate preserve list
+            for(int i=0;i<theseFlows.size();i++){
+                if(i==0)
+                    thisFlowSet.setConfig1_FlowList(theseFlows.get(i));
+                if(i==1)
+                    thisFlowSet.setConfig2_FlowList(theseFlows.get(i));
+                if(thisFlowSet.getConfig1_FlowList().size()>0){
+                    thisFlowSet.setApk(thisFlowSet.getConfig1_FlowList().get(0).getApk());
+                }else if(thisFlowSet.getConfig2_FlowList().size()>0){
+                    thisFlowSet.setApk(thisFlowSet.getConfig2_FlowList().get(0).getApk());
+                }
+            }
+
+        }catch (ParserConfigurationException parserConfigurationException) {
+            LOGGER.severe("The parser could not be created successfully.");
+            throw new RuntimeException(parserConfigurationException.getMessage());
         }
-        thisViolation.setFlowList(flowList);
-        return thisViolation;
+        catch (SAXException saxException) {
+            LOGGER.severe("The SAX parser threw an error when setting up the schema or while performing parsing.");
+            throw new RuntimeException(saxException.getMessage());
+        }
+        catch (IOException ioException) {
+            LOGGER.severe("Something went wrong while parsing the file.");
+            throw new RuntimeException(ioException);
+        }
+        return thisFlowSet;
     }
     /**
      * Reads the passed file and returns a list of flows. Validates flows with Felix Pauck's AQL-Answer schema.
@@ -118,6 +161,7 @@ public class AQLFlowFileReader extends XMLFlowFileReader {
     }
 
 
+
     /**
      * A subtype of DefaultHandler for reading in XML files in AQL format.
      * <p>
@@ -134,6 +178,9 @@ public class AQLFlowFileReader extends XMLFlowFileReader {
 
         // Container to hold the discovered flows.
         public ArrayList<Flow> flows;
+
+        public ArrayList<Flow> preserve1Flows;
+        public ArrayList<Flow> preserve2Flows;
 
         // The current flow we're working on
         private Flow currentFlow;
@@ -164,8 +211,12 @@ public class AQLFlowFileReader extends XMLFlowFileReader {
         @Override
         public void startDocument() {
             flows = new ArrayList<>();
+            preserve1Flows = new ArrayList<>();
+            preserve2Flows = new ArrayList<>();
             source_mode = false;
         }
+
+        int state=-1;
 
         /**
          * Receive notification of the start of an element.
@@ -223,10 +274,20 @@ public class AQLFlowFileReader extends XMLFlowFileReader {
                                     "from 'from' or 'to'");
                     }
                     break;
-                case "violation":
-                    thisViolation.setConfig1(attributes.getValue("config1"));
-                    thisViolation.setConfig2(attributes.getValue("config2"));
-                    thisViolation.setType(attributes.getValue("type"));
+                case "flowset":
+                    thisFlowSet.setConfig1(attributes.getValue("config1"));
+                    thisFlowSet.setConfig2(attributes.getValue("config2"));
+                    thisFlowSet.setType(attributes.getValue("type"));
+                    thisFlowSet.setViolation(attributes.getValue("violation"));
+                    break;
+                case "preserve":
+                    String configWeOn = attributes.getValue("config");
+                    //there are three states, -1 not in a preserve yet, 0 when we in preserve 1, 1 when we in preserve 2
+                    if(configWeOn.equals(thisFlowSet.getConfig1()))
+                        state=0;
+                    else if(configWeOn.equals(thisFlowSet.getConfig2())){
+                        state=1;
+                    }
                     break;
             }
         }
@@ -285,6 +346,13 @@ public class AQLFlowFileReader extends XMLFlowFileReader {
                 case "flow":
                     // Add the flow to the flows list, and nullify it so we don't modify it further.
                     flows.add(currentFlow);
+                    if(state==0){
+                        preserve1Flows.add(currentFlow);
+
+                    }else if(state==1){
+                        preserve2Flows.add(currentFlow);
+                    }
+
                     currentFlow = null;
                     break;
                 case "statementgeneric":
@@ -317,6 +385,9 @@ public class AQLFlowFileReader extends XMLFlowFileReader {
                     break;
                 case "file":
                     currentFlow.setApk(dataString);
+                case "classification":
+                    currentFlow.setClassification(dataString.equalsIgnoreCase("TRUE"));
+                    break;
                 default:
                     break;
             }
