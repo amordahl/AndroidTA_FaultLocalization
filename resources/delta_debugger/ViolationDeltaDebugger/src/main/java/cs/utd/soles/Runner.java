@@ -52,12 +52,12 @@ public class Runner {
                 creator.createApkFromList(programInfo, originalCuList, originalCuList, -1);
                 lockO.wait();
             }
+            saveBestAPK(programInfo);
             programInfo.getPerfTracker().setCount("start_line_count", (int) LineCounter.countLinesDir(programInfo.getTargetProject().getProjectSrcPath()));
 
             programInfo.getPerfTracker().stopTimer("setup_timer");
             //check if we need to do a minimization
             if(!programInfo.isNeedsToBeMinimized()){
-                saveBestAPK(programInfo);
                 System.out.println("Program doesn't need to be minimized. Exiting...");
                 System.exit(0);
             }
@@ -376,7 +376,7 @@ public class Runner {
     //static String APKReductionPath="/home/dakota/AndroidTA/AndroidTAEnvironment/APKReductionDir";
 
     //this method updates the best apk for this run or creates it if it needs to, by the end of the run the best apk should be saved
-    private static void saveBestAPK(SetupClass programInfo){
+    public static void saveBestAPK(SetupClass programInfo){
         try {
             File f= new File("debugger/minimized_apks/" +programInfo.getThisRunName()+".apk");
             f.mkdirs();

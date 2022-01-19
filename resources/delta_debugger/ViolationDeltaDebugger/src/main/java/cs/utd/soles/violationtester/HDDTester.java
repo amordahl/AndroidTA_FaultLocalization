@@ -2,6 +2,7 @@ package cs.utd.soles.violationtester;
 
 import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.LineCounter;
+import cs.utd.soles.Runner;
 import cs.utd.soles.apkcreator.ApkCreator;
 import cs.utd.soles.aqlrunner.AQLStringHandler;
 import cs.utd.soles.aqlrunner.AqlRunner;
@@ -76,6 +77,9 @@ public class HDDTester implements Tester {
 
                 //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!
                 //TODO:: count lines, performance log add changes
+
+                Runner.saveBestAPK(projectInfo);
+
                 returnVal=true;
             }
 
