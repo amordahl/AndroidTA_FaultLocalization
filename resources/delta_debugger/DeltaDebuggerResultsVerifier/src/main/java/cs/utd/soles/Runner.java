@@ -261,7 +261,7 @@ public class Runner {
             String fname = x.getName().replace("_time.txt","");
             //apk config1 config2
 
-            fname = fname.substring(runprefix.length()+2);
+            fname = fname.substring(runprefix.length()+1);
 
 
             //category,apk,config1,config2
