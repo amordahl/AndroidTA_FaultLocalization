@@ -324,7 +324,7 @@ public class HDDReduction implements Reduction{
                 return false;
             }*/
 
-            NodeList<ClassOrInterfaceType> extendedClassTypes = parent.getExtendedTypes();
+            ArrayList<ClassOrInterfaceType> extendedClassTypes = new ArrayList<>(parent.getExtendedTypes());
             extendedClassTypes.addAll(parent.getImplementedTypes());
             //if(!parent.isAbstract()) {
             //    return false;
