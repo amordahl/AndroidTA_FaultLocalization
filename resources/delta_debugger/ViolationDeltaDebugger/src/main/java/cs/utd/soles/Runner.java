@@ -74,6 +74,7 @@ public class Runner {
             btimeoutTimeMinutes= (int) arg.get();
 
         }
+        long beforetime = System.currentTimeMillis();
         BinaryReduction binaryReduction = new BinaryReduction(programInfo,originalCuList, btimeoutTimeMinutes*M_TO_MILLIS);
         arg = programInfo.getArguments().getValueOfArg("CLASS_REDUCTION");
         if(arg.isPresent())
@@ -84,13 +85,15 @@ public class Runner {
                 binaryReduction.reduce(requirements);
             }
 
+        long millis_time_saved = Math.max(beforetime+btimeoutTimeMinutes*M_TO_MILLIS-System.currentTimeMillis(),0);
+        
         int timeoutTimeMinutes = 120;
         arg = programInfo.getArguments().getValueOfArg("TIMEOUT_TIME_MINUTES");
         if(arg.isPresent()) {
             timeoutTimeMinutes= (int) arg.get();
 
         }
-        HDDReduction hddReduction = new HDDReduction(programInfo, timeoutTimeMinutes*M_TO_MILLIS);
+        HDDReduction hddReduction = new HDDReduction(programInfo, (timeoutTimeMinutes*M_TO_MILLIS)+millis_time_saved);
         arg = programInfo.getArguments().getValueOfArg("REGULAR_REDUCTION");
         if(arg.isPresent())
             if(((boolean)arg.get())) {
