@@ -264,7 +264,7 @@ public class Runner {
             fname = fname.substring(runprefix.length()+1);
 
 
-            //category,apk,config1,config2
+            //type,category,apk,config1,config2
             String[] components = fname.split("_");
 
 
@@ -352,7 +352,14 @@ public class Runner {
                 System.out.println(header);
             }
             String line="";
-            line+=components[1]+","+components[0]+","+mappedValues.get("violation_type")+","+mappedValues.get("is_violation")+","+components[2]+","+components[3]+",";
+            String apk = components[2];
+            int index =3;
+            while(index<=components.length-2){
+                apk+="_"+components[index];
+                index++;
+            }
+
+            line+=components[2]+","+components[1]+","+mappedValues.get("violation_type")+","+mappedValues.get("is_violation")+","+components[index]+","+components[index+1]+",";
             mappedValues.remove("violation_type");
             mappedValues.remove("is_violation");
             for(String key:headerVals){
