@@ -354,12 +354,12 @@ public class Runner {
             String line="";
             String apk = components[2];
             int index =3;
-            while(index<=components.length-2){
+            while(index<=components.length-3){
                 apk+="_"+components[index];
                 index++;
             }
 
-            line+=components[2]+","+components[1]+","+mappedValues.get("violation_type")+","+mappedValues.get("is_violation")+","+components[index]+","+components[index+1]+",";
+            line+=apk+","+components[1]+","+mappedValues.get("violation_type")+","+mappedValues.get("is_violation")+","+components[index]+","+components[index+1]+",";
             mappedValues.remove("violation_type");
             mappedValues.remove("is_violation");
             for(String key:headerVals){
