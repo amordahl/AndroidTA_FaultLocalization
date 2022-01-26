@@ -25,9 +25,12 @@ public class AQLStringHandler {
                 return false;
             }
             ArrayList<Flow> flowList = new ArrayList<>();
-            if(info.isViolationOrNot()){
+            if(info.isViolationOrNot()&&info.isTargetType()){
                 flowList.addAll(getFlowStrings(config2File));
                 flowList.removeAll(getFlowStrings(config1File));
+            }else if(info.isViolationOrNot()&&!info.isTargetType()){
+                flowList.addAll(getFlowStrings(config1File));
+                flowList.removeAll(getFlowStrings(config2File));
             }else {
                 flowList.addAll(getFlowStrings(config2File));
                 flowList.addAll(getFlowStrings(config1File));

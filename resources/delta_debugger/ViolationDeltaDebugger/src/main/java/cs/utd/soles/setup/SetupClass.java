@@ -220,8 +220,8 @@ public class SetupClass {
             actualAPK="ICC"+actualAPK;
         }
 
-
-        thisRunName=prefix+"_"+category.replaceAll("_","-")+"_"+actualAPK+"_"+actualConfig1+"_"+actualConfig2;
+        //TODO:: fix the stuff prefix_type_category_apk_config1+config2
+        thisRunName=prefix+"_"+thisViolation.getType()+"_"+category.replaceAll("_","-")+"_"+actualAPK+"_"+actualConfig1+"_"+actualConfig2;
 
         String pathFile="debugger/project_files/"+thisRunName;
         System.out.println(pathFile);
