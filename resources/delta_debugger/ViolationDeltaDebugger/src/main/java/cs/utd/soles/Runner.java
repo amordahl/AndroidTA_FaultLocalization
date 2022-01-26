@@ -72,14 +72,16 @@ public class Runner {
         //check if we can reproduce violation
         try{
             final Object lockO = new Object();
-            AqlRunner aqlRunner =new AqlRunner(lockO,programInfo.getPerfTracker());
-            aqlRunner.runAql(programInfo,-1,null,-1);
-            lockO.wait();
-            if(aqlRunner.getThreadResult()){
-                System.out.println("violation reproduced");
-            }else{
-                System.out.println("Violation not reproduced. Exiting....");
-                System.exit(0);
+            synchronized(lockO) {
+                AqlRunner aqlRunner = new AqlRunner(lockO, programInfo.getPerfTracker());
+                aqlRunner.runAql(programInfo, -1, null, -1);
+                lockO.wait();
+                if (aqlRunner.getThreadResult()) {
+                    System.out.println("violation reproduced");
+                } else {
+                    System.out.println("Violation not reproduced. Exiting....");
+                    System.exit(0);
+                }
             }
         }catch(Exception e){
             e.printStackTrace();
