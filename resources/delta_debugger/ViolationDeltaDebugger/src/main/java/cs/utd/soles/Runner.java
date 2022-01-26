@@ -12,6 +12,7 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import cs.utd.soles.apkcreator.ApkCreator;
+import cs.utd.soles.aqlrunner.AqlRunner;
 import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
 import cs.utd.soles.setup.SetupClass;
@@ -34,6 +35,8 @@ public class Runner {
 
         ArrayList<Pair<File,CompilationUnit>> originalCuList = new ArrayList<>();
         ArrayList<Pair<File,CompilationUnit>> bestCuList = new ArrayList<>();
+
+
 
         try{
             programInfo.getPerfTracker().startTimer("setup_timer");
@@ -59,6 +62,23 @@ public class Runner {
             //check if we need to do a minimization
             if(!programInfo.isNeedsToBeMinimized()){
                 System.out.println("Program doesn't need to be minimized. Exiting...");
+                System.exit(0);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+
+        //check if we can reproduce violation
+        try{
+            Object lockO = new Object();
+            AqlRunner aqlRunner =new AqlRunner(lockO,programInfo.getPerfTracker());
+            aqlRunner.runAql(programInfo,-1,null,-1);
+            lockO.wait();
+            if(aqlRunner.getThreadResult()){
+                System.out.println("violation reproduced");
+            }else{
+                System.out.println("Violation not reproduced. Exiting....");
                 System.exit(0);
             }
         }catch(Exception e){
@@ -133,6 +153,18 @@ public class Runner {
         // Collections.sort(bestCUList,cuListComp);
 
         programInfo.getPerfTracker().stopTimer("program_timer");
+
+        //one of our outputs is the minimized program
+        try {
+            final Object lockO = new Object();
+            synchronized (lockO) {
+                ApkCreator creator = new ApkCreator(lockO, programInfo.getPerfTracker());
+                creator.createApkFromList(programInfo, bestCuList, bestCuList, -1);
+                lockO.wait();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
         //handle end line count
         try {
