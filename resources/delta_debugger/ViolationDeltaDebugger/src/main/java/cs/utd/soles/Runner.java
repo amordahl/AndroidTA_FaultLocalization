@@ -71,7 +71,7 @@ public class Runner {
 
         //check if we can reproduce violation
         try{
-            Object lockO = new Object();
+            final Object lockO = new Object();
             AqlRunner aqlRunner =new AqlRunner(lockO,programInfo.getPerfTracker());
             aqlRunner.runAql(programInfo,-1,null,-1);
             lockO.wait();
