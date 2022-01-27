@@ -57,7 +57,11 @@ public class HDDReduction implements Reduction{
         Flowset thisViolation = (Flowset) requireds.get(1);
         boolean violationType = (boolean) requireds.get(2);
         boolean isViolation = (boolean) requireds.get(3);
-        markNodesUnremoveable(bestCuList,thisViolation, violationType, isViolation);
+        if(programInfo.getArguments().getValueOfArg("NO_OPTIMIZATION").isPresent() && (boolean) programInfo.getArguments().getValueOfArg("NO_OPTIMIZATION").get()){
+
+        }else {
+            markNodesUnremoveable(bestCuList, thisViolation, violationType, isViolation);
+        }
         hddReduction(bestCuList);
     }
 

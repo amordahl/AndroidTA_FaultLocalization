@@ -29,6 +29,9 @@ public class ArgsHandler{
                 //no abstract methods
                 argValues.put("NO_ABSTRACT_METHODS",true);
             }
+            if(args[i].equals("-no_opt")){
+                argValues.put("NO_OPTIMIZATION",true);
+            }
             if(args[i].equals("-p")){
                 String prefix=args[i+1];
                 prefix = prefix.replace("/","-");
