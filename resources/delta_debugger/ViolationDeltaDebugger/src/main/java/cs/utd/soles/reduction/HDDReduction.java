@@ -520,6 +520,11 @@ public class HDDReduction implements Reduction{
         //change the copy
         for(int i=copiedList.size();i>0;i/=2){
             for(int j=0;j<copiedList.size();j+=i){
+
+                //check timeout
+                if(timeoutTime<System.currentTimeMillis())
+                    return;
+
                 List<Node> subList = new ArrayList<>(copiedList.subList(j,Math.min((j+i),copiedList.size())));
                 List<Node> removedNodes = new ArrayList<>();
                 List<Node> alterableRemoves = new ArrayList<>();
@@ -529,6 +534,9 @@ public class HDDReduction implements Reduction{
                         copiedNode.remove(x);
                         removedNodes.add(x);
                         alterableRemoves.add(alterableList.get(index));
+
+                    }
+                    else{
                         programInfo.getPerfTracker().addCount("rejected_changes",1);
                     }
                     index++;
