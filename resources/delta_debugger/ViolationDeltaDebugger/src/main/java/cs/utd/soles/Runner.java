@@ -107,7 +107,7 @@ public class Runner {
                 binaryReduction.reduce(requirements);
             }
 
-        long millis_time_saved = Math.max(beforetime+btimeoutTimeMinutes*M_TO_MILLIS-System.currentTimeMillis(),0);
+        long millis_time_saved = Math.max(beforetime+(btimeoutTimeMinutes*M_TO_MILLIS)-System.currentTimeMillis(),0);
 
         int timeoutTimeMinutes = 120;
         arg = programInfo.getArguments().getValueOfArg("TIMEOUT_TIME_MINUTES");
