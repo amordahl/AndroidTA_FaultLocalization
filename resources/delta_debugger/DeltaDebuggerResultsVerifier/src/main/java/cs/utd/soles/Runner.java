@@ -292,6 +292,9 @@ public class Runner {
                 if(line.contains("Timers")){
                     continue;
                 }
+                if(line.contains("STARTCODECHANGES")){
+                    break;
+                }
 
                 String[] lineChange = line.split("\\s+");
                 if(line.contains("cucount")){
