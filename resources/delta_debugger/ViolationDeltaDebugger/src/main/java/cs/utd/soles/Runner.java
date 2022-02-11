@@ -565,7 +565,6 @@ public class Runner {
             }
             if(args[i].equals("-p")){
                 THIS_RUN_PREFIX=args[i+1];
-                THIS_RUN_PREFIX = ""+thisViolation.getConfig1()+"_"+thisViolation.getConfig2()+"/"+THIS_RUN_PREFIX.replace("/","");
                 i++;
             }
             if(args[i].equals("-t")){
@@ -849,12 +848,29 @@ public class Runner {
 
         //this pathfile needs to be unique so it will be apk_config1_config2
 
-        String actualAPK = apkName.substring(apkName.lastIndexOf("/")+1,apkName.lastIndexOf(".apk"));
-        String actualConfig1 = config1.substring(config1.lastIndexOf("/")+1,config1.lastIndexOf(".xml"));
-        String actualConfig2 = config2.substring(config2.lastIndexOf("/")+1,config2.lastIndexOf(".xml"));
-        thisRunName=THIS_RUN_PREFIX+"_"+actualAPK+actualConfig1+actualConfig2;
+
+
+
+
+        String actualAPK = apkName.substring(apkName.lastIndexOf(File.separatorChar)+1,apkName.lastIndexOf(".apk"));
+        String cutOff1 = config1.substring(config1.lastIndexOf(File.separatorChar)+1);
+        String cutOff2 = config2.substring(config2.lastIndexOf(File.separatorChar)+1);
+        String actualConfig1 = cutOff1.substring(0,cutOff1.indexOf("_"));
+        String actualConfig2 = cutOff2.substring(0,cutOff2.indexOf("_"));
+        String category = cutOff1.substring(actualConfig1.length()+1,cutOff1.lastIndexOf("_"));
+
+        thisRunName=THIS_RUN_PREFIX+"_"+targetType+"_"+category.replaceAll("_","-")+"_"+actualAPK+"_"+actualConfig1+"_"+actualConfig2;
+
+        //TODO:: change this to (c1hash)_(c2hash)_category_apkname
+        if(category.equalsIgnoreCase("InterComponentCommunication")&&(actualAPK.equalsIgnoreCase("EventOrdering1")||actualAPK.equalsIgnoreCase("SharedPreferences1"))){
+            actualAPK="ICC"+actualAPK;
+        }
+
+
         String pathFile="debugger/project_files/"+thisRunName;
         System.out.println(pathFile);
+
+
 
         String[] args = {actualAPK, pathFile};
         DroidbenchProjectCreator.createProject(args);
