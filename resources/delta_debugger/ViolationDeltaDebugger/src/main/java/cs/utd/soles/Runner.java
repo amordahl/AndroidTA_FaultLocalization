@@ -524,10 +524,11 @@ public class Runner {
         Flowset thisViolation = reader.getFlowSet(Paths.get(args[0]).toFile());
 
         apkName="/"+thisViolation.getApk();
-        config1="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig1()+".xml";
-        config2="/home/dakota/documents/AndroidTAEnvironment/configurations/FlowDroid/1-way/config_FlowDroid_"+thisViolation.getConfig2()+".xml";
+        config1=thisViolation.getConfig1();
+        config2=thisViolation.getConfig2();
         targetType=thisViolation.getType().equalsIgnoreCase("soundness");
         violationOrNot=thisViolation.getViolation().toLowerCase().equals("true");;
+
         //the files with no flows we still need the apk info from so that we can save its apk, so figure out the apk from the filename
         //fix apkName
         if(apkName.equals("/")){
@@ -548,7 +549,6 @@ public class Runner {
 
         //add stuff to the tester
         testerForThis = new TesterUtil(thisViolation.getConfig1_FlowList(), thisViolation.getConfig2_FlowList(), SchemaGenerator.SCHEMA_PATH,targetType, lockObject,violationOrNot);
-
         for(int i=1;i<args.length;i++) {
 
             if (args[i].equals("-l")) {
