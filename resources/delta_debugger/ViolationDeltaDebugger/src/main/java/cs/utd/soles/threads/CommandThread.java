@@ -19,6 +19,7 @@ public class CommandThread extends Thread{
     public void run() {
         try {
             output = ReadProcess.readProcess(command);
+
         }catch(Exception e){
             e.printStackTrace();
         }

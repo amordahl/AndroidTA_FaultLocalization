@@ -21,6 +21,7 @@ public class ReadProcess {
             output+=line+"\n";
         }
         p.waitFor();
+        System.out.println("thread output: "+output);
         return output;
     }
 
