@@ -2,10 +2,8 @@ package cs.utd.soles.apkcreator;
 
 import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.PerfTracker;
-import cs.utd.soles.threads.ProcessThread;
-import cs.utd.soles.Runner;
-import cs.utd.soles.threads.ThreadHandler;
 import cs.utd.soles.setup.SetupClass;
+import cs.utd.soles.threads.ReadProcess;
 import org.javatuples.Pair;
 
 import java.io.File;
@@ -13,23 +11,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class ApkCreator implements ThreadHandler {
+public class ApkCreator /*implements ThreadHandler*/ {
 
-    boolean threadResult;
-    final Object lockObj;
     private PerfTracker pTracker;
     private static int posChanged=-1;
     private static ArrayList<Pair<File,CompilationUnit>> list;
-    public ApkCreator(Object lock, PerfTracker performance){
-        this.lockObj=lock;
+    public ApkCreator(PerfTracker performance){
         this.pTracker=performance;
     }
 
-    public boolean getThreadResult(){
-        return threadResult;
-    }
-
-    @Override
+    /*@Override
     public void handleThread(Thread thread, ProcessType type, String finalString, String finalString2) {
         switch(type){
             case CREATE_APK_PROCESS:
@@ -56,11 +47,9 @@ public class ApkCreator implements ThreadHandler {
                 break;
         }
     }
+    */
+    private void incrementCorrectCount(boolean passOrFail, int caller) {
 
-    private void incrementCorrectCount(Thread thread, boolean passOrFail) {
-
-        ProcessThread pT = (ProcessThread) thread;
-        int caller = pT.getCaller();
         String correctName = passOrFail?"good_compile_runs_":"bad_compile_runs_";
         switch(caller){
             case 0:
@@ -87,20 +76,42 @@ public class ApkCreator implements ThreadHandler {
 
     }
 
+    public boolean checkResult(String finalString, int caller){
+        if (!finalString.contains("BUILD SUCCESSFUL") || finalString.contains("BUILD: FAILURE")) {
+            //assembling project failed we don't care why
+            incrementCorrectCount(false,caller);
+            pTracker.resetTimer("compile_timer");
+            return false;
+        }
+        else {
+            incrementCorrectCount(true, caller);
+            pTracker.resetTimer("compile_timer");
+            //build worked
+            return true;
+        }
+    }
+
     //calls gradlew assembledebug, makes a pthread.
-    public void createApk(SetupClass projectNeeds, ArrayList<Pair<File, CompilationUnit>> list, int positionChanged, CompilationUnit changedUnit, int caller){
+    public boolean createApk(SetupClass projectNeeds, ArrayList<Pair<File, CompilationUnit>> list, int positionChanged, CompilationUnit changedUnit, int caller){
         String[] command = {projectNeeds.getTargetProject().getProjectGradlewPath(), "clean", "assembleDebug", "-p", projectNeeds.getTargetProject().getProjectRootPath()};
-        threadResult=false;
         try{
             saveCompilationUnits(list, positionChanged, changedUnit);
             pTracker.startTimer("compile_timer");
-            Process p = Runtime.getRuntime().exec(command);
-            ProcessThread pThread = new ProcessThread(p,this,ProcessType.CREATE_APK_PROCESS, 300000, caller);
-            pThread.start();
+            //Process p = Runtime.getRuntime().exec(command);
+
+
+            try {
+                String output = ReadProcess.readProcess(command);
+                return checkResult(output,caller);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            /*ProcessThread pThread = new ProcessThread(p,this,ProcessType.CREATE_APK_PROCESS, 300000, caller);
+            pThread.start();*/
         }catch(IOException e){
             e.printStackTrace();
         }
-
+        return false;
     }
     public static void saveCompilationUnits(ArrayList<Pair<File, CompilationUnit>> compilationUnits, int positionChanged, CompilationUnit changedUnit) throws IOException {
         list=compilationUnits;
@@ -122,10 +133,9 @@ public class ApkCreator implements ThreadHandler {
     }
 
 
-    public void createApkFromList(SetupClass projectNeeds, ArrayList<Pair<File,CompilationUnit>> originalUnits, ArrayList<Pair<File,CompilationUnit>> newUnits, int caller){
+    public boolean createApkFromList(SetupClass projectNeeds, ArrayList<Pair<File,CompilationUnit>> originalUnits, ArrayList<Pair<File,CompilationUnit>> newUnits, int caller){
         cleanseFiles(originalUnits);
-        createApk(projectNeeds,newUnits,newUnits.size()+1,null,caller);
-
+        return createApk(projectNeeds,newUnits,newUnits.size()+1,null,caller);
     }
 
    public static void cleanseFiles(ArrayList<Pair<File,CompilationUnit>> originalUnits) {

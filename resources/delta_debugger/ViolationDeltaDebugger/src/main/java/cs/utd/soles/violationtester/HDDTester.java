@@ -16,7 +16,6 @@ import java.util.ArrayList;
 
 public class HDDTester implements Tester {
 
-    final Object lockObject;
     private ApkCreator apkCreator;
     private AqlRunner aqlRunner;
     private SetupClass projectInfo;
@@ -32,11 +31,10 @@ public class HDDTester implements Tester {
         return checkChanges(cuList,compPosition,copiedUnit);
     }
 
-    public HDDTester(Object lock, SetupClass setupClass){
-        this.lockObject=lock;
+    public HDDTester(SetupClass setupClass){
         this.projectInfo=setupClass;
-        this.apkCreator=new ApkCreator(this.lockObject, setupClass.getPerfTracker());
-        this.aqlRunner=new AqlRunner(this.lockObject,setupClass.getPerfTracker());
+        this.apkCreator=new ApkCreator(setupClass.getPerfTracker());
+        this.aqlRunner=new AqlRunner(setupClass.getPerfTracker());
 
     }
 
@@ -47,43 +45,23 @@ public class HDDTester implements Tester {
         boolean returnVal=false;
         projectInfo.getPerfTracker().addCount("ast_changes",1);
         try {
-            //enter synchronized
-            synchronized(lockObject) {
-                //create the apk
-                apkCreator.createApk(projectInfo,cuListToTest,compPosition,copiedu,1);
-
-                //wait for createApk to be done
-                lockObject.wait();
-                //get the results
-                //if this is true, then the apk created succesfully
-                if(!apkCreator.getThreadResult()){
-                    return false;
-                }
-                //start aql process
-                try {
-                    aqlRunner.runAql(projectInfo, 1,cuListToTest, compPosition);
-                }catch(Exception e){
-                    e.printStackTrace();
-                    return false;
-                }
-
-                //wait for aqlprocess to be done
-                lockObject.wait();
-                //AQlRunner will have some cool strings in it, so give them to AQLStringHandler to interpret
-                //get the results
-                if(!aqlRunner.getThreadResult()){
-                    return false;
-                }
-
-                //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!
-                //TODO:: count lines, performance log add changes
-
-                Runner.saveBestAPK(projectInfo);
-
-                returnVal=true;
+            //make apk with changes
+            //see if compiled
+            if (apkCreator.createApk(projectInfo, cuListToTest, compPosition,copiedu,1)) {
+                return false;
             }
 
-        } catch (InterruptedException e) {
+
+            //see if aql worked
+            //get the results
+            if (aqlRunner.runAql(projectInfo, 1, null, -1)) {
+                return false;
+            }
+            //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!
+
+            Runner.saveBestAPK(projectInfo);
+            returnVal = true;
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

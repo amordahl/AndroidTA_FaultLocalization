@@ -2,33 +2,27 @@ package cs.utd.soles.aqlrunner;
 
 import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.PerfTracker;
-import cs.utd.soles.threads.AQLThread;
 import cs.utd.soles.setup.SetupClass;
-import cs.utd.soles.threads.ThreadHandler;
+import cs.utd.soles.threads.CommandThread;
+import cs.utd.soles.threads.ReadProcess;
 import org.javatuples.Pair;
 
+import javax.xml.stream.events.Comment;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class AqlRunner implements ThreadHandler {
+public class AqlRunner{
 
-    public boolean getThreadResult() {
-        return threadResult;
-    }
-
-    boolean threadResult;
-    final Object lockObject;
     PerfTracker pTracker;
     private SetupClass setupInfo;
     private static int posChanged;
     private static ArrayList<Pair<File, CompilationUnit>> list;
-    public AqlRunner(Object lockObject, PerfTracker pT) {
-        this.lockObject = lockObject;
+    public AqlRunner(PerfTracker pT) {
         this.pTracker=pT;
     }
 
-    @Override
+   /* @Override
     public void handleThread(Thread thread, ProcessType type, String finalString, String finalString2) {
         switch(type){
             case AQL_RUN:
@@ -52,9 +46,9 @@ public class AqlRunner implements ThreadHandler {
                 break;
         }
     }
+*/
 
-    public void runAql(SetupClass info, int caller, ArrayList<Pair<File, CompilationUnit>> cuListToTest, int posChanged) throws IOException {
-        threadResult=false;
+    public boolean runAql(SetupClass info, int caller, ArrayList<Pair<File, CompilationUnit>> cuListToTest, int posChanged) throws IOException {
         setupInfo=info;
         //this bit runs and captures the output of the aql script
         String command1 = "python runaql.py "+info.getConfig1()+" "+info.getTargetProject().getProjectAPKPath()+" -f";
@@ -76,24 +70,34 @@ public class AqlRunner implements ThreadHandler {
         }
 
         //start these commands and then handle them somewhere else
-        Process command1Run = null;
-        Process command2Run = null;
+
         pTracker.startTimer("aql_timer");
+
+        CommandThread command1T = new CommandThread(command1);
+        CommandThread command2T = new CommandThread(command2);
+
         if(runaql1){
-            command1Run=Runtime.getRuntime().exec(command1);
+            command1T.start();
         }
         if(runaql2){
-            command2Run= Runtime.getRuntime().exec(command2);
+            command2T.start();
         }
+        try {
+            command1T.join();
+            command2T.join();
 
-        AQLThread aqlThread = new AQLThread(command1Run, command2Run,this, caller);
-        aqlThread.start();
+            return checkOutput(command1T.returnOutput(),command2T.returnOutput(),caller);
+
+
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
-    private void incrementCorrectCount(Thread thread, boolean passOrFail) {
+    private void incrementCorrectCount(boolean passOrFail, int caller) {
 
-        AQLThread pT = (AQLThread) thread;
-        int caller = pT.getCaller();
         String correctName = passOrFail?"good_aql_runs_":"bad_aql_runs_";
         switch(caller){
             case 0:
@@ -120,4 +124,21 @@ public class AqlRunner implements ThreadHandler {
 
     }
 
+    private boolean checkOutput(String finalString, String finalString2, int caller){
+        //final results of aql are in both finalString1 and finalString2 respectively
+        //order is config1, config2
+        pTracker.stopTimer("aql_timer");
+        boolean result=AQLStringHandler.handleAQL(setupInfo,finalString,finalString2);
+        if(result){
+            //good one
+            incrementCorrectCount(true,caller);
+
+        }else{
+            //failed one
+            incrementCorrectCount(false,caller);
+        }
+        setupInfo=null;
+        pTracker.resetTimer("aql_timer");
+        return result;
+    }
 }

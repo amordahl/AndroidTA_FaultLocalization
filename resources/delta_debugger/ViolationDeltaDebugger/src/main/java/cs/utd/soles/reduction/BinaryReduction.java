@@ -18,7 +18,6 @@ public class BinaryReduction implements Reduction{
 
     SetupClass programInfo;
     HashMap<String, String> classNamesToPaths;
-    final Object lock;
     BinaryReductionTester tester;
 
     long timeout_time;
@@ -26,8 +25,7 @@ public class BinaryReduction implements Reduction{
     public BinaryReduction(SetupClass programInfo, ArrayList<Pair<File, CompilationUnit>> originalUnits, long timeOutTime){
         this.programInfo=programInfo;
         fillNamesToPaths(originalUnits);
-        lock = new Object();
-        tester = new BinaryReductionTester(lock,programInfo);
+        tester = new BinaryReductionTester(programInfo);
         timeout_time = timeOutTime+System.currentTimeMillis();
     }
 
@@ -46,23 +44,20 @@ public class BinaryReduction implements Reduction{
     }
 
     private DependencyGraph createDependencyNodes(ArrayList<Pair<File, CompilationUnit>> bestCuList) {
-        synchronized(lock){
-            try {
-                ApkCreator creator = new ApkCreator(lock,programInfo.getPerfTracker());
-                creator.createApkFromList(programInfo, bestCuList, bestCuList, -1);
-                lock.wait();
+        try {
+            ApkCreator creator = new ApkCreator(programInfo.getPerfTracker());
 
-                if(!creator.getThreadResult()){
-                    System.out.println("BUILD FAILED, FAULTY PROJECT");
-                    System.exit(-1);
-                }
-                File dotFile = DotFileCreator.createDotForProject(programInfo);
-                DependencyGraph rg = new DependencyGraph();
-                rg.parseGraphFromDot(dotFile, classNamesToPaths);
-                return rg;
-            }catch(Exception e){
-                e.printStackTrace();
+
+            if(creator.createApkFromList(programInfo, bestCuList, bestCuList, -1)){
+                System.out.println("BUILD FAILED, FAULTY PROJECT");
+                System.exit(-1);
             }
+            File dotFile = DotFileCreator.createDotForProject(programInfo);
+            DependencyGraph rg = new DependencyGraph();
+            rg.parseGraphFromDot(dotFile, classNamesToPaths);
+            return rg;
+        }catch(Exception e){
+            e.printStackTrace();
         }
         return null;
     }

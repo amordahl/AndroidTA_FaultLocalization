@@ -49,11 +49,10 @@ public class Runner {
             System.out.println(programInfo.getArguments().printArgValues());
 
             //make a regular apk;
-            final Object lockO = new Object();
-            synchronized(lockO) {
-                ApkCreator creator = new ApkCreator(lockO, programInfo.getPerfTracker());
-                creator.createApkFromList(programInfo, originalCuList, originalCuList, -1);
-                lockO.wait();
+            ApkCreator creator = new ApkCreator(programInfo.getPerfTracker());
+            if(!creator.createApkFromList(programInfo, originalCuList, originalCuList, -1)){
+                System.out.println("Apk creation failed at start, exiting");
+                System.exit(-1);
             }
             saveBestAPK(programInfo);
             programInfo.getPerfTracker().setCount("start_line_count", (int) LineCounter.countLinesDir(programInfo.getTargetProject().getProjectSrcPath()));
@@ -71,17 +70,13 @@ public class Runner {
 
         //check if we can reproduce violation
         try{
-            final Object lockO = new Object();
-            synchronized(lockO) {
-                AqlRunner aqlRunner = new AqlRunner(lockO, programInfo.getPerfTracker());
-                aqlRunner.runAql(programInfo, -1, null, -1);
-                lockO.wait();
-                if (aqlRunner.getThreadResult()) {
-                    System.out.println("violation reproduced");
-                } else {
-                    System.out.println("Violation not reproduced. Exiting....");
-                    System.exit(0);
-                }
+            AqlRunner aqlRunner = new AqlRunner(programInfo.getPerfTracker());
+
+            if (aqlRunner.runAql(programInfo, -1, null, -1)) {
+                System.out.println("violation reproduced");
+            } else {
+                System.out.println("Violation not reproduced. Exiting....");
+                System.exit(0);
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -158,12 +153,10 @@ public class Runner {
 
         //one of our outputs is the minimized program
         try {
-            final Object lockO = new Object();
-            synchronized (lockO) {
-                ApkCreator creator = new ApkCreator(lockO, programInfo.getPerfTracker());
-                creator.createApkFromList(programInfo, bestCuList, bestCuList, -1);
-                lockO.wait();
-            }
+
+            ApkCreator creator = new ApkCreator(programInfo.getPerfTracker());
+            creator.createApkFromList(programInfo, bestCuList, bestCuList, -1);
+
         }catch(Exception e){
             e.printStackTrace();
         }

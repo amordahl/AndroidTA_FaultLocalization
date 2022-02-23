@@ -40,12 +40,10 @@ public class HDDReduction implements Reduction{
     long timeoutTime;
     SetupClass programInfo;
     HDDTester tester;
-    final Object lock;
     private boolean namValue;
     public HDDReduction(SetupClass programInfo, long timeoutTime){
         this.programInfo=programInfo;
-        lock=new Object();
-        this.tester = new HDDTester(lock,programInfo);
+        this.tester = new HDDTester(programInfo);
         this.timeoutTime=timeoutTime+System.currentTimeMillis();
         this.foundUnremoveables=new HashSet<>();
         namValue = programInfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").isPresent()? (boolean)programInfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").get():false;

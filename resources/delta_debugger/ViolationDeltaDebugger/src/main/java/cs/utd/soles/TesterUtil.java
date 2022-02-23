@@ -1,28 +1,7 @@
 package cs.utd.soles;
 
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.Parameter;
-import com.github.javaparser.ast.expr.ObjectCreationExpr;
-import com.utdallas.cs.alps.flows.AQLFlowFileReader;
-import com.utdallas.cs.alps.flows.Flow;
-import cs.utd.soles.classgraph.ClassNode;
-import cs.utd.soles.methodgraph.MethodNode;
-import cs.utd.soles.schema.SchemaGenerator;
-import cs.utd.soles.threads.AQLThread;
-import cs.utd.soles.threads.ProcessThread;
-import cs.utd.soles.threads.ThreadHandler;
-import org.javatuples.Pair;
-
 
 import java.io.*;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 
 
 /**
@@ -31,9 +10,9 @@ import java.util.Iterator;
 
 //TODO:: APACHE STOPWATCH implement
 
-public class TesterUtil implements ThreadHandler {
+public class TesterUtil /*implements ThreadHandler*/ {}
 
-    public void runCCGCreator(String projectApkPath, String thisRunName){
+   /* public void runCCGCreator(String projectApkPath, String thisRunName){
         String[] command = {"java","-jar","/home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar"
             ,"-a",projectApkPath,"-p","/home/dakota/documents/Android/platforms/","-s","/home/dakota/documents/AndroidTA_FaultLocalization/resources/modified_flowdroid/FlowDroid/soot-infoflow-android/SourcesAndSinks.txt"};
         Process p = null;
@@ -52,8 +31,8 @@ public class TesterUtil implements ThreadHandler {
     }
 
     boolean threadResult=false;
-
-    @Override
+*/
+   /* @Override
     public void handleThread(Thread thred, ProcessType t, String finalString, String finalString2) {
 
         //This new framework for handling threads should allow us to read Process output more elegantly
@@ -69,9 +48,7 @@ public class TesterUtil implements ThreadHandler {
                 }
                 break;
         }*/
-
-    }
-
+/*
     //dependency graph is like, static so this can just access it and change its data up accordingly
     /*public boolean handleCallGraph(String contents){
         //Okay so we have the exact string we want we just need to match it up to what we already have,
@@ -340,4 +317,4 @@ public class TesterUtil implements ThreadHandler {
         return true;
     }
      */
-}
+
