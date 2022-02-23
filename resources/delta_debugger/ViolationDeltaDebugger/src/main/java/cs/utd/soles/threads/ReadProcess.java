@@ -25,7 +25,7 @@ public class ReadProcess {
             output+=line+"\n";
         }
         p.waitFor();
-        System.out.println("thread output: "+output);
+       // System.out.println("thread output: "+output);
         return output;
     }
 
@@ -47,7 +47,7 @@ public class ReadProcess {
             output+=line+"\n";
         }
         p.waitFor();
-        System.out.println("thread output: "+output);
+        //System.out.println("thread output: "+output);
         return output;
     }
 

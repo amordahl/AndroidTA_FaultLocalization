@@ -54,7 +54,7 @@ public class Runner {
                 System.out.println("Apk creation failed at start, exiting");
                 System.exit(-1);
             }
-            System.out.print("done check");
+            //System.out.print("done check");
             saveBestAPK(programInfo);
             programInfo.getPerfTracker().setCount("start_line_count", (int) LineCounter.countLinesDir(programInfo.getTargetProject().getProjectSrcPath()));
 
