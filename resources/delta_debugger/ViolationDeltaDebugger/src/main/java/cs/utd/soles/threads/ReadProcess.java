@@ -7,11 +7,12 @@ import java.util.List;
 
 public class ReadProcess {
 
-    public static String readProcess(String[] commands) throws IOException {
+    public static String readProcess(String[] commands) throws IOException, InterruptedException {
 
         ProcessBuilder b = new ProcessBuilder(commands);
         b.redirectErrorStream(true);
         Process p = b.start();
+
         BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String output = "";
         String line = null;
@@ -19,10 +20,11 @@ public class ReadProcess {
         while((line=r.readLine())!=null){
             output+=line+"\n";
         }
+        p.waitFor();
         return output;
     }
 
-    public static String readProcess(String commands) throws IOException {
+    public static String readProcess(String commands) throws IOException, InterruptedException {
 
         ProcessBuilder b = new ProcessBuilder(commands);
         b.redirectErrorStream(true);
@@ -34,6 +36,7 @@ public class ReadProcess {
         while((line=r.readLine())!=null){
             output+=line+"\n";
         }
+        p.waitFor();
         return output;
     }
 
