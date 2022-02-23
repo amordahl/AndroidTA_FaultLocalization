@@ -13,10 +13,15 @@ public class ReadProcess {
 
 
         BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        BufferedReader er = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String output = "";
         String line = null;
 
         while((line=r.readLine())!=null){
+            output+=line+"\n";
+        }
+        output+="\n\n";
+        while((line=er.readLine())!=null){
             output+=line+"\n";
         }
         p.waitFor();
@@ -28,14 +33,21 @@ public class ReadProcess {
 
         Process p = Runtime.getRuntime().exec(commands);
 
+
         BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        BufferedReader er = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String output = "";
         String line = null;
 
         while((line=r.readLine())!=null){
             output+=line+"\n";
         }
+        output+="\n\n";
+        while((line=er.readLine())!=null){
+            output+=line+"\n";
+        }
         p.waitFor();
+        System.out.println("thread output: "+output);
         return output;
     }
 
