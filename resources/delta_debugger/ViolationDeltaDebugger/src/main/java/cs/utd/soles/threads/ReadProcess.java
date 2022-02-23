@@ -9,9 +9,8 @@ public class ReadProcess {
 
     public static String readProcess(String[] commands) throws IOException, InterruptedException {
 
-        ProcessBuilder b = new ProcessBuilder(commands);
-        b.redirectErrorStream(true);
-        Process p = b.start();
+        Process p = Runtime.getRuntime().exec(commands);
+
 
         BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String output = "";
@@ -27,9 +26,8 @@ public class ReadProcess {
 
     public static String readProcess(String commands) throws IOException, InterruptedException {
 
-        ProcessBuilder b = new ProcessBuilder(commands);
-        b.redirectErrorStream(true);
-        Process p = b.start();
+        Process p = Runtime.getRuntime().exec(commands);
+
         BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String output = "";
         String line = null;
