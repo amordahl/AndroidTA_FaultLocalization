@@ -48,7 +48,7 @@ public class BinaryReduction implements Reduction{
             ApkCreator creator = new ApkCreator(programInfo.getPerfTracker());
 
 
-            if(creator.createApkFromList(programInfo, bestCuList, bestCuList, -1)){
+            if(!creator.createApkFromList(programInfo, bestCuList, bestCuList, -1)){
                 System.out.println("BUILD FAILED, FAULTY PROJECT");
                 System.exit(-1);
             }
