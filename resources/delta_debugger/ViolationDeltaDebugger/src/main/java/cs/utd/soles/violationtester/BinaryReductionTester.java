@@ -40,14 +40,14 @@ public class BinaryReductionTester implements Tester {
 
             //make apk with changes
             //see if compiled
-            if (apkCreator.createApkFromList(projectInfo, originalUnits, proposal, 0)) {
+            if (!apkCreator.createApkFromList(projectInfo, originalUnits, proposal, 0)) {
                 return false;
             }
 
 
             //see if aql worked
             //get the results
-            if (aqlRunner.runAql(projectInfo, 0, null, -1)) {
+            if (!aqlRunner.runAql(projectInfo, 0, null, -1)) {
                 return false;
             }
             //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!

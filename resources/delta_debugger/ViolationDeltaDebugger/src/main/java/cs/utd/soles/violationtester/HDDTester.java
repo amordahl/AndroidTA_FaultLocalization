@@ -47,14 +47,14 @@ public class HDDTester implements Tester {
         try {
             //make apk with changes
             //see if compiled
-            if (apkCreator.createApk(projectInfo, cuListToTest, compPosition,copiedu,1)) {
+            if (!apkCreator.createApk(projectInfo, cuListToTest, compPosition,copiedu,1)) {
                 return false;
             }
 
 
             //see if aql worked
             //get the results
-            if (aqlRunner.runAql(projectInfo, 1, null, -1)) {
+            if (!aqlRunner.runAql(projectInfo, 1, null, -1)) {
                 return false;
             }
             //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!
