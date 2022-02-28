@@ -98,8 +98,6 @@ public class ApkCreator /*implements ThreadHandler*/ {
             saveCompilationUnits(list, positionChanged, changedUnit);
             pTracker.startTimer("compile_timer");
             //Process p = Runtime.getRuntime().exec(command);
-
-
             try {
                 String output = ReadProcess.readProcess(command);
                 return checkResult(output,caller);

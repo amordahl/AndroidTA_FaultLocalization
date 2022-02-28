@@ -15,7 +15,7 @@ public class BinaryReductionTester implements Tester {
     private ApkCreator apkCreator;
     private AqlRunner aqlRunner;
     private SetupClass projectInfo;
-
+    private int proposalNum =0;
     public BinaryReductionTester(SetupClass projectInfo) {
         this.apkCreator = new ApkCreator(projectInfo.getPerfTracker());
         this.aqlRunner = new AqlRunner(projectInfo.getPerfTracker());
@@ -32,7 +32,7 @@ public class BinaryReductionTester implements Tester {
 
 
     private boolean checkProposal(ArrayList<Pair<File, CompilationUnit>> originalUnits,ArrayList<Pair<File, CompilationUnit>> proposal){
-
+        proposalNum++;
         projectInfo.getPerfTracker().addCount("ast_changes",1);
         boolean returnVal=false;
 
@@ -47,12 +47,10 @@ public class BinaryReductionTester implements Tester {
 
             //see if aql worked
             //get the results
-            if (!aqlRunner.runAql(projectInfo, 0, null, -1)) {
+            if (!aqlRunner.runAql(projectInfo, 0, null, -1, "Binary-"+proposal)) {
                 return false;
             }
             //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!
-
-            Runner.saveBestAPK(projectInfo);
             returnVal = true;
         }catch(Exception e){
             e.printStackTrace();

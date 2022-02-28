@@ -50,6 +50,9 @@ public class ArgsHandler{
                 argValues.put("ROOT_PROJECTS_PATH",args[i+1]);
                 i++;
             }
+            if(args[i].equals("-check_d")){
+                argValues.put("CHECK_DETERMINISM",true);
+            }
             //add other args here if we want em
         }
     }

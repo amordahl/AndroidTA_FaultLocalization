@@ -19,7 +19,7 @@ public class HDDTester implements Tester {
     private ApkCreator apkCreator;
     private AqlRunner aqlRunner;
     private SetupClass projectInfo;
-
+    public int changeNum=0;
 
     @Override
     public boolean runTest(ArrayList<Object> requireds) {
@@ -41,7 +41,7 @@ public class HDDTester implements Tester {
     //for binary reduce we need some stuff but yeah
 
     private boolean checkChanges(ArrayList<Pair<File, CompilationUnit>> cuListToTest, int compPosition, CompilationUnit copiedu){
-
+        changeNum++;
         boolean returnVal=false;
         projectInfo.getPerfTracker().addCount("ast_changes",1);
         try {
@@ -54,12 +54,10 @@ public class HDDTester implements Tester {
 
             //see if aql worked
             //get the results
-            if (!aqlRunner.runAql(projectInfo, 1, null, -1)) {
+            if (!aqlRunner.runAql(projectInfo, 1, null, -1,"HDD-"+changeNum)) {
                 return false;
             }
             //if we reach this statement, that means we did a succesful compile and aql run, so we made good changes!
-
-            Runner.saveBestAPK(projectInfo);
             returnVal = true;
         } catch (Exception e) {
             e.printStackTrace();

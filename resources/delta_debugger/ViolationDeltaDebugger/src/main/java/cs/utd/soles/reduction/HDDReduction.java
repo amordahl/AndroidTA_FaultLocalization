@@ -24,6 +24,7 @@ import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.utdallas.cs.alps.flows.Flow;
 import com.utdallas.cs.alps.flows.Flowset;
+import cs.utd.soles.determinism.CheckDeterminism;
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.util.JavaByteReader;
 import cs.utd.soles.violationtester.HDDTester;
@@ -41,12 +42,15 @@ public class HDDReduction implements Reduction{
     SetupClass programInfo;
     HDDTester tester;
     private boolean namValue;
+    boolean checkDeterminism;
     public HDDReduction(SetupClass programInfo, long timeoutTime){
         this.programInfo=programInfo;
         this.tester = new HDDTester(programInfo);
         this.timeoutTime=timeoutTime+System.currentTimeMillis();
         this.foundUnremoveables=new HashSet<>();
         namValue = programInfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").isPresent()? (boolean)programInfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").get():false;
+        checkDeterminism = programInfo.getArguments().getValueOfArg("CHECK_DETERMINISM").isPresent()? (boolean)programInfo.getArguments().getValueOfArg("CHECK_DETERMINISM").get():false;
+
     }
 
     @Override
@@ -559,6 +563,15 @@ public class HDDReduction implements Reduction{
                     copiedNode = findCurrentNode(currentNode, compPosition, copiedUnit);
                     copiedList = getCurrentNodeList(copiedNode, alterableList);
                     i=copiedList.size()/2;
+
+                    if(checkDeterminism)
+                        if(!CheckDeterminism.checkOrCreate(programInfo,currentNode,"HDD-"+tester.changeNum)){
+                            //it wasnt true idk, say it was bad or something. bad boy code! work and you will receive cheez its
+                            System.exit(-1);
+                            System.out.println("HDD wasnt deterministic. Heres why");
+                            System.out.println(currentNode);
+                        }
+
                     break;
                 } else{
                     copiedUnit = bestCuList.get(compPosition).getValue1().clone();

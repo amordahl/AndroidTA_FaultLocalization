@@ -15,10 +15,10 @@ import java.util.Iterator;
 
 public class AQLStringHandler {
 
-    public static boolean handleAQL(SetupClass info, String config1String, String config2String){
+    public static boolean handleAQL(SetupClass info, String config1String, String config2String, String changeNum){
         try {
-            File config1File = turnAQLStringToFile(info, "1", config1String);
-            File config2File = turnAQLStringToFile(info, "2", config2String);
+            File config1File = turnAQLStringToFile(info, "1", config1String, changeNum);
+            File config2File = turnAQLStringToFile(info, "2", config2String, changeNum);
 
             if(config1File==null||config2File==null) {
                 System.out.println("Aborted cause one of files was null");
@@ -53,9 +53,11 @@ public class AQLStringHandler {
         }
     }
 
-    private static File turnAQLStringToFile(SetupClass info, String identity, String aqlString) throws IOException {
+    private static File turnAQLStringToFile(SetupClass info, String identity, String aqlString, String changenum) throws IOException {
+
+        //TODO:: add change # to this file
         String time = Long.toHexString(System.currentTimeMillis());
-        String fp = "debugger/tempfiles/aqlfiles/"+info.getThisRunName()+time+"out"+identity+".xml";
+        String fp = "debugger/tempfiles/aqlfiles/"+info.getThisRunName()+"_"+changenum+"_"+time+"out"+identity+".xml";
 
         File f = Paths.get(fp).toFile();
         f.mkdirs();

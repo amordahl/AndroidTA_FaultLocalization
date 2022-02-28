@@ -36,8 +36,6 @@ public class Runner {
         ArrayList<Pair<File,CompilationUnit>> originalCuList = new ArrayList<>();
         ArrayList<Pair<File,CompilationUnit>> bestCuList = new ArrayList<>();
 
-
-
         try{
             programInfo.getPerfTracker().startTimer("setup_timer");
             programInfo.doSetup(args);
@@ -68,12 +66,11 @@ public class Runner {
             e.printStackTrace();
         }
 
-
         //check if we can reproduce violation
         try{
             AqlRunner aqlRunner = new AqlRunner(programInfo.getPerfTracker());
 
-            if (aqlRunner.runAql(programInfo, -1, null, -1)) {
+            if (aqlRunner.runAql(programInfo, -1, null, -1, "check")) {
                 System.out.println("violation reproduced");
             } else {
                 System.out.println("Violation not reproduced. Exiting....");
@@ -90,7 +87,6 @@ public class Runner {
         Optional<Object> arg = programInfo.getArguments().getValueOfArg("BINARY_TIMEOUT_TIME_MINUTES");
         if(arg.isPresent()) {
             btimeoutTimeMinutes= (int) arg.get();
-
         }
         long beforetime = System.currentTimeMillis();
         BinaryReduction binaryReduction = new BinaryReduction(programInfo,originalCuList, btimeoutTimeMinutes*M_TO_MILLIS);
@@ -157,7 +153,8 @@ public class Runner {
 
             ApkCreator creator = new ApkCreator(programInfo.getPerfTracker());
             creator.createApkFromList(programInfo, bestCuList, bestCuList, -1);
-
+            //final apk for program
+            saveBestAPK(programInfo);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -250,7 +247,7 @@ public class Runner {
 
     }
 
-
+    //gradlew assembleDebug
     /*private static void doMethodReduction(){
         performanceLog.startMethodRedTime();
         /*
@@ -350,7 +347,7 @@ public class Runner {
             fw.write("\nStart_line_count: "+performanceLog.startLineCount);
             fw.write("\nEnd_line_count: "+performanceLog.endLineCount);
             fw.write("\n%Of_Lines_Removed: "+ ((1.0 - (performanceLog.endLineCount/((double)performanceLog.startLineCount)))*100));
-            fw.write(performanceLog.writeCodeChanges());
+            fwg.write(performanceLog.writeCodeChanges());
             fw.flush();
             fw.close();
 
@@ -371,7 +368,6 @@ public class Runner {
             }
             return null;
     }*/
-
 
     private static ArrayList<Pair<File,CompilationUnit>> createCuList(String javadirpath, JavaParser parser, CombinedTypeSolver solver) throws IOException {
 
@@ -402,8 +398,6 @@ public class Runner {
 
         return returnList;
     }
-
-    //root project of the file
     //static String APKReductionPath="/home/dakota/AndroidTA/AndroidTAEnvironment/APKReductionDir";
 
     //this method updates the best apk for this run or creates it if it needs to, by the end of the run the best apk should be saved
@@ -420,8 +414,6 @@ public class Runner {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
 }

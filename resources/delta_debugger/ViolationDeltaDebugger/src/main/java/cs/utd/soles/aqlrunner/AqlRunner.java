@@ -48,8 +48,9 @@ public class AqlRunner{
     }
 */
 
-    public boolean runAql(SetupClass info, int caller, ArrayList<Pair<File, CompilationUnit>> cuListToTest, int posChanged) throws IOException {
+    public boolean runAql(SetupClass info, int caller, ArrayList<Pair<File, CompilationUnit>> cuListToTest, int posChanged, String changeNum) throws IOException {
         setupInfo=info;
+
         //this bit runs and captures the output of the aql script
         String command1 = "python runaql.py "+info.getConfig1()+" "+info.getTargetProject().getProjectAPKPath()+" -f";
         String command2 = "python runaql.py "+info.getConfig2()+" "+info.getTargetProject().getProjectAPKPath()+" -f";
@@ -86,7 +87,7 @@ public class AqlRunner{
             command1T.join();
             command2T.join();
 
-            return checkOutput(command1T.returnOutput(),command2T.returnOutput(),caller);
+            return checkOutput(command1T.returnOutput(),command2T.returnOutput(),caller,changeNum);
 
 
 
@@ -124,11 +125,11 @@ public class AqlRunner{
 
     }
 
-    private boolean checkOutput(String finalString, String finalString2, int caller){
+    private boolean checkOutput(String finalString, String finalString2, int caller,String changeNum){
         //final results of aql are in both finalString1 and finalString2 respectively
         //order is config1, config2
         pTracker.stopTimer("aql_timer");
-        boolean result=AQLStringHandler.handleAQL(setupInfo,finalString,finalString2);
+        boolean result=AQLStringHandler.handleAQL(setupInfo,finalString,finalString2,changeNum);
         if(result){
             //good one
             incrementCorrectCount(true,caller);
