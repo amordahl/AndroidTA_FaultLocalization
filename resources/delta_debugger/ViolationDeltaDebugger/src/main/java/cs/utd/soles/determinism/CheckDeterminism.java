@@ -26,6 +26,9 @@ public class CheckDeterminism {
         if(programinfo.getArguments().getValueOfArg("CLASS_REDUCTION").isPresent()){
             uniqueNameString=uniqueNameString+"_binary";
         }
+
+        File dirfile = new File("debugger/masterchange/");
+        dirfile.mkdirs();
         //either check or create
         String fp = "debugger/masterchange/"+uniqueNameString+"_"+changeNum+".java";
 
