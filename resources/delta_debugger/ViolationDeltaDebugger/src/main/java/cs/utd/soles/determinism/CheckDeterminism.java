@@ -52,6 +52,7 @@ public class CheckDeterminism {
 
         FileWriter fw = null;
         try {
+            f.createNewFile();
             fw = new FileWriter(f);
             fw.write(changeNode.toString());
             fw.flush();
