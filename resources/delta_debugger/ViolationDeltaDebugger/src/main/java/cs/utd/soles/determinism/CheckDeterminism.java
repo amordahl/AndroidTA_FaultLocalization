@@ -44,7 +44,7 @@ public class CheckDeterminism {
     private static boolean check(File f, Node changeNode) {
         try {
             Node x = StaticJavaParser.parse(f);
-            return x.equals(changeNode);
+            return (x.toString()).equals(changeNode.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
