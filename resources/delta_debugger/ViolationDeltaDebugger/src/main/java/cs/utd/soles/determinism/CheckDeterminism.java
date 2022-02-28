@@ -14,8 +14,20 @@ public class CheckDeterminism {
 
     public static boolean checkOrCreate(SetupClass programinfo, Node changedNode, String changeNum){
 
+        String uniqueNameString = programinfo.getThisRunName().replace((String)programinfo.getArguments().getValueOfArg("RUN_PREFIX").get()+"_","");
+
+
+        if(programinfo.getArguments().getValueOfArg("NO_OPTIMIZATION").isPresent()){
+            uniqueNameString=uniqueNameString+"_noopt";
+        }
+        if(programinfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").isPresent()){
+            uniqueNameString=uniqueNameString+"_nam";
+        }
+        if(programinfo.getArguments().getValueOfArg("CLASS_REDUCTION").isPresent()){
+            uniqueNameString=uniqueNameString+"_binary";
+        }
         //either check or create
-        String fp = "debugger/masterchange/"+programinfo.getThisRunName()+"_"+changeNum+".java";
+        String fp = "debugger/masterchange/"+uniqueNameString+"_"+changeNum+".java";
 
         File f = new File(fp);
         if(f.exists())
