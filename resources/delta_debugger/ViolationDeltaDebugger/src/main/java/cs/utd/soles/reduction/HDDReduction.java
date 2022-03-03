@@ -125,6 +125,7 @@ public class HDDReduction implements Reduction{
 
         return returnList;
     }
+
     private void traverseTreeAndMark(Node cur, ArrayList<com.utdallas.cs.alps.flows.Statement> flowsWeWant, ArrayList<Node> foundInterfaceAbstractMethods){
 
         if(flowsWeWant.size()==0){
@@ -564,12 +565,14 @@ public class HDDReduction implements Reduction{
                     copiedList = getCurrentNodeList(copiedNode, alterableList);
                     i=copiedList.size()/2;
 
+                    //TODO:: turn this into a postprocessing step, just turn the thing into a log.
                     if(checkDeterminism)
                         if(!CheckDeterminism.checkOrCreate(programInfo,currentNode,"HDD-"+tester.changeNum)){
                             //it wasnt true idk, say it was bad or something. bad boy code! work and you will receive cheez its
                             System.exit(-1);
                             System.out.println("HDD wasnt deterministic. Heres why");
                             System.out.println(currentNode);
+                            System.out.println("HDD-"+tester.changeNum);
                         }
 
                     break;

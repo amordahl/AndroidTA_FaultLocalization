@@ -8,14 +8,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Scanner;
 
 public class CheckDeterminism {
 
-
     public static boolean checkOrCreate(SetupClass programinfo, Node changedNode, String changeNum){
 
-        String uniqueNameString = programinfo.getThisRunName().replace((String)programinfo.getArguments().getValueOfArg("RUN_PREFIX").get()+"_","");
-
+        String uniqueNameString = programinfo.getThisRunName();
 
         if(programinfo.getArguments().getValueOfArg("NO_OPTIMIZATION").isPresent()){
             uniqueNameString=uniqueNameString+"_noopt";
@@ -31,28 +30,19 @@ public class CheckDeterminism {
         dirfile.mkdirs();
         //either check or create
         String fp = "debugger/masterchange/"+uniqueNameString+"_"+changeNum+".java";
-
         File f = new File(fp);
-        if(f.exists())
-            return check(f,changedNode);
-        else{
-            return create(f,changedNode);
-        }
+        return create(f,changedNode);
 
     }
 
-    private static boolean check(File f, Node changeNode) {
-        try {
-            Node x = StaticJavaParser.parse(f);
-            return (x.toString()).equals(changeNode.toString());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+
 
     private static boolean create(File f, Node changeNode){
 
+
+        if(f.exists()){
+            return true;
+        }
         FileWriter fw = null;
         try {
             f.createNewFile();
