@@ -29,7 +29,6 @@ import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.util.JavaByteReader;
 import cs.utd.soles.violationtester.HDDTester;
 import org.javatuples.Pair;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -50,7 +49,6 @@ public class HDDReduction implements Reduction{
         this.foundUnremoveables=new HashSet<>();
         namValue = programInfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").isPresent()? (boolean)programInfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").get():false;
         checkDeterminism = programInfo.getArguments().getValueOfArg("CHECK_DETERMINISM").isPresent()? (boolean)programInfo.getArguments().getValueOfArg("CHECK_DETERMINISM").get():false;
-
     }
 
     @Override
@@ -138,8 +136,6 @@ public class HDDReduction implements Reduction{
             traverseTreeAndMark(x,flowsWeWant, foundInterfaceAbstractMethods);
         }
     }
-
-
 
 
     //this method checks our current node to a source/sink signature, also calls our other removal if wanted
@@ -562,19 +558,20 @@ public class HDDReduction implements Reduction{
                     //make another copy and try to run the loop again
                     copiedUnit = bestCuList.get(compPosition).getValue1().clone();
                     copiedNode = findCurrentNode(currentNode, compPosition, copiedUnit);
+
                     copiedList = getCurrentNodeList(copiedNode, alterableList);
                     i=copiedList.size()/2;
 
-                    //TODO:: turn this into a postprocessing step, just turn the thing into a log.
+                    //TODO:: change checkOrCreate to (list of removed nodes) + (parent it was removed from)
                     if(checkDeterminism)
-                        if(!CheckDeterminism.checkOrCreate(programInfo,currentNode,"HDD-"+tester.changeNum)){
+                        if(!CheckDeterminism.checkOrCreate(programInfo,currentNode, alterableRemoves,"HDD-"+tester.changeNum)){
                             //it wasnt true idk, say it was bad or something. bad boy code! work and you will receive cheez its
-                            System.exit(-1);
-                            System.out.println("HDD wasnt deterministic. Heres why");
+                            System.out.println("Idk how this happened");
                             System.out.println(currentNode);
                             System.out.println("HDD-"+tester.changeNum);
-                        }
+                            System.exit(-1);
 
+                        }
                     break;
                 } else{
                     copiedUnit = bestCuList.get(compPosition).getValue1().clone();
