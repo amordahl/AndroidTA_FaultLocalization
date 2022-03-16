@@ -28,7 +28,7 @@ public class Runner {
     public static String THIS_RUN_PREFIX="";
     public static DependencyGraph dg = null;
     private static long TIMEOUT_TIME_MINUTES=120;
-
+    private static long TIMEOUT_TIME_MINUTES_BINARY=120;
     //1 minute is this long in millis
     private static final long M_TO_MILLIS=60000;
     private static long SYSTEM_TIMEOUT_TIME=0;
@@ -188,9 +188,11 @@ public class Runner {
         if(DO_CLASS_REDUCTION) {
             ArrayList<HashSet<ClassNode>> closures = dg.getTransitiveClosuresDifferent();
             System.out.println("CLOSURES: " + closures);
+
+            long timeoutTime = System.currentTimeMillis()+TIMEOUT_TIME_MINUTES_BINARY*M_TO_MILLIS;
             try {
 
-                reduceFromClosures(closures);
+                reduceFromClosures(closures,timeoutTime);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
@@ -337,7 +339,7 @@ public class Runner {
         return rg;
     }
 
-    public static void reduceFromClosures(List<HashSet<ClassNode>> closures) throws IOException, InterruptedException {
+    public static void reduceFromClosures(List<HashSet<ClassNode>> closures, long timeoutTime) throws IOException, InterruptedException {
         HashSet<ClassNode> knownNodes = new HashSet<>();
 
         List<HashSet<ClassNode>> unknownNodes = new ArrayList<>(closures);
@@ -363,7 +365,7 @@ public class Runner {
         //Doesn't make sense that we would require multiple closures?
         int r= unknownNodes.size();
         int i=0;
-        while(r>0&&i<=r){
+        while(r>0&&i<=r &&(System.currentTimeMillis()<timeoutTime)){
 
             HashSet<ClassNode> proposal = new HashSet<>(knownNodes);
             if(proposal.size()==0&&i==0){
@@ -570,6 +572,10 @@ public class Runner {
             }
             if(args[i].equals("-t")){
                 TIMEOUT_TIME_MINUTES=Integer.parseInt(args[i+1]);
+                i++;
+            }
+            if(args[i].equals("-bt")){
+                TIMEOUT_TIME_MINUTES_BINARY=Integer.parseInt(args[i+1]);
                 i++;
             }
 
