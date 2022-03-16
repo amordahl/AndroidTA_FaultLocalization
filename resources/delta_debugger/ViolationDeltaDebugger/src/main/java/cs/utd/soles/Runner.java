@@ -90,7 +90,8 @@ public class Runner {
             System.out.println("Done with 1 rotation");
             performanceLog.endOneRotation();
         }
-        performanceLog.endRotationTimer();
+        if(DO_HDD_REDUCTION)
+            performanceLog.endRotationTimer();
         performanceLog.endOneProgramTime();
 
 
