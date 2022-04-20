@@ -1,0 +1,89 @@
+<flowset config1="/home/issta2021/AndroidTAEnvironment/resources/checkmate/resources/generated-2022-01-20_5campaigns/generated/8c1eb69cc117c307729ac97fd5f617a1_Callbacks_Button2.apk.xml" config2="/home/issta2021/AndroidTAEnvironment/resources/checkmate/resources/generated-2022-01-20_5campaigns/generated/1ef9d1d10bc982ab49d3b8eaf4409c05_Callbacks_Button2.apk.xml" type="soundness" partial_order="analyzeframeworks.TRUE_more_soundness_than_analyzeframeworks.FALSE" violation="True"><preserve config="/home/issta2021/AndroidTAEnvironment/resources/checkmate/resources/generated-2022-01-20_5campaigns/generated/8c1eb69cc117c307729ac97fd5f617a1_Callbacks_Button2.apk.xml" /><preserve config="/home/issta2021/AndroidTAEnvironment/resources/checkmate/resources/generated-2022-01-20_5campaigns/generated/1ef9d1d10bc982ab49d3b8eaf4409c05_Callbacks_Button2.apk.xml"><flow>
+            <reference type="to">
+                <statement>
+                    <statementfull>staticinvoke &lt;android.util.Log: int i(java.lang.String,java.lang.String)&gt;("TAG", $r4)</statementfull>
+                    <statementgeneric>android.util.Log: int i(java.lang.String,java.lang.String)</statementgeneric>
+                    <parameters>
+                        <parameter>
+                            <type>java.lang.String</type>
+                            <value>"TAG"</value>
+                        </parameter>
+                        <parameter>
+                            <type>java.lang.String</type>
+                            <value>$r4</value>
+                        </parameter>
+                    </parameters>
+                </statement>
+                <method>&lt;de.ecspride.Button2$1: void onClick(android.view.View)&gt;</method>
+                <classname>de.ecspride.Button2$1</classname>
+                <app>
+                    <file>Button2.apk</file>
+                    <hashes>
+                        <hash type="MD5">9ffafcfd9d3268ef371120c9c7375a39</hash>
+                        <hash type="SHA-1">48b3f7e2f806a0e23aecc2e0317c60efc2ebc754</hash>
+                        <hash type="SHA-256">38561ca725f4206fbf133446294c7368b286df9710cc9b8f36e29c45fbbc07f2</hash>
+                    </hashes>
+                </app>
+            </reference>
+            <reference type="from">
+                <statement>
+                    <statementfull>$r4 = virtualinvoke $r3.&lt;android.telephony.TelephonyManager: java.lang.String getDeviceId()&gt;()</statementfull>
+                    <statementgeneric>android.telephony.TelephonyManager: java.lang.String getDeviceId()</statementgeneric>
+                </statement>
+                <method>&lt;de.ecspride.Button2: void clickOnButton3(android.view.View)&gt;</method>
+                <classname>de.ecspride.Button2</classname>
+                <app>
+                    <file>Button2.apk</file>
+                    <hashes>
+                        <hash type="MD5">9ffafcfd9d3268ef371120c9c7375a39</hash>
+                        <hash type="SHA-1">48b3f7e2f806a0e23aecc2e0317c60efc2ebc754</hash>
+                        <hash type="SHA-256">38561ca725f4206fbf133446294c7368b286df9710cc9b8f36e29c45fbbc07f2</hash>
+                    </hashes>
+                </app>
+            </reference>
+        </flow>
+        <flow>
+            <reference type="to">
+                <statement>
+                    <statementfull>staticinvoke &lt;android.util.Log: int i(java.lang.String,java.lang.String)&gt;("TAG", $r4)</statementfull>
+                    <statementgeneric>android.util.Log: int i(java.lang.String,java.lang.String)</statementgeneric>
+                    <parameters>
+                        <parameter>
+                            <type>java.lang.String</type>
+                            <value>"TAG"</value>
+                        </parameter>
+                        <parameter>
+                            <type>java.lang.String</type>
+                            <value>$r4</value>
+                        </parameter>
+                    </parameters>
+                </statement>
+                <method>&lt;de.ecspride.Button2: void clickOnButton3(android.view.View)&gt;</method>
+                <classname>de.ecspride.Button2</classname>
+                <app>
+                    <file>Button2.apk</file>
+                    <hashes>
+                        <hash type="MD5">9ffafcfd9d3268ef371120c9c7375a39</hash>
+                        <hash type="SHA-1">48b3f7e2f806a0e23aecc2e0317c60efc2ebc754</hash>
+                        <hash type="SHA-256">38561ca725f4206fbf133446294c7368b286df9710cc9b8f36e29c45fbbc07f2</hash>
+                    </hashes>
+                </app>
+            </reference>
+            <reference type="from">
+                <statement>
+                    <statementfull>$r4 = virtualinvoke $r3.&lt;android.telephony.TelephonyManager: java.lang.String getDeviceId()&gt;()</statementfull>
+                    <statementgeneric>android.telephony.TelephonyManager: java.lang.String getDeviceId()</statementgeneric>
+                </statement>
+                <method>&lt;de.ecspride.Button2: void clickOnButton3(android.view.View)&gt;</method>
+                <classname>de.ecspride.Button2</classname>
+                <app>
+                    <file>Button2.apk</file>
+                    <hashes>
+                        <hash type="MD5">9ffafcfd9d3268ef371120c9c7375a39</hash>
+                        <hash type="SHA-1">48b3f7e2f806a0e23aecc2e0317c60efc2ebc754</hash>
+                        <hash type="SHA-256">38561ca725f4206fbf133446294c7368b286df9710cc9b8f36e29c45fbbc07f2</hash>
+                    </hashes>
+                </app>
+            </reference>
+        </flow>
+        </preserve></flowset>
