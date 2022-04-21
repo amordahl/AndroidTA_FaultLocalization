@@ -9,7 +9,7 @@ import java.util.Optional;
 public class ArgsHandler{
 
     HashMap<String, Object> argValues=new HashMap<>();
-    public ArgsHandler(Flowset thisViolation, String[] args){
+    public ArgsHandler(String[] args){
         argValues.put("RUN_PREFIX","");
         for(int i=1;i<args.length;i++) {
 

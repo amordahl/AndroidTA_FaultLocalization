@@ -3,29 +3,28 @@ package cs.utd.soles.reduction;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.PackageDeclaration;
+import cs.utd.soles.buildphase.BuildScriptRunner;
+import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.classgraph.DependencyGraph;
-import cs.utd.soles.apkcreator.ApkCreator;
 import cs.utd.soles.dotfilecreator.DotFileCreator;
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.classgraph.ClassNode;
-import cs.utd.soles.violationtester.BinaryReductionTester;
+import cs.utd.soles.testphase.TestScriptRunner;
 import org.javatuples.Pair;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class BinaryReduction implements Reduction{
 
     SetupClass programInfo;
     HashMap<String, String> classNamesToPaths;
-    BinaryReductionTester tester;
-
     long timeout_time;
 
     public BinaryReduction(SetupClass programInfo, ArrayList<Pair<File, CompilationUnit>> originalUnits, long timeOutTime){
         this.programInfo=programInfo;
         fillNamesToPaths(originalUnits);
-        tester = new BinaryReductionTester(programInfo);
         timeout_time = timeOutTime+System.currentTimeMillis();
     }
 
@@ -43,15 +42,36 @@ public class BinaryReduction implements Reduction{
         programInfo.getPerfTracker().stopTimer("binary_timer");
     }
 
+    @Override
+    public boolean testBuild() {
+        return BuildScriptRunner.runBuildScript(programInfo);
+    }
+
+    @Override
+    public boolean testViolation() {
+        return TestScriptRunner.runTestScript(programInfo);
+    }
+
+    @Override
+    public boolean testChange(ArrayList<Pair<File, CompilationUnit>> newCuList) {
+        try {
+            ProgramWriter.saveCompilationUnits(newCuList,newCuList.size()+1,null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //always the same after writing
+        //logging stuff needs to be made
+        if(!testBuild())
+            return false;
+        if(!testViolation())
+            return false;
+        return true;
+    }
+
     private DependencyGraph createDependencyNodes(ArrayList<Pair<File, CompilationUnit>> bestCuList) {
         try {
-            ApkCreator creator = new ApkCreator(programInfo.getPerfTracker());
-
-
-            if(!creator.createApkFromList(programInfo, bestCuList, bestCuList, -1)){
-                System.out.println("BUILD FAILED, FAULTY PROJECT");
-                System.exit(-1);
-            }
+            //TODO:: Call build script before creating dependency graph, this method needs to know where the .class files are located
             File dotFile = DotFileCreator.createDotForProject(programInfo);
             DependencyGraph rg = new DependencyGraph();
             rg.parseGraphFromDot(dotFile, classNamesToPaths);
@@ -106,7 +126,7 @@ public class BinaryReduction implements Reduction{
             requiredForTest.add(originalCuList);
             requiredForTest.add(newProgramConfig);
             //if this works then update namedBestCUS to be good else
-            if(tester.runTest(requiredForTest)){
+            if(testChange(newProgramConfig)){
                 //if this works then add to list of known nodes and re-sort
                 r=j-1;
                 //resort
@@ -128,9 +148,9 @@ public class BinaryReduction implements Reduction{
             }
             //revert, just write all the things from bestcus
             else{
-                ApkCreator.cleanseFiles(originalCuList);
+                ProgramWriter.cleanseFiles(bestCuList);
                 try {
-                    ApkCreator.saveCompilationUnits(bestCuList, bestCuList.size() + 1, null);
+                    ProgramWriter.saveCompilationUnits(bestCuList,bestCuList.size()+1,null);
                 }catch(Exception e){
                     e.printStackTrace();
                 }

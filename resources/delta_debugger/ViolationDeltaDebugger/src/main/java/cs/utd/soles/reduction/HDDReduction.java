@@ -24,8 +24,10 @@ import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.utdallas.cs.alps.flows.Flow;
 import com.utdallas.cs.alps.flows.Flowset;
+import cs.utd.soles.buildphase.BuildScriptRunner;
 import cs.utd.soles.determinism.CheckDeterminism;
 import cs.utd.soles.setup.SetupClass;
+import cs.utd.soles.testphase.TestScriptRunner;
 import cs.utd.soles.util.JavaByteReader;
 import cs.utd.soles.violationtester.HDDTester;
 import org.javatuples.Pair;
@@ -39,12 +41,10 @@ public class HDDReduction implements Reduction{
 
     long timeoutTime;
     SetupClass programInfo;
-    HDDTester tester;
     private boolean namValue;
     boolean checkDeterminism;
     public HDDReduction(SetupClass programInfo, long timeoutTime){
         this.programInfo=programInfo;
-        this.tester = new HDDTester(programInfo);
         this.timeoutTime=timeoutTime+System.currentTimeMillis();
         this.foundUnremoveables=new HashSet<>();
         namValue = programInfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").isPresent()? (boolean)programInfo.getArguments().getValueOfArg("NO_ABSTRACT_METHODS").get():false;
@@ -63,6 +63,21 @@ public class HDDReduction implements Reduction{
             markNodesUnremoveable(bestCuList, thisViolation, violationType, isViolation);
         }
         hddReduction(bestCuList);
+    }
+
+    @Override
+    public boolean testBuild() {
+        return BuildScriptRunner.runBuildScript(programInfo);
+    }
+
+    @Override
+    public boolean testViolation() {
+        return TestScriptRunner.runTestScript(programInfo);
+    }
+
+    @Override
+    public boolean testChange(ArrayList<Pair<File,CompilationUnit>> units) {
+        return
     }
 
     private void markNodesUnremoveable(ArrayList<Pair<File,CompilationUnit>> bestCuList, Flowset violation, boolean violationType, boolean isViolation){
@@ -313,128 +328,7 @@ public class HDDReduction implements Reduction{
         return false;
     }
 
-    private boolean checkInterfaceOrAbstractMethod(MethodDeclaration methodDec){
-        //get parent
-        Node parentC =  methodDec.getParentNode().get();
-        CombinedTypeSolver solver = programInfo.getTypeSolver();
-        System.out.println("checking interface or abstract method");
-        //check
-        if(parentC instanceof ClassOrInterfaceDeclaration) {
-            ClassOrInterfaceDeclaration parent = (ClassOrInterfaceDeclaration) parentC;
 
-            /*if(!parent.isInterface()&&!parent.isAbstract()){
-                //dont care about methods that are removeable but can be overriden from superclass.
-                return false;
-            }*/
-
-            ArrayList<ClassOrInterfaceType> extendedClassTypes = new ArrayList<>(parent.getExtendedTypes());
-            extendedClassTypes.addAll(parent.getImplementedTypes());
-            //if(!parent.isAbstract()) {
-            //    return false;
-            //}
-            for (ClassOrInterfaceType t : extendedClassTypes) {
-                try {
-                    SymbolReference<ResolvedReferenceTypeDeclaration> resType = solver.tryToSolveType(t.getNameWithScope());
-                    //check sig in abstract class method, for abstract methods
-
-                    ResolvedReferenceType rrt = t.resolve();
-                    if (rrt != null && !resType.isSolved()) {
-                        resType = solver.tryToSolveType(rrt.getQualifiedName());
-                        //System.out.println("new try: "+resType.isSolved());
-                    }
-
-
-
-                    if (resType.isSolved()) {
-
-                        if (resType.getCorrespondingDeclaration() instanceof ResolvedClassDeclaration) {
-                            ResolvedClassDeclaration classDec = resType.getCorrespondingDeclaration().asClass();
-
-                            Set<ResolvedMethodDeclaration> resMethods = classDec.getDeclaredMethods();
-                            String footPrint = "";
-                            String name = methodDec.getNameAsString();
-                            footPrint += name;
-
-                            for (Parameter p : methodDec.getParameters()) {
-                                footPrint += " " + p.getType().resolve().describe();
-                            }
-                            //System.out.println(footPrint);
-
-                            //tryToResolveMethods(resMethods,methodSignatures,solver);
-                            for (ResolvedMethodDeclaration methodDecX : resMethods) {
-                                if (methodDecX instanceof JavassistMethodDeclaration) {
-                                    JavassistMethodDeclaration yaboy = (JavassistMethodDeclaration) methodDecX;
-                                    String things = yaboy.toString();
-
-                                    things = things.substring(things.indexOf("[") + 1, things.lastIndexOf("]"));
-
-
-                                    String methodSig = JavaByteReader.getMethodSigFromString(things);
-                                    if (methodSig.equals(footPrint) && yaboy.isAbstract()) {
-                                        return true;
-                                    }
-                                }
-                                if (methodDecX instanceof JavaParserMethodDeclaration){
-                                    JavaParserMethodDeclaration yaboy = (JavaParserMethodDeclaration) methodDecX;
-                                    String things = yaboy.getSignature();
-
-
-                                    String methodSig = JavaByteReader.getMethodSigFromGetSig(things);
-                                    if (methodSig.equals(footPrint) && yaboy.isAbstract()) {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                        else if(resType.getCorrespondingDeclaration() instanceof ResolvedInterfaceDeclaration){
-                            ResolvedInterfaceDeclaration classDec = resType.getCorrespondingDeclaration().asInterface();
-
-                            Set<ResolvedMethodDeclaration> resMethods = classDec.getDeclaredMethods();
-                            String footPrint = "";
-                            String name = methodDec.getNameAsString();
-                            footPrint += name;
-
-                            for (Parameter p : methodDec.getParameters()) {
-                                footPrint += " " + p.getType().resolve().describe();
-                            }
-                            //System.out.println(footPrint);
-
-                            for (ResolvedMethodDeclaration methodDecX : resMethods) {
-                                if (methodDecX instanceof JavassistMethodDeclaration) {
-                                    JavassistMethodDeclaration yaboy = (JavassistMethodDeclaration) methodDecX;
-                                    String things = yaboy.toString();
-
-                                    things = things.substring(things.indexOf("[") + 1, things.lastIndexOf("]"));
-
-
-                                    String methodSig = JavaByteReader.getMethodSigFromString(things);
-                                    if (methodSig.equals(footPrint)) {
-                                        return true;
-                                    }
-
-                                }
-                                if (methodDecX instanceof JavaParserMethodDeclaration) {
-                                    JavaParserMethodDeclaration yaboy = (JavaParserMethodDeclaration) methodDecX;
-                                    String things = yaboy.getSignature();
-
-                                    String methodSig = JavaByteReader.getMethodSigFromGetSig(things);
-                                    if (methodSig.equals(footPrint)) {
-                                        return true;
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-        }
-        return false;
-    }
 
     private boolean minimized=false;
     public void hddReduction(ArrayList<Pair<File, CompilationUnit>> bestCuList){
