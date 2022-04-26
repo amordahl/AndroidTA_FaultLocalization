@@ -13,8 +13,12 @@ public class TestScriptRunner {
 
         CommandThread testThread = new CommandThread(command);
         testThread.start();
-
-        return testThread.returnOutput().equals("true");
+        try {
+            testThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return testThread.returnOutput().trim().equalsIgnoreCase("true");
 
     }
 }

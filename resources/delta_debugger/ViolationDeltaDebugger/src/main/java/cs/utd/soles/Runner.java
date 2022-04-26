@@ -2,15 +2,14 @@ package cs.utd.soles;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
+import cs.utd.soles.buildphase.BuildScriptRunner;
 import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
 import cs.utd.soles.setup.SetupClass;
+import cs.utd.soles.testphase.TestScriptRunner;
 import org.apache.commons.io.FileUtils;
 import org.javatuples.Pair;
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class Runner {
@@ -31,21 +30,21 @@ public class Runner {
             programInfo.getPerfTracker().startTimer("setup_timer");
             programInfo.doSetup(args);
 
-            originalCuList=createCuList(programInfo.getTargetProject().getProjectJavaPath(), programInfo.getJavaParseInst(),programInfo.getTypeSolver());
+            originalCuList=createCuList(programInfo.getRootProjectDir(), programInfo.getJavaParseInst());
 
             trackFilesChanges(programInfo,originalCuList);
 
             System.out.println(programInfo.getArguments().printArgValues());
 
-            //make a regular apk;
-            ApkCreator creator = new ApkCreator(programInfo.getPerfTracker());
-            if(!creator.createApkFromList(programInfo, originalCuList, originalCuList, -1)){
+
+            if(!BuildScriptRunner.runBuildScript(programInfo)){
                 System.out.println("Apk creation failed at start, exiting");
                 System.exit(-1);
             }
             //System.out.print("done check");
-            saveBestAPK(programInfo);
-            programInfo.getPerfTracker().setCount("start_line_count", (int) LineCounter.countLinesDir(programInfo.getTargetProject().getProjectSrcPath()));
+            //TODO:: save best apk at start
+            //saveBestAPK(programInfo);
+            programInfo.getPerfTracker().setCount("start_line_count", (int) LineCounter.countLinesDir(programInfo.getRootProjectDir().getAbsolutePath()));
 
             programInfo.getPerfTracker().stopTimer("setup_timer");
             //check if we need to do a minimization
@@ -58,7 +57,12 @@ public class Runner {
         }
 
         //check if we can reproduce violation
-        try{
+
+        if(!TestScriptRunner.runTestScript(programInfo)) {
+            System.out.println("Violation not reproduced");
+            System.exit(-1);
+        }
+        /*try{
             AqlRunner aqlRunner = new AqlRunner(programInfo.getPerfTracker());
 
             if (aqlRunner.runAql(programInfo, -1, null, -1, "check")) {
@@ -69,7 +73,7 @@ public class Runner {
             }
         }catch(Exception e){
             e.printStackTrace();
-        }
+        }*/
 
 
         bestCuList = new ArrayList<>(originalCuList);
@@ -104,11 +108,9 @@ public class Runner {
             if(((boolean)arg.get())) {
                 ArrayList<Object> requirements = new ArrayList<>();
                 requirements.add(bestCuList);
-                requirements.add(programInfo.getThisViolation());
-                requirements.add(programInfo.isTargetType());
-                requirements.add(programInfo.isViolationOrNot());
                 hddReduction.reduce(requirements);
             }
+        saveBestAPK(programInfo);
 
         //doMethodReduction();
 
@@ -140,7 +142,8 @@ public class Runner {
         programInfo.getPerfTracker().stopTimer("program_timer");
 
         //one of our outputs is the minimized program
-        try {
+        //TODO:: return minimized program
+        /*try {
 
             ApkCreator creator = new ApkCreator(programInfo.getPerfTracker());
             creator.createApkFromList(programInfo, bestCuList, bestCuList, -1);
@@ -148,11 +151,11 @@ public class Runner {
             saveBestAPK(programInfo);
         }catch(Exception e){
             e.printStackTrace();
-        }
+        }*/
 
         //handle end line count
         try {
-            int count = (int) LineCounter.countLinesDir(programInfo.getTargetProject().getProjectSrcPath());
+            int count = (int) LineCounter.countLinesDir(programInfo.getRootProjectDir().getAbsolutePath());
             programInfo.getPerfTracker().setCount("end_line_count",count);
             String bigString="";
             PerfTracker pt = programInfo.getPerfTracker();
@@ -360,11 +363,11 @@ public class Runner {
             return null;
     }*/
 
-    private static ArrayList<Pair<File,CompilationUnit>> createCuList(String javadirpath, JavaParser parser, CombinedTypeSolver solver) throws IOException {
+    private static ArrayList<Pair<File,CompilationUnit>> createCuList(File javadirpath, JavaParser parser) throws IOException {
 
         ArrayList<Pair<File,CompilationUnit>> returnList = new ArrayList<>();
 
-        File f = Paths.get(javadirpath).toFile();
+        File f = javadirpath;
         System.out.println("Java dir path: "+ javadirpath);
         if(!f.exists()){
             throw new FileNotFoundException(javadirpath + "not found");
@@ -372,10 +375,6 @@ public class Runner {
 
         String[] extensions = {"java"};
         List<File> allJFiles = ((List<File>) FileUtils.listFiles(f, extensions, true));
-        if(solver !=null){
-            System.out.println("Created CU list, added src to solver");
-            solver.add(new JavaParserTypeSolver(f));
-        }
         int i=0;
         for(File x: allJFiles){
             //don't add the unmodified source files cause they will just duplicate endlessly
@@ -393,18 +392,19 @@ public class Runner {
 
     //this method updates the best apk for this run or creates it if it needs to, by the end of the run the best apk should be saved
     public static void saveBestAPK(SetupClass programInfo){
-        try {
+        //TODO:: plug this in correctly
+        /*try {
             File f= new File("debugger/minimized_apks/" +programInfo.getThisRunName()+".apk");
             f.mkdirs();
             if(f.exists()){
                 f.delete();
             }
             f.createNewFile();
-            File fA = new File(programInfo.getTargetProject().getProjectAPKPath());
+            File fA = new File("");
             FileUtils.copyFile(fA, f);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
 }
