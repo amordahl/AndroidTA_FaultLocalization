@@ -1,18 +1,9 @@
 package cs.utd.soles;
 
 import com.github.javaparser.JavaParser;
-import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.PackageDeclaration;
-import com.github.javaparser.ast.body.BodyDeclaration;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
-import cs.utd.soles.apkcreator.ApkCreator;
-import cs.utd.soles.aqlrunner.AqlRunner;
 import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
 import cs.utd.soles.setup.SetupClass;
@@ -58,10 +49,10 @@ public class Runner {
 
             programInfo.getPerfTracker().stopTimer("setup_timer");
             //check if we need to do a minimization
-            if(!programInfo.isNeedsToBeMinimized()){
-                System.out.println("Program doesn't need to be minimized. Exiting...");
+            /*if(!programInfo.isNeedsToBeMinimized()){
+             System.out.println("Program doesn't need to be minimized. Exiting...");
                 System.exit(0);
-            }
+            }*/
         }catch(Exception e){
             e.printStackTrace();
         }

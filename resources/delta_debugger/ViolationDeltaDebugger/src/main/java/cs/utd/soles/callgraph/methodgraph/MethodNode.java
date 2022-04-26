@@ -1,4 +1,4 @@
-package cs.utd.soles.methodgraph;
+package cs.utd.soles.callgraph.methodgraph;
 
 import com.github.javaparser.ast.Node;
 import cs.utd.soles.classgraph.ClassNode;

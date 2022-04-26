@@ -1,2 +1,3 @@
-package cs.utd.soles.callgraph.methodgraph;public class DependencyCallgraph {
+package cs.utd.soles.callgraph.methodgraph;
+public class DependencyCallgraph {
 }

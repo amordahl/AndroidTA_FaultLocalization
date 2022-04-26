@@ -13,5 +13,5 @@ public interface Reduction {
     boolean testBuild();
     boolean testViolation();
 
-    boolean testChange(ArrayList<Pair<File, CompilationUnit>> newCuList);
+    boolean testChange(ArrayList<Pair<File, CompilationUnit>> newCuList,int unitP,CompilationUnit cu);
 }

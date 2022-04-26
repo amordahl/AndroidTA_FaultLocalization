@@ -53,9 +53,9 @@ public class BinaryReduction implements Reduction{
     }
 
     @Override
-    public boolean testChange(ArrayList<Pair<File, CompilationUnit>> newCuList) {
+    public boolean testChange(ArrayList<Pair<File, CompilationUnit>> newCuList, int cupos, CompilationUnit cu) {
         try {
-            ProgramWriter.saveCompilationUnits(newCuList,newCuList.size()+1,null);
+            ProgramWriter.saveCompilationUnits(newCuList,cupos,null);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -126,7 +126,7 @@ public class BinaryReduction implements Reduction{
             requiredForTest.add(originalCuList);
             requiredForTest.add(newProgramConfig);
             //if this works then update namedBestCUS to be good else
-            if(testChange(newProgramConfig)){
+            if(testChange(newProgramConfig,originalCuList.size()+1,null)){
                 //if this works then add to list of known nodes and re-sort
                 r=j-1;
                 //resort

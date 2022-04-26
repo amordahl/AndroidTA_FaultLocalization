@@ -1,4 +1,4 @@
-package cs.utd.soles.callgraph.methodgraph;
+package cs.utd.soles.callgraph;
 
 public class CallgraphConstruct {
 }

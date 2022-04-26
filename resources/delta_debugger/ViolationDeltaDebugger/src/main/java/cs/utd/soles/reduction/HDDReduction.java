@@ -1,41 +1,27 @@
 package cs.utd.soles.reduction;
 
-import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import com.github.javaparser.resolution.declarations.ResolvedClassDeclaration;
-import com.github.javaparser.resolution.declarations.ResolvedInterfaceDeclaration;
-import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
-import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
-import com.github.javaparser.resolution.types.ResolvedReferenceType;
-import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserMethodDeclaration;
-import com.github.javaparser.symbolsolver.javassistmodel.JavassistMethodDeclaration;
-import com.github.javaparser.symbolsolver.model.resolution.SymbolReference;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.utdallas.cs.alps.flows.Flow;
 import com.utdallas.cs.alps.flows.Flowset;
 import cs.utd.soles.buildphase.BuildScriptRunner;
+import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.determinism.CheckDeterminism;
 import cs.utd.soles.setup.SetupClass;
 import cs.utd.soles.testphase.TestScriptRunner;
-import cs.utd.soles.util.JavaByteReader;
-import cs.utd.soles.violationtester.HDDTester;
 import org.javatuples.Pair;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class HDDReduction implements Reduction{
 
@@ -76,8 +62,18 @@ public class HDDReduction implements Reduction{
     }
 
     @Override
-    public boolean testChange(ArrayList<Pair<File,CompilationUnit>> units) {
-        return
+    public boolean testChange(ArrayList<Pair<File, CompilationUnit>> newCuList, int unitP, CompilationUnit cu) {
+
+        try {
+            ProgramWriter.saveCompilationUnits(newCuList,unitP,cu);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(!testBuild())
+            return false;
+        if(!testViolation())
+            return false;
+        return true;
     }
 
     private void markNodesUnremoveable(ArrayList<Pair<File,CompilationUnit>> bestCuList, Flowset violation, boolean violationType, boolean isViolation){
@@ -165,7 +161,7 @@ public class HDDReduction implements Reduction{
             markNodeM((MethodDeclaration) cur, flowsWeWant);
 
             //check if this method if from an interface or superclass
-            if(namValue&&checkInterfaceOrAbstractMethod((MethodDeclaration) cur)){
+            if(namValue){
                 //it is, so add it another list that we will reincorporate into flowsUnremoveable later.
                 foundInterfaceAbstractMethods.add(cur);
             }
@@ -439,7 +435,7 @@ public class HDDReduction implements Reduction{
                 requiredForTest.add(bestCuList);
                 requiredForTest.add(compPosition);
                 requiredForTest.add(copiedUnit);
-                if(removedNodes.size()>0&&tester.runTest(requiredForTest)){
+                if(removedNodes.size()>0&&testChange(bestCuList,compPosition,copiedUnit)){
                     //if changed, remove the nodes we removed from the original ast
                     for(Node x:alterableRemoves){
                         currentNode.remove(x);
@@ -456,16 +452,16 @@ public class HDDReduction implements Reduction{
                     copiedList = getCurrentNodeList(copiedNode, alterableList);
                     i=copiedList.size()/2;
 
-                    //TODO:: change checkOrCreate to (list of removed nodes) + (parent it was removed from)
-                    if(checkDeterminism)
-                        if(!CheckDeterminism.checkOrCreate(programInfo,currentNode, alterableRemoves,"HDD-"+tester.changeNum)){
+                    //TODO:: checkdeterminism fix it please
+                    /*if(checkDeterminism)
+                        if(!CheckDeterminism.checkOrCreate(programInfo,currentNode, alterableRemoves,"HDD-")){
                             //it wasnt true idk, say it was bad or something. bad boy code! work and you will receive cheez its
                             System.out.println("Idk how this happened");
                             System.out.println(currentNode);
                             System.out.println("HDD-"+tester.changeNum);
                             System.exit(-1);
 
-                        }
+                        }*/
                     break;
                 } else{
                     copiedUnit = bestCuList.get(compPosition).getValue1().clone();
