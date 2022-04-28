@@ -49,7 +49,7 @@ public class DotFileCreator {
             p.waitFor();
             programInfo.getPerfTracker().stopTimer("jdeps_timer");
             //TODO:: figure out which thing is our class things.
-            return projectClassesDir;
+            return Paths.get(projectClassesDir.getAbsolutePath()+"/dotfiles/classes.dot").toFile();
         }catch(Exception e){
             programInfo.getPerfTracker().stopTimer("jdeps_timer");
             e.printStackTrace();
