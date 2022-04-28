@@ -72,7 +72,7 @@ public class BinaryReduction implements Reduction{
     private DependencyGraph createDependencyNodes(ArrayList<Pair<File, CompilationUnit>> bestCuList) {
         try {
             //TODO:: Call build script before creating dependency graph, this method needs to know where the .class files are located
-            File dotFile = DotFileCreator.createDotForProject(programInfo);
+            File dotFile = DotFileCreator.createDotForProject(programInfo,bestCuList);
             DependencyGraph rg = new DependencyGraph();
             rg.parseGraphFromDot(dotFile, classNamesToPaths);
             return rg;
