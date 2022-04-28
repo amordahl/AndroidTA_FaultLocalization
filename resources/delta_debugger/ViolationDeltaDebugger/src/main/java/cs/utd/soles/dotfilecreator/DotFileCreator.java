@@ -2,6 +2,7 @@ package cs.utd.soles.dotfilecreator;
 
 import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.setup.SetupClass;
+import cs.utd.soles.threads.CommandThread;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
@@ -117,7 +118,19 @@ public class DotFileCreator {
             //this is an apk file, first convert it into a jar file
             //command
             String outputFilePath=apkFile.getAbsolutePath().replace(".apk",".jar");
+
+            //dex to jar sh is in AndroidTA_FaultLocalization/resources/delta_debugger/dex-tools-2.1
             // ./d2j-dex2jar.sh -f  "path to apk" -o "outputfile.jar"
+            //TODO:: run dex2jar on stuff
+            String command = System.getenv().get("ANDROID_FAULTLOCALIZATION_HOME")+"/resources/delta_debugger/dex-tools-2.1/d2j-dex2jar.sh -f "+apkFile.getAbsolutePath()+" -o "+jarFile.getAbsolutePath();
+            CommandThread dex2jarCommand = new CommandThread(command);
+            dex2jarCommand.start();
+            try {
+                dex2jarCommand.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             jarFile= Paths.get(outputFilePath).toFile();
         }
 
