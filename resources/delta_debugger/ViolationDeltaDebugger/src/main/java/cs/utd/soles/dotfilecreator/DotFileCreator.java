@@ -96,7 +96,10 @@ public class DotFileCreator {
         String[] split = path.split(File.separator);
         int i=0;
         for(String x: split){
-
+            if(x.isEmpty()){
+                i++;
+                continue;
+            }
             System.out.println(rootZipDir+File.separator+x +" : " + Paths.get(rootZipDir+File.separator+x).toFile().exists());
             if(Paths.get(rootZipDir+File.separator+x).toFile().exists()) {
 
