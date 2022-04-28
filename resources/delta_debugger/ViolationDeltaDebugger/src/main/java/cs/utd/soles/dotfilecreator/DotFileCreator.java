@@ -90,12 +90,13 @@ public class DotFileCreator {
                 }
             }
         }
+        System.out.println("path we like: "+path);
 
         //path bla bla bla
         String[] split = path.split(File.separator);
         int i=0;
         for(String x: split){
-            if(new File(rootZipDir+File.separator+x).exists()) {
+            if(Paths.get(rootZipDir+File.separator+x).toFile().exists()) {
 
                 break;
             }
