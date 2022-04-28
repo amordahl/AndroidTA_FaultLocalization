@@ -207,16 +207,16 @@ public class Runner {
         p.addNewCount("bad_compile_runs_hdd");
         p.addNewCount("good_compile_runs_binary");
         p.addNewCount("good_compile_runs_hdd");
-        p.addNewCount("bad_aql_runs_binary");
-        p.addNewCount("bad_aql_runs_hdd");
-        p.addNewCount("good_aql_runs_binary");
-        p.addNewCount("good_aql_runs_hdd");
+        p.addNewCount("bad_recreate_runs_binary");
+        p.addNewCount("bad_recreate_runs_hdd");
+        p.addNewCount("good_recreate_runs_binary");
+        p.addNewCount("good_recreate_runs_hdd");
         p.addNewCount("total_rotations");
         p.addNewCount("rejected_changes");
 
         //some timers we need
         p.addNewTimer("compile_timer");
-        p.addNewTimer("aql_timer");
+        p.addNewTimer("recreate_timer");
         p.addNewTimer("setup_timer");
         p.addNewTimer("program_timer");
         p.addNewTimer("binary_timer");
@@ -229,15 +229,10 @@ public class Runner {
         p.addNewTime("time_bad_compile_runs_hdd");
         p.addNewTime("time_good_compile_runs_binary");
         p.addNewTime("time_good_compile_runs_hdd");
-        p.addNewTime("time_bad_aql_runs_binary");
-        p.addNewTime("time_bad_aql_runs_hdd");
-        p.addNewTime("time_good_aql_runs_binary");
-        p.addNewTime("time_good_aql_runs_hdd");
-
-
-        //some misc program info
-        p.setNamedValue("violation_type", "null");
-        p.setNamedValue("is_violation", "null");
+        p.addNewTime("time_bad_recreate_runs_binary");
+        p.addNewTime("time_bad_recreate_runs_hdd");
+        p.addNewTime("time_good_recreate_runs_binary");
+        p.addNewTime("time_good_recreate_runs_hdd");
 
     }
 

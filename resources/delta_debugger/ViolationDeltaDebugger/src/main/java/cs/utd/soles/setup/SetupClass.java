@@ -43,6 +43,10 @@ public class SetupClass {
         return testScriptFile;
     }
 
+    public File getAPKFile(){
+        return apkFile;
+    }
+
     File rootProjectDir;
     boolean violationOrNot;
     ArgsHandler arguments;
@@ -52,6 +56,7 @@ public class SetupClass {
     JavaParser javaParseInst;
     File buildScriptFile;
     File testScriptFile;
+    File apkFile;
 
     /*
     * Setup is a couple of steps.
@@ -69,12 +74,14 @@ public class SetupClass {
 
         //positionals
         //0 root
-        //1 build
-        //2 test
+        //1 apk file
+        //2 buildscript
+        //3 test
 
         rootProjectDir=Paths.get(args[0]).toFile();
-        buildScriptFile=Paths.get(args[1]).toFile();
-        testScriptFile=Paths.get(args[2]).toFile();
+        apkFile=Paths.get(args[1]).toFile();
+        buildScriptFile=Paths.get(args[2]).toFile();
+        testScriptFile=Paths.get(args[3]).toFile();
 
 
         arguments = handleArgs(args);
