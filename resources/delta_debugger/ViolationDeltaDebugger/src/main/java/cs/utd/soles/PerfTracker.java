@@ -78,6 +78,10 @@ public class PerfTracker {
         return true;
     }
 
+
+    public int getCountForCount(String name){
+        return namedCounts.get(name);
+    }
     //gets a timers time
     public long getTimeForTimer(String name){
         StopWatch timer = namedTimers.get(name);
@@ -131,6 +135,8 @@ public class PerfTracker {
         namedCounts.put(name, count);
         return true;
     }
+
+
 
     //add time to a time
     public boolean addCount(String name, int count){

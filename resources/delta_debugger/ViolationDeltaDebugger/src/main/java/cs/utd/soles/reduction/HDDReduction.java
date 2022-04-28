@@ -217,15 +217,15 @@ public class HDDReduction implements Reduction{
                     i=copiedList.size()/2;
 
                     //TODO:: checkdeterminism fix it please
-                    /*if(checkDeterminism)
-                        if(!CheckDeterminism.checkOrCreate(programInfo,currentNode, alterableRemoves,"HDD-")){
+                    if(checkDeterminism)
+                        if(!CheckDeterminism.checkOrCreate(programInfo,currentNode, alterableRemoves,"HDD-"+programInfo.getPerfTracker().getCountForCount("ast_changes"))){
                             //it wasnt true idk, say it was bad or something. bad boy code! work and you will receive cheez its
                             System.out.println("Idk how this happened");
                             System.out.println(currentNode);
-                            System.out.println("HDD-"+tester.changeNum);
+                            System.out.println("HDD-"+programInfo.getPerfTracker().getCountForCount("ast_changes"));
                             System.exit(-1);
 
-                        }*/
+                        }
                     break;
                 } else{
                     copiedUnit = bestCuList.get(compPosition).getValue1().clone();
