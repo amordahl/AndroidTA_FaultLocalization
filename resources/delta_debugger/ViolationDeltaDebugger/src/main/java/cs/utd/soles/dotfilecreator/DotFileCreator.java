@@ -136,10 +136,11 @@ public class DotFileCreator {
         }
 
         jarFile.renameTo(new File(jarFile.getAbsolutePath().replace(".jar", ".zip")));
+        File zipFile = new File(jarFile.getAbsolutePath().replace(".jar", ".zip"));
         String destUnzipFile = jarFile.getAbsolutePath().replace(".zip","");
 
         try{
-            ZipFile src = new ZipFile(jarFile);
+            ZipFile src = new ZipFile(zipFile);
             src.extractAll(destUnzipFile);
         } catch (ZipException e) {
             e.printStackTrace();
