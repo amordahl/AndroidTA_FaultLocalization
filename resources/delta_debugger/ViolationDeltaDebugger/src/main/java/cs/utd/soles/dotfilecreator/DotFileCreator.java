@@ -96,6 +96,8 @@ public class DotFileCreator {
         String[] split = path.split(File.separator);
         int i=0;
         for(String x: split){
+
+            System.out.println(rootZipDir+File.separator+x +" : " + Paths.get(rootZipDir+File.separator+x).toFile().exists());
             if(Paths.get(rootZipDir+File.separator+x).toFile().exists()) {
 
                 break;
@@ -103,7 +105,10 @@ public class DotFileCreator {
             i++;
         }
         String bestGuess=rootZipDir.getAbsolutePath()+File.separator;
-        for(int j=i;j<split.length;j++){
+        int cutoff=split.length;
+        if(split[cutoff-1].contains(".java"))
+            cutoff=cutoff-1;
+        for(int j=i;j<cutoff;j++){
             bestGuess+=split[j]+File.separator;
         }
 
