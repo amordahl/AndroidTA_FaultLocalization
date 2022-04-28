@@ -10,6 +10,7 @@ import org.javatuples.Pair;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -122,7 +123,7 @@ public class DotFileCreator {
             //dex to jar sh is in AndroidTA_FaultLocalization/resources/delta_debugger/dex-tools-2.1
             // ./d2j-dex2jar.sh -f  "path to apk" -o "outputfile.jar"
             //TODO:: run dex2jar on stuff
-            String command = System.getenv().get("ANDROID_FAULTLOCALIZATION_HOME")+"/resources/delta_debugger/dex-tools-2.1/d2j-dex2jar.sh -f "+apkFile.getAbsolutePath()+" -o "+jarFile.getAbsolutePath();
+            String command = System.getenv().get("ANDROID_FAULTLOCALIZATION_HOME")+"/resources/delta_debugger/dex-tools-2.1/d2j-dex2jar.sh -f "+apkFile.getAbsolutePath()+" -o "+outputFilePath;
             CommandThread dex2jarCommand = new CommandThread(command);
             dex2jarCommand.start();
             try {
@@ -135,7 +136,6 @@ public class DotFileCreator {
         }
 
         jarFile.renameTo(new File(jarFile.getAbsolutePath().replace(".jar", ".zip")));
-
         String destUnzipFile = jarFile.getAbsolutePath().replace(".zip","");
 
         try{
