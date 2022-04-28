@@ -58,10 +58,35 @@ public class HDDReduction implements Reduction{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(!testBuild())
+
+        programInfo.getPerfTracker().startTimer("compile_timer");
+        if(!testBuild()) {
+            programInfo.getPerfTracker().stopTimer("compile_timer");
+            programInfo.getPerfTracker().addTime("time_bad_compile_runs_hdd",programInfo.getPerfTracker().getTimeForTimer("compile_timer"));
+            programInfo.getPerfTracker().resetTimer("compile_timer");
+            programInfo.getPerfTracker().addCount("bad_compile_runs_hdd",1);
+
             return false;
-        if(!testViolation())
+        }
+        programInfo.getPerfTracker().addCount("good_compile_runs_hdd",1);
+        programInfo.getPerfTracker().stopTimer("compile_timer");
+        programInfo.getPerfTracker().addTime("time_good_compile_runs_hdd",programInfo.getPerfTracker().getTimeForTimer("compile_timer"));
+        programInfo.getPerfTracker().resetTimer("compile_timer");
+
+        programInfo.getPerfTracker().startTimer("recreate_timer");
+        if(!testViolation()) {
+            programInfo.getPerfTracker().addCount("bad_recreate_runs_hdd", 1);
+            programInfo.getPerfTracker().stopTimer("recreate_timer");
+            programInfo.getPerfTracker().addTime("time_bad_recreate_runs_hdd",
+                    programInfo.getPerfTracker().getTimeForTimer("recreate_timer"));
+            programInfo.getPerfTracker().resetTimer("recreate_timer");
             return false;
+        }
+        programInfo.getPerfTracker().stopTimer("recreate_timer");
+        programInfo.getPerfTracker().addTime("time_good_recreate_runs_hdd",
+                programInfo.getPerfTracker().getTimeForTimer("recreate_timer"));
+        programInfo.getPerfTracker().resetTimer("recreate_timer");
+        programInfo.getPerfTracker().addCount("good_recreate_runs_hdd",1);
         return true;
     }
 
@@ -148,7 +173,7 @@ public class HDDReduction implements Reduction{
         //change the copy
         for(int i=copiedList.size();i>0;i/=2){
             for(int j=0;j<copiedList.size();j+=i){
-
+                programInfo.getPerfTracker().addCount("ast_changes",1);
                 //check timeout
                 if(timeoutTime<System.currentTimeMillis())
                     return;

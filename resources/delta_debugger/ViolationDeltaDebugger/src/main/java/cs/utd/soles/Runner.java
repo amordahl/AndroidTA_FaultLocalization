@@ -3,6 +3,7 @@ package cs.utd.soles;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import cs.utd.soles.buildphase.BuildScriptRunner;
+import cs.utd.soles.buildphase.ProgramWriter;
 import cs.utd.soles.reduction.BinaryReduction;
 import cs.utd.soles.reduction.HDDReduction;
 import cs.utd.soles.setup.SetupClass;
@@ -42,8 +43,7 @@ public class Runner {
                 System.exit(-1);
             }
             //System.out.print("done check");
-            //TODO:: save best apk at start
-            //saveBestAPK(programInfo);
+            saveBestAPK(programInfo);
             programInfo.getPerfTracker().setCount("start_line_count", (int) LineCounter.countLinesDir(programInfo.getRootProjectDir().getAbsolutePath()));
 
             programInfo.getPerfTracker().stopTimer("setup_timer");
@@ -141,17 +141,13 @@ public class Runner {
 
         programInfo.getPerfTracker().stopTimer("program_timer");
 
-        //one of our outputs is the minimized program
-        //TODO:: return minimized program
-        /*try {
-
-            ApkCreator creator = new ApkCreator(programInfo.getPerfTracker());
-            creator.createApkFromList(programInfo, bestCuList, bestCuList, -1);
+        try {
+            ProgramWriter.saveCompilationUnits(bestCuList,bestCuList.size()+1,null);
             //final apk for program
             saveBestAPK(programInfo);
         }catch(Exception e){
             e.printStackTrace();
-        }*/
+        }
 
         //handle end line count
         try {
@@ -387,19 +383,18 @@ public class Runner {
 
     //this method updates the best apk for this run or creates it if it needs to, by the end of the run the best apk should be saved
     public static void saveBestAPK(SetupClass programInfo){
-        //TODO:: plug this in correctly
-        /*try {
+
+        try {
             File f= new File("debugger/minimized_apks/" +programInfo.getThisRunName()+".apk");
             f.mkdirs();
             if(f.exists()){
                 f.delete();
             }
             f.createNewFile();
-            File fA = new File("");
-            FileUtils.copyFile(fA, f);
+            FileUtils.copyFile(programInfo.getAPKFile(), f);
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
 }

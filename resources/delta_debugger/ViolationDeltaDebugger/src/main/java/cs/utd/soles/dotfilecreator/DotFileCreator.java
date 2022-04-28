@@ -48,7 +48,6 @@ public class DotFileCreator {
                 }
             p.waitFor();
             programInfo.getPerfTracker().stopTimer("jdeps_timer");
-            //TODO:: figure out which thing is our class things.
             return Paths.get(projectClassesDir.getAbsolutePath()+"/dotfiles/classes.dot").toFile();
         }catch(Exception e){
             programInfo.getPerfTracker().stopTimer("jdeps_timer");
@@ -152,7 +151,6 @@ public class DotFileCreator {
 
             //dex to jar sh is in AndroidTA_FaultLocalization/resources/delta_debugger/dex-tools-2.1
             // ./d2j-dex2jar.sh -f  "path to apk" -o "outputfile.jar"
-            //TODO:: run dex2jar on stuff
             String command = System.getenv().get("ANDROID_FAULTLOCALIZATION_HOME")+"/resources/delta_debugger/dex-tools-2.1/d2j-dex2jar.sh -f "+apkFile.getAbsolutePath()+" -o "+outputFilePath;
             CommandThread dex2jarCommand = new CommandThread(command);
             dex2jarCommand.start();

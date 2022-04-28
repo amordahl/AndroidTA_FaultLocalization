@@ -62,16 +62,41 @@ public class BinaryReduction implements Reduction{
 
         //always the same after writing
         //logging stuff needs to be made
-        if(!testBuild())
+        programInfo.getPerfTracker().startTimer("compile_timer");
+        if(!testBuild()) {
+            programInfo.getPerfTracker().stopTimer("compile_timer");
+            programInfo.getPerfTracker().addTime("time_bad_compile_runs_binary",
+                    programInfo.getPerfTracker().getTimeForTimer("compile_timer"));
+            programInfo.getPerfTracker().resetTimer("compile_timer");
+            programInfo.getPerfTracker().addCount("bad_compile_runs_binary",1);
+
             return false;
-        if(!testViolation())
+        }
+        programInfo.getPerfTracker().addCount("good_compile_runs_binary",1);
+        programInfo.getPerfTracker().stopTimer("compile_timer");
+        programInfo.getPerfTracker().addTime("time_good_compile_runs_binary",
+                programInfo.getPerfTracker().getTimeForTimer("compile_timer"));
+        programInfo.getPerfTracker().resetTimer("compile_timer");
+
+        programInfo.getPerfTracker().startTimer("recreate_timer");
+        if(!testViolation()) {
+            programInfo.getPerfTracker().addCount("bad_recreate_runs_binary", 1);
+            programInfo.getPerfTracker().stopTimer("recreate_timer");
+            programInfo.getPerfTracker().addTime("time_bad_recreate_runs_binary",
+                    programInfo.getPerfTracker().getTimeForTimer("recreate_timer"));
+            programInfo.getPerfTracker().resetTimer("recreate_timer");
             return false;
+        }
+        programInfo.getPerfTracker().stopTimer("recreate_timer");
+        programInfo.getPerfTracker().addTime("time_good_recreate_runs_binary",
+                programInfo.getPerfTracker().getTimeForTimer("recreate_timer"));
+        programInfo.getPerfTracker().resetTimer("recreate_timer");
+        programInfo.getPerfTracker().addCount("good_recreate_runs_binary",1);
         return true;
     }
 
     private DependencyGraph createDependencyNodes(ArrayList<Pair<File, CompilationUnit>> bestCuList) {
         try {
-            //TODO:: Call build script before creating dependency graph, this method needs to know where the .class files are located
             File dotFile = DotFileCreator.createDotForProject(programInfo,bestCuList);
             DependencyGraph rg = new DependencyGraph();
             rg.parseGraphFromDot(dotFile, classNamesToPaths);
