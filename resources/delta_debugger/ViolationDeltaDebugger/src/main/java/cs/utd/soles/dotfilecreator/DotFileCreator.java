@@ -23,7 +23,12 @@ public class DotFileCreator {
 
         File rootZipDir = turnJarOrApkIntoClassFileDir(programInfo.getAPKFile());
 
-        File projectClassesDir = findProjectClasses(rootZipDir,cus);
+
+        File projectPackageClasses= findProjectClasses(rootZipDir,cus);
+
+        File projectClassesDir = transferClassesToDir(projectPackageClasses,programInfo.getAPKFile());
+
+
 
         //need to find way to get only our projects classes we care about, inolves package name and such
         //need base package name of project
@@ -50,6 +55,22 @@ public class DotFileCreator {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static File transferClassesToDir(File projectPackageClasses, File apkDir) {
+        //this method turns things into a new directory called classes that is flat.
+        File classesDir = new File(apkDir.getAbsolutePath().substring(0,apkDir.getAbsolutePath().lastIndexOf(File.separator))+"/classes");
+        String[] extension= {"class"};
+        List<File> listFiles = (List<File>) FileUtils.listFiles(projectPackageClasses,extension,true);
+
+        for(File x: listFiles){
+            try {
+                FileUtils.copyFile(x, new File(classesDir + File.separator + x.getName()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return classesDir;
     }
 
     private static File findProjectClasses(File rootZipDir, ArrayList<Pair<File, CompilationUnit>> cus) {
