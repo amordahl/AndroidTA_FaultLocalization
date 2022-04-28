@@ -85,10 +85,10 @@ public class DotFileCreator {
                 if(x.charAt(i)!=c){
                     done=true;
                     break;
-                }else{
-                    path+=c;
                 }
             }
+            if(!done)
+                path+=c;
         }
         System.out.println("path we like: "+path);
 
