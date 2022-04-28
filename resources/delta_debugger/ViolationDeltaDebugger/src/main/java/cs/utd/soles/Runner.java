@@ -33,7 +33,7 @@ public class Runner {
 
             originalCuList=createCuList(programInfo.getRootProjectDir(), programInfo.getJavaParseInst());
 
-            trackFilesChanges(programInfo,originalCuList);
+            //trackFilesChanges(programInfo,originalCuList);
 
             System.out.println(programInfo.getArguments().printArgValues());
 
