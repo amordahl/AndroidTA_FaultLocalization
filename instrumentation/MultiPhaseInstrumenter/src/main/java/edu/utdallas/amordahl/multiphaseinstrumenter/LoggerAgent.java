@@ -5,9 +5,6 @@ import java.lang.instrument.Instrumentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.utdallas.amordahl.FLPropReader;
-import edu.utdallas.amordahl.LoggerHelper;
-
 /**
  * The entrypoint of the instrumentation. This class is responsible
  * for reading and setting up properties of the analysis.
